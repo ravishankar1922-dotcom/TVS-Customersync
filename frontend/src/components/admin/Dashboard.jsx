@@ -111,6 +111,9 @@ export default function Dashboard({ onNavigate }) {
           <button className="btn btn-primary" onClick={triggerEmails} disabled={triggering}>
             {triggering ? <><Spinner /> Triggering…</> : '📧 Trigger Customer Emails'}
           </button>
+          <a href={api.outlookScriptUrl()} className="btn btn-secondary" title="If cloud SMTP is blocked by your mail provider, download a script that drafts these emails in your own Desktop Outlook instead (review &amp; send from there).">
+            📥 Download Outlook Script
+          </a>
         </div>
       </div>
 
@@ -279,10 +282,15 @@ function EmailLog() {
               {e.kind === 'RECON_COMPLETE' && <span className="badge b-conf" style={{ marginLeft: 8 }}>Recon Sent</span>}
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <span style={{ fontSize: 10, color: 'var(--muted)' }}>{e.status}</span>
+              <span style={{ fontSize: 10, color: e.status === 'FAILED' ? '#C8102E' : 'var(--muted)', fontWeight: e.status === 'FAILED' ? 700 : 400 }}>{e.status}</span>
               {e.portal_url && <a href={e.portal_url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" style={{ fontSize: 10 }}>Open Link</a>}
             </div>
           </div>
+          {e.status === 'FAILED' && e.error && (
+            <div style={{ marginTop: 4, fontSize: 10, color: '#C8102E', fontFamily: "'JetBrains Mono',monospace", wordBreak: 'break-word' }}>
+              ⚠ {e.error}
+            </div>
+          )}
         </div>
       ))}
     </div>
