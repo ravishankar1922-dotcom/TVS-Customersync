@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastProvider, Topbar, CycleRibbon, useToast, Spinner, BrandLogo } from './components/shared';
 import Dashboard      from './components/admin/Dashboard';
 import Reconciliation from './components/admin/Reconciliation';
@@ -53,7 +53,16 @@ function AdminShell() {
   const [healthLoading, setHealthLoading] = useState(true);
   const toast = useToast();
 
-  const loadHealth = useCallback(async () => {
+  useEffect(() => {
+    if (!loggedIn) return;
+    api.me().then(m => setAdminEmail(m.email)).catch(() => { setLoggedIn(false); });
+    loadHealth();
+    loadDashboard();
+    const iv = setInterval(loadDashboard, 10000);
+    return () => clearInterval(iv);
+  }, [loggedIn]);
+
+  async function loadHealth() {
     setHealthLoading(true);
     try {
       const h = await api.health();
@@ -64,20 +73,11 @@ function AdminShell() {
     } finally {
       setHealthLoading(false);
     }
-  }, [toast]);
+  }
 
-  const loadDashboard = useCallback(async () => {
+  async function loadDashboard() {
     try { setDashboard(await api.dashboard()); } catch {}
-  }, []);
-
-  useEffect(() => {
-    if (!loggedIn) return;
-    api.me().then(m => setAdminEmail(m.email)).catch(() => { setLoggedIn(false); });
-    loadHealth();
-    loadDashboard();
-    const iv = setInterval(loadDashboard, 10000);
-    return () => clearInterval(iv);
-  }, [loggedIn, loadHealth, loadDashboard]);
+  }
 
   function navigate(p, id) { setPage(p); if (id) setReconId(id); }
 
