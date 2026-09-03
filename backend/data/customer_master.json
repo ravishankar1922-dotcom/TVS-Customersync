@@ -1,0 +1,452 @@
+[
+  {
+    "customer_id": "C10001",
+    "customer_name": "Apex Tyre Distributors Pvt Ltd",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "HPVDM1179Z",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10002",
+    "customer_name": "Bharath Auto Components Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "QCQGY1316Y",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10003",
+    "customer_name": "Chennai Rubber Industries",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "XRKKK1453X",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10004",
+    "customer_name": "Deccan Tyres & Tubes Pvt Ltd",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "EEENW1590W",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10005",
+    "customer_name": "Eastern Auto Spares Co",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "MTZRH1727V",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10006",
+    "customer_name": "Frontier Vehicles Pvt Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "UGUUU1864U",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10007",
+    "customer_name": "Galaxy Automotive Dealers",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "BVPXF2001T",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10008",
+    "customer_name": "Heritage Tyre Traders",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "JJJAS2138S",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10009",
+    "customer_name": "Indo-Gulf Auto Parts Ltd",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "RXDDD2275R",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  },
+  {
+    "customer_id": "C10010",
+    "customer_name": "Jamuna Tyres Pvt Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "YLYGQ2412Q",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  },
+  {
+    "customer_id": "C10011",
+    "customer_name": "Kalyan Motors & Co",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "FZTKB2549P",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10012",
+    "customer_name": "Lakshmi Tyre Agencies",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "NNNNN2686N",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10013",
+    "customer_name": "Madhur Automotive Pvt Ltd",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "VBHRZ2823M",
+    "status": "ACTIVE",
+    "scenario": "RECEIPT_TIMING"
+  },
+  {
+    "customer_id": "C10014",
+    "customer_name": "National Tyre Corporation",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "CQCUL2960L",
+    "status": "ACTIVE",
+    "scenario": "RECEIPT_TIMING"
+  },
+  {
+    "customer_id": "C10015",
+    "customer_name": "Orbit Rubber Products Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "KDXXX3097K",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10016",
+    "customer_name": "Pioneer Auto Distributors",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "SSSAJ3234J",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10017",
+    "customer_name": "Quality Tyre Traders",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "ZFMDV3371H",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10018",
+    "customer_name": "Rajasthan Auto Stores",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "GUGGG3508G",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10019",
+    "customer_name": "Sakthi Tyres Pvt Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "PHBKT3645F",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10020",
+    "customer_name": "Trichy Auto & Tyre Centre",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "WWWNE3782E",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  },
+  {
+    "customer_id": "C10021",
+    "customer_name": "United Auto Spares Ltd",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "DKRRR3919D",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10022",
+    "customer_name": "Vijaya Tyre Agencies",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "LYLUC4056C",
+    "status": "ACTIVE",
+    "scenario": "RECEIPT_TIMING"
+  },
+  {
+    "customer_id": "C10023",
+    "customer_name": "Westside Motors Pvt Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "TMFXP4193B",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10024",
+    "customer_name": "Xcell Automotive Solutions",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "AAAAA4330A",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10025",
+    "customer_name": "Yamuna Auto Trading Co",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "HPVDM4467Z",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10026",
+    "customer_name": "Zeal Tyre Distributors",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "QCQGY4604Y",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10027",
+    "customer_name": "Amrit Rubber Industries Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "XRKKK4741X",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10028",
+    "customer_name": "Bhopal Tyre Emporium",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "EEENW4878W",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10029",
+    "customer_name": "Coimbatore Auto Hub Pvt Ltd",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "MTZRH5015V",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10030",
+    "customer_name": "Dhanush Vehicles & Spares",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "UGUUU5152U",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  },
+  {
+    "customer_id": "C10031",
+    "customer_name": "Eagle Tyre Imports Pvt Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "BVPXF5289T",
+    "status": "ACTIVE",
+    "scenario": "RECEIPT_TIMING"
+  },
+  {
+    "customer_id": "C10032",
+    "customer_name": "Fortune Auto Components",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "JJJAS5426S",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10033",
+    "customer_name": "Ganesh Tyre Traders",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "RXDDD5563R",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10034",
+    "customer_name": "Horizon Automotive India Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "YLYGQ5700Q",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10035",
+    "customer_name": "Imperial Tyre Corporation",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "FZTKB5837P",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10036",
+    "customer_name": "Jubilee Auto Parts Ltd",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "NNNNN5974N",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10037",
+    "customer_name": "Karnataka Tyre Agencies",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "VBHRZ6111M",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10038",
+    "customer_name": "Lotus Motors Pvt Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "CQCUL6248L",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  },
+  {
+    "customer_id": "C10039",
+    "customer_name": "Mangalore Auto Traders",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "KDXXX6385K",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10040",
+    "customer_name": "Narmada Auto Industries Ltd",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "SSSAJ6522J",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10041",
+    "customer_name": "Oceanic Tyre Distributors",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "ZFMDV6659H",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10042",
+    "customer_name": "Patel Tyre & Auto Centre",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "GUGGG6796G",
+    "status": "ACTIVE",
+    "scenario": "RECEIPT_TIMING"
+  },
+  {
+    "customer_id": "C10043",
+    "customer_name": "Quantum Auto Spares Pvt Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "PHBKT6933F",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10044",
+    "customer_name": "Rolex Rubber Industries",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "WWWNE7070E",
+    "status": "ACTIVE",
+    "scenario": "CN_TIMING"
+  },
+  {
+    "customer_id": "C10045",
+    "customer_name": "Sunrise Tyre Trading Co",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "DKRRR7207D",
+    "status": "ACTIVE",
+    "scenario": "MISSING_INVOICE"
+  },
+  {
+    "customer_id": "C10046",
+    "customer_name": "Triumph Auto Components Ltd",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "LYLUC7344C",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10047",
+    "customer_name": "Unity Tyre Agencies Pvt Ltd",
+    "company": "TSL",
+    "email": "Gopinath P <gopinath.p@eurogriptyres.com>",
+    "pan": "TMFXP7481B",
+    "status": "ACTIVE",
+    "scenario": "LARGE_DIFF"
+  },
+  {
+    "customer_id": "C10048",
+    "customer_name": "Vantage Motors & Parts",
+    "company": "TSL",
+    "email": "Ravisankar P <Ravisankar.P@datamatics.com>",
+    "pan": "AAAAA7618A",
+    "status": "ACTIVE",
+    "scenario": "SMALL_DIFF"
+  },
+  {
+    "customer_id": "C10049",
+    "customer_name": "Windmill Auto Distributors",
+    "company": "TSL",
+    "email": "Kiran Kumar C (IT) <kirankumar.c@eurogriptyres.com>",
+    "pan": "HPVDM7755Z",
+    "status": "ACTIVE",
+    "scenario": "EXACT_MATCH"
+  },
+  {
+    "customer_id": "C10050",
+    "customer_name": "Zenith Tyre Corporation",
+    "company": "TSL",
+    "email": "Renuka S <renuka.s@datamatics.com>",
+    "pan": "QCQGY7892Y",
+    "status": "ACTIVE",
+    "scenario": "EXTRA_CUST_INVOICE"
+  }
+]

@@ -1,0 +1,5350 @@
+[
+  {
+    "company": "TSL",
+    "customer_id": "C10001",
+    "customer_name": "Apex Tyre Distributors Pvt Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100001",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 251864.3,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100002",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 785498.02,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100003",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 220293.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100004",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 134984.89,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100005",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 764153.87,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100006",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 627065.21,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100007",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 146659.25,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100008",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 70433.62,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100009",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 10338.6,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10002",
+    "customer_name": "Bharath Auto Components Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100010",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 466744.94,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100011",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 603642.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100012",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 330891.61,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100013",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 167366.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100014",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 585670.74,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100015",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 132964.26,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100016",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 708797.05,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100017",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 130303.34,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100018",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 46349.95,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100019",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3641.41,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10003",
+    "customer_name": "Chennai Rubber Industries",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100020",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 187143.86,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100021",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 518152.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100022",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 758068.6,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100023",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 793262.16,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100024",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 591929.31,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100025",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 79006.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100026",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 373050.07,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100027",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 263458.26,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100028",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 316235.87,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100029",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 365499.58,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100030",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 12754.38,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10004",
+    "customer_name": "Deccan Tyres & Tubes Pvt Ltd",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100031",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 181747.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100032",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 218659.34,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100033",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 763647.39,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100034",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 255638.76,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100035",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 653147.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100036",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 117183.72,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100037",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 380956.04,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100038",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 12260.05,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10005",
+    "customer_name": "Eastern Auto Spares Co",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100039",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 405251.55,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100040",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 109599.46,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100041",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 666257.17,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100042",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 784174.45,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100043",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 248491.64,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100044",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 647054.22,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100045",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 387612.01,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100046",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 80482.25,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100047",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 485264.4,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100048",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 5113.09,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10006",
+    "customer_name": "Frontier Vehicles Pvt Ltd",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100049",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 779683.81,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100050",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 269332.45,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100051",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 577647.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100052",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 747528.67,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100053",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 367535.12,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100054",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 75802.81,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100055",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 193533.89,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100056",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 325517.44,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100057",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 141490.84,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100058",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 144184.24,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100059",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6120.51,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10007",
+    "customer_name": "Galaxy Automotive Dealers",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100060",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 74263.82,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100061",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 397292.26,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100062",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 762967.86,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100063",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 120958.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100064",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 564383.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100065",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 155674.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100066",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 243442.25,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100067",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 761213.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100068",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 379559.83,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100069",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 174269.58,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100070",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 14617.46,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10008",
+    "customer_name": "Heritage Tyre Traders",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100071",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 460901.38,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100072",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 785586.75,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100073",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 246427.04,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100074",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 169462.42,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100075",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 143975.33,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100076",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 124117.04,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100077",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 181550.82,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100078",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 8247.85,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10009",
+    "customer_name": "Indo-Gulf Auto Parts Ltd",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100079",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 692939.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100080",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 470340.94,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100081",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 713663.06,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100082",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 625375.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100083",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 359683.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100084",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 441995.21,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100085",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 268100.91,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100086",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 357346.86,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100087",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3985.18,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10010",
+    "customer_name": "Jamuna Tyres Pvt Ltd",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100088",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 136804.67,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100089",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 188869.76,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100090",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 218786.14,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100091",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 168832.16,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100092",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 614552.05,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100093",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 797810.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100094",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 335077.1,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100095",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 383373.46,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100096",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 92570.05,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100097",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6514.32,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10011",
+    "customer_name": "Kalyan Motors & Co",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100098",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 581825.36,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100099",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 164316.1,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100100",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 526243.3,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100101",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 65886.95,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100102",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 742263.42,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100103",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 774907.05,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100104",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 52290.26,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100105",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 142045.63,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100106",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 225651.09,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100107",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 42432.41,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100108",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -28639.19,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100109",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 11390.9,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10012",
+    "customer_name": "Lakshmi Tyre Agencies",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100110",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 431520.13,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100111",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 55105.96,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100112",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 708973.82,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100113",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 86730.25,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100114",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 368226,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100115",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 259900.84,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100116",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 190931.3,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100117",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -45581.7,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100118",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 11669.87,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10013",
+    "customer_name": "Madhur Automotive Pvt Ltd",
+    "scenario": "RECEIPT_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100119",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 465341.3,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100120",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 295753.57,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100121",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 741623.71,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100122",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 793322.04,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100123",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 207111.93,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100124",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 664838.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100125",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 40583.18,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100126",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 329216.79,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "REC100127",
+        "document_type": "RECEIPT",
+        "document_date": "2026-03-29",
+        "posting_date": "2026-03-29",
+        "due_date": "2026-03-29",
+        "amount": -59750.33,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent receipt — timing difference likely"
+      },
+      {
+        "document_number": "ADJ100128",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 10326.08,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10014",
+    "customer_name": "National Tyre Corporation",
+    "scenario": "RECEIPT_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100129",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 65618.7,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100130",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 159165.32,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100131",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 532812.06,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100132",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 237395.28,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100133",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 794128.68,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100134",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 146153.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100135",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 286223.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100136",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 243890.28,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100137",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 345536.19,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "REC100138",
+        "document_type": "RECEIPT",
+        "document_date": "2026-03-29",
+        "posting_date": "2026-03-29",
+        "due_date": "2026-03-29",
+        "amount": -120700.99,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent receipt — timing difference likely"
+      },
+      {
+        "document_number": "ADJ100139",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 11490.3,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10015",
+    "customer_name": "Orbit Rubber Products Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100140",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 516562.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100141",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 777944.09,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100142",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 645886.86,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100143",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 289563.77,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100144",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 438037.6,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100145",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 656891.91,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100146",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 522253.14,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100147",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 745590.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100148",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 230730.95,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100149",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 61338.84,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100150",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3775.12,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10016",
+    "customer_name": "Pioneer Auto Distributors",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100151",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 438861.8,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100152",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 433297.34,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100153",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 535772.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100154",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 584475.71,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100155",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 439375.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100156",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 355124.2,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100157",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 215081.77,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100158",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 5443.53,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10017",
+    "customer_name": "Quality Tyre Traders",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100159",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 67560.14,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100160",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 566262.37,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100161",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 509017.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100162",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 517569.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100163",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 115363.38,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100164",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 605309.46,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100165",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 348749.96,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100166",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 397122.72,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100167",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 477348.37,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100168",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 1077.78,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10018",
+    "customer_name": "Rajasthan Auto Stores",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100169",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 674115,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100170",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 548673.84,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100171",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 586444.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100172",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 268153.92,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100173",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 703298.06,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100174",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 165473.81,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100175",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 361473.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100176",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 187986.94,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100177",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 204147.52,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100178",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -30929.77,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100179",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 1946.13,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10019",
+    "customer_name": "Sakthi Tyres Pvt Ltd",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100180",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 389569.02,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100181",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 765082.16,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100182",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 162333.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100183",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 722985.48,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100184",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 517669.91,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100185",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 593470.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100186",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 226252.52,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100187",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 768929.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100188",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 75517.68,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100189",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 236023.52,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100190",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 2201.5,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10020",
+    "customer_name": "Trichy Auto & Tyre Centre",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100191",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 515380.88,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100192",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 485530.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100193",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 442202.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100194",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 187068.1,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100195",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 148915.09,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100196",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 354684.94,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100197",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 107532.67,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100198",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 9636.32,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10021",
+    "customer_name": "United Auto Spares Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100199",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 564206.11,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100200",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 301089.49,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100201",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 177787.48,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100202",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 346655.1,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100203",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 480465.57,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100204",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 566577.66,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100205",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 245668.46,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100206",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 170097.94,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100207",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 14164.39,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10022",
+    "customer_name": "Vijaya Tyre Agencies",
+    "scenario": "RECEIPT_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100208",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 311711.7,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100209",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 406333.86,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100210",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 723346.92,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100211",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 105405.9,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100212",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 530040.16,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100213",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 83529.82,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100214",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 663567.42,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100215",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 388457.71,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100216",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 158929.45,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "REC100217",
+        "document_type": "RECEIPT",
+        "document_date": "2026-03-29",
+        "posting_date": "2026-03-29",
+        "due_date": "2026-03-29",
+        "amount": -71230,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent receipt — timing difference likely"
+      },
+      {
+        "document_number": "ADJ100218",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 11853.51,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10023",
+    "customer_name": "Westside Motors Pvt Ltd",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100219",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 253259.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100220",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 785958.23,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100221",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 146335.53,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100222",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 494500.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100223",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 216962.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100224",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 141086.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100225",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 558988.55,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100226",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 107722.27,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100227",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 168027.43,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100228",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 305654.37,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100229",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 8518.91,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10024",
+    "customer_name": "Xcell Automotive Solutions",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100230",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 185396.31,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100231",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 221677.08,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100232",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 189285.61,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100233",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 632792.77,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100234",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 635041.12,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100235",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 208373.14,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100236",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 143832.52,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100237",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 250484.77,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100238",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 14103.87,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10025",
+    "customer_name": "Yamuna Auto Trading Co",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100239",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 516432.67,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100240",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 99418.21,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100241",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 296031.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100242",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 394076.56,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100243",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 110052.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100244",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 699133.72,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100245",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 297190.04,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100246",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 199583.84,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100247",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6796.76,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10026",
+    "customer_name": "Zeal Tyre Distributors",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100248",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 794944.38,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100249",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 426231.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100250",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 583637,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100251",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 290344.29,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100252",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 233261.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100253",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 552840.68,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100254",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 79425.41,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100255",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 183221.02,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100256",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 156576.18,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100257",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 10750.22,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10027",
+    "customer_name": "Amrit Rubber Industries Ltd",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100258",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 525965.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100259",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 410822.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100260",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 528390.89,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100261",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 112562.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100262",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 66651.66,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100263",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 354085.03,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100264",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 388587.95,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100265",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 716516.6,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100266",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 306415.32,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100267",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 320422.45,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100268",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -79237.42,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100269",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 1904.06,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10028",
+    "customer_name": "Bhopal Tyre Emporium",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100270",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 739370.37,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100271",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 677145.9,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100272",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 366705.7,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100273",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 684764.74,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100274",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 261383.55,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100275",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 348927.22,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100276",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 185282,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100277",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 4076.63,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10029",
+    "customer_name": "Coimbatore Auto Hub Pvt Ltd",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100278",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 194186.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100279",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 762713.98,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100280",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 563025.98,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100281",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 436493.52,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100282",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 210573.04,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100283",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 398929.71,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100284",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 356939.53,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100285",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 142288.84,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100286",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6302.81,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10030",
+    "customer_name": "Dhanush Vehicles & Spares",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100287",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 294513.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100288",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 169934.45,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100289",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 258617.68,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100290",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 393430.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100291",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 690766.76,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100292",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 310149.68,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100293",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 540173.8,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100294",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 140532.12,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100295",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 70837.75,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100296",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 13220.73,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10031",
+    "customer_name": "Eagle Tyre Imports Pvt Ltd",
+    "scenario": "RECEIPT_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100297",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 117178.5,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100298",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 453892.15,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100299",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 799954.44,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100300",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 94160.65,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100301",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 681958.77,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100302",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 242764.6,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100303",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 182521.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100304",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 123241.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100305",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 143386.66,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100306",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 234046.42,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "REC100307",
+        "document_type": "RECEIPT",
+        "document_date": "2026-03-29",
+        "posting_date": "2026-03-29",
+        "due_date": "2026-03-29",
+        "amount": -170161.11,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent receipt — timing difference likely"
+      },
+      {
+        "document_number": "ADJ100308",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 7090.51,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10032",
+    "customer_name": "Fortune Auto Components",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100309",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 482505.42,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100310",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 109338.41,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100311",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 53270.55,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100312",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 493207.37,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100313",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 61423.22,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100314",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 318350,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100315",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 149996.87,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100316",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6257.08,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10033",
+    "customer_name": "Ganesh Tyre Traders",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100317",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 534307.58,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100318",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 542941.15,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100319",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 64256.3,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100320",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 99497.19,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100321",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 161714.07,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100322",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 314246.8,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100323",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 304474.75,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100324",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 226056.25,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100325",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 356053.67,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100326",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 14409.73,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10034",
+    "customer_name": "Horizon Automotive India Ltd",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100327",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 394798.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100328",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 410274.85,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100329",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 311210.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100330",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 315236.81,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100331",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 259918.46,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100332",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 71807.17,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100333",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 603272.84,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100334",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 342860.68,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100335",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 105915.53,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100336",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 13372.81,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10035",
+    "customer_name": "Imperial Tyre Corporation",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100337",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 531367.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100338",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 745832.85,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100339",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 54341.45,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100340",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 133408.74,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100341",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 203768.2,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100342",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 107244.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100343",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 416480.98,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100344",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 114752.41,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100345",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 54497.03,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100346",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 53751.81,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100347",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 1154.33,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10036",
+    "customer_name": "Jubilee Auto Parts Ltd",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100348",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 320203.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100349",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 733276.9,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100350",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 660996.07,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100351",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 172194.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100352",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 314833.87,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100353",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 221387.81,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100354",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 103743.66,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100355",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -46935.94,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100356",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 2540.44,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10037",
+    "customer_name": "Karnataka Tyre Agencies",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100357",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 187318.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100358",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 54577.03,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100359",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 453501.39,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100360",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 618441.83,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100361",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 701174.06,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100362",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 717428.64,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100363",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 253146.52,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100364",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 253998.47,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100365",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3988.31,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10038",
+    "customer_name": "Lotus Motors Pvt Ltd",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100366",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 761679.49,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100367",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 213844.16,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100368",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 117733.9,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100369",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 591909.99,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100370",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 443087.4,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100371",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 146636.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100372",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 671897.11,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100373",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 156807.59,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100374",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 228323.23,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100375",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 7686.39,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10039",
+    "customer_name": "Mangalore Auto Traders",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100376",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 793055.94,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100377",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 625638.47,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100378",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 180443.34,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100379",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 639398.9,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100380",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 290252.95,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100381",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 387465.34,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100382",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 518817.73,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100383",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 707317.72,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100384",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 117172.37,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100385",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 366641,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100386",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6549.07,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10040",
+    "customer_name": "Narmada Auto Industries Ltd",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100387",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 584280.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100388",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 583170.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100389",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 550718.5,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100390",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 409048.94,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100391",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 161149.13,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100392",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 108403.33,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100393",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 90546.24,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100394",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 321230.72,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100395",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3091.29,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10041",
+    "customer_name": "Oceanic Tyre Distributors",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100396",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 498975.34,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100397",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 107517.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100398",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 652016.56,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100399",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 384217.79,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100400",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 451884.52,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100401",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 332939.22,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100402",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 332603.58,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100403",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 248530.22,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100404",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6491.8,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10042",
+    "customer_name": "Patel Tyre & Auto Centre",
+    "scenario": "RECEIPT_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100405",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 532918.44,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100406",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 625249.26,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100407",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 190777.65,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100408",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 239820.8,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100409",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 553306.76,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100410",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 680038.67,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100411",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 650422.03,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100412",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 387071.67,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100413",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 103012.32,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "REC100414",
+        "document_type": "RECEIPT",
+        "document_date": "2026-03-29",
+        "posting_date": "2026-03-29",
+        "due_date": "2026-03-29",
+        "amount": -51460.76,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent receipt — timing difference likely"
+      },
+      {
+        "document_number": "ADJ100415",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 6065.37,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10043",
+    "customer_name": "Quantum Auto Spares Pvt Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100416",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 741255.13,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100417",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 798721.77,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100418",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 293100.7,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100419",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 685365.91,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100420",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 89769.25,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100421",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 151650.53,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100422",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 279054.07,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100423",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 453438.02,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100424",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 384570.12,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100425",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 133474.73,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100426",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 12025.74,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10044",
+    "customer_name": "Rolex Rubber Industries",
+    "scenario": "CN_TIMING",
+    "transactions": [
+      {
+        "document_number": "INV100427",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 494408.07,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100428",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 771981.97,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100429",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 727102.52,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100430",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 50235.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100431",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 210810.57,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100432",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 94898.41,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100433",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 39928.94,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "CN100434",
+        "document_type": "CREDIT_NOTE",
+        "document_date": "2026-03-28",
+        "posting_date": "2026-03-28",
+        "due_date": "2026-03-28",
+        "amount": -13569.42,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Recent CN — customer may not have received"
+      },
+      {
+        "document_number": "ADJ100435",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 4115.26,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10045",
+    "customer_name": "Sunrise Tyre Trading Co",
+    "scenario": "MISSING_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100436",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 605587.73,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100437",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 764051.74,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100438",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 277129.46,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100439",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 285941.85,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100440",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 386838.55,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100441",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 296179.89,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100442",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 176852.64,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100443",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 236198.38,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100444",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 5187,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10046",
+    "customer_name": "Triumph Auto Components Ltd",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100445",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 137361.68,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100446",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 690918.36,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100447",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 751624.32,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100448",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 81936.01,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100449",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 732515.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100450",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 398341.98,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100451",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 68966.04,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100452",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 292532.48,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100453",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 305309.63,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100454",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 3334.69,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10047",
+    "customer_name": "Unity Tyre Agencies Pvt Ltd",
+    "scenario": "LARGE_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100455",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 615406.29,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100456",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 429982.33,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100457",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 230939.27,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100458",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 341916.06,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100459",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 150605.41,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100460",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 301429.65,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100461",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 561828.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100462",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-06",
+        "posting_date": "2025-12-06",
+        "due_date": "2026-02-04",
+        "amount": 58605.24,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100463",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 124800.6,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100464",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 367275.31,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "DN100465",
+        "document_type": "DEBIT_NOTE",
+        "document_date": "2026-03-11",
+        "posting_date": "2026-03-11",
+        "due_date": "2026-04-10",
+        "amount": 348366.46,
+        "currency": "INR",
+        "status": "OPEN",
+        "note": "Disputed debit note"
+      },
+      {
+        "document_number": "ADJ100466",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 14085.25,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10048",
+    "customer_name": "Vantage Motors & Parts",
+    "scenario": "SMALL_DIFF",
+    "transactions": [
+      {
+        "document_number": "INV100467",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 639595.65,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100468",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 498590.49,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100469",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 730946.15,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100470",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 469912.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100471",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 453571.78,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100472",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 185768.43,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100473",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 217517.01,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100474",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 13717.7,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10049",
+    "customer_name": "Windmill Auto Distributors",
+    "scenario": "EXACT_MATCH",
+    "transactions": [
+      {
+        "document_number": "INV100475",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 365535.87,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100476",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 424789.89,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100477",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 283517.8,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100478",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 594608.02,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100479",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 328431.59,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100480",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 232385.91,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100481",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 42442.73,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100482",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 49985.49,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100483",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 8621.38,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  },
+  {
+    "company": "TSL",
+    "customer_id": "C10050",
+    "customer_name": "Zenith Tyre Corporation",
+    "scenario": "EXTRA_CUST_INVOICE",
+    "transactions": [
+      {
+        "document_number": "INV100484",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-21",
+        "posting_date": "2026-03-21",
+        "due_date": "2026-05-20",
+        "amount": 451689.95,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100485",
+        "document_type": "INVOICE",
+        "document_date": "2026-03-06",
+        "posting_date": "2026-03-06",
+        "due_date": "2026-05-05",
+        "amount": 713284.35,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100486",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-19",
+        "posting_date": "2026-02-19",
+        "due_date": "2026-04-20",
+        "amount": 256513.39,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100487",
+        "document_type": "INVOICE",
+        "document_date": "2026-02-04",
+        "posting_date": "2026-02-04",
+        "due_date": "2026-04-05",
+        "amount": 708979.62,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100488",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-20",
+        "posting_date": "2026-01-20",
+        "due_date": "2026-03-21",
+        "amount": 778734.85,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100489",
+        "document_type": "INVOICE",
+        "document_date": "2026-01-05",
+        "posting_date": "2026-01-05",
+        "due_date": "2026-03-06",
+        "amount": 368781.66,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100490",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-21",
+        "posting_date": "2025-12-21",
+        "due_date": "2026-02-19",
+        "amount": 523725.43,
+        "currency": "INR",
+        "status": "OPEN"
+      },
+      {
+        "document_number": "INV100491",
+        "document_type": "INVOICE",
+        "document_date": "2025-12-01",
+        "posting_date": "2025-12-01",
+        "due_date": "2026-01-30",
+        "amount": 35567.63,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "INV100492",
+        "document_type": "INVOICE",
+        "document_date": "2025-11-01",
+        "posting_date": "2025-11-01",
+        "due_date": "2025-12-31",
+        "amount": 349318.64,
+        "currency": "INR",
+        "status": "CLEARED"
+      },
+      {
+        "document_number": "ADJ100493",
+        "document_type": "ADJUSTMENT",
+        "document_date": "2026-02-14",
+        "posting_date": "2026-02-14",
+        "due_date": "2026-02-14",
+        "amount": 5785.46,
+        "currency": "INR",
+        "status": "CLEARED"
+      }
+    ]
+  }
+]
