@@ -67,6 +67,7 @@ const api = {
   triggerEmailsSingle: (id) => request('POST', `/api/emails/trigger/${id}`),
   emailLog:            ()   => request('GET',  '/api/emails/log'),
   emailPreview:         (id) => request('GET', `/api/emails/preview/${id}`),
+  outlookScriptUrl:     ()   => `${BASE_URL}/api/emails/outlook-script?token=${getToken() || ''}`,
 
   // Confirmations
   submitConfirmation: (fd)   => request('POST', '/api/confirmations/submit', fd, true),
