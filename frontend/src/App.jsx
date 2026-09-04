@@ -45,6 +45,7 @@ export default function App() {
 // ── Admin Shell ────────────────────────────────────────────────────────────
 function AdminShell() {
   const [loggedIn, setLoggedIn]   = useState(() => api.isLoggedIn());
+  const [transitioning, setTransitioning] = useState(false); // animated loading screen shown right after a fresh sign-in
   const [adminEmail, setAdminEmail] = useState(null);
   const [page, setPage]           = useState('dashboard');
   const [reconId, setReconId]     = useState(null);
@@ -83,7 +84,9 @@ function AdminShell() {
 
   function logout() { api.setToken(null); setLoggedIn(false); }
 
-  if (!loggedIn) return <Login onLogin={(email) => { setAdminEmail(email); setLoggedIn(true); }} />;
+  if (transitioning) return <LoadingTransition />;
+
+  if (!loggedIn) return <Login onLogin={(email) => { setAdminEmail(email); setTransitioning(true); setTimeout(() => { setLoggedIn(true); setTransitioning(false); }, 1400); }} />;
 
   const NAV = [
     { id: 'dashboard', ico: '📊', label: 'Dashboard' },
@@ -152,31 +155,64 @@ function Login({ onLogin }) {
   }
 
   return (
-    <div className="login-wrap">
-      <div className="login-card">
+    <div className="ct-login-wrap">
+      <svg className="ct-mesh" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="ctGlow" cx="70%" cy="20%" r="60%">
+            <stop offset="0%" stopColor="#C8102E" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#C8102E" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="800" fill="url(#ctGlow)" />
+        {Array.from({ length: 9 }).map((_, i) => (
+          <line key={`h${i}`} x1="0" y1={i * 90} x2="1200" y2={i * 90 + 60} className="ct-line" style={{ animationDelay: `${i * 0.4}s` }} />
+        ))}
+        {[120, 340, 560, 780, 1000].map((cx, i) => (
+          <circle key={i} cx={cx} cy={140 + (i % 3) * 220} r="3.2" className="ct-node" style={{ animationDelay: `${i * 0.6}s` }} />
+        ))}
+      </svg>
+
+      <div className="login-card ct-glass">
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ display: 'inline-flex', background: '#fff', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 18px', marginBottom: 14 }}>
+          <div style={{ display: 'inline-flex', background: '#fff', borderRadius: 10, padding: '10px 18px', marginBottom: 14, boxShadow: '0 8px 24px rgba(0,0,0,.25)' }}>
             <BrandLogo height={30} />
           </div>
-          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 4 }}>BalanceSync — Admin</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)' }}>Balance Confirmation &amp; Reconciliation Portal</div>
+          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 4, color: '#fff' }}>BalanceSync — Admin</div>
+          <div style={{ fontSize: 12, color: '#ffffffa0' }}>Balance Confirmation &amp; Reconciliation Portal</div>
         </div>
         <form onSubmit={attempt}>
           <div className="field">
-            <label className="lbl">Admin Email</label>
-            <input className="inp" type="email" value={email} onChange={e => { setEmail(e.target.value); setErr(''); }} placeholder="admin@yourcompany.com" autoFocus />
+            <label className="lbl" style={{ color: '#ffffffb0' }}>Admin Email</label>
+            <input className="inp ct-inp" type="email" value={email} onChange={e => { setEmail(e.target.value); setErr(''); }} placeholder="admin@yourcompany.com" autoFocus />
           </div>
           <div className="field">
-            <label className="lbl">Password</label>
-            <input className={`inp${err ? ' inp-err' : ''}`} type="password" value={pwd}
+            <label className="lbl" style={{ color: '#ffffffb0' }}>Password</label>
+            <input className={`inp ct-inp${err ? ' inp-err' : ''}`} type="password" value={pwd}
               onChange={e => { setPwd(e.target.value); setErr(''); }} placeholder="Enter admin password" />
             {err && <div className="err-msg">{err}</div>}
           </div>
           <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={busy}>{busy ? 'Signing in…' : 'Login →'}</button>
         </form>
-        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 10, color: 'var(--muted)' }}>
+        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 10, color: '#ffffff70' }}>
           Set ADMIN_EMAIL / ADMIN_PASSWORD in backend/.env<br/>
-          <span style={{ color: '#C8102E', fontWeight: 600 }}>TEST DATA ONLY — NOT FOR PRODUCTION</span>
+          <span style={{ color: '#FCA5A5', fontWeight: 600 }}>TEST DATA ONLY — NOT FOR PRODUCTION</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Animated loading transition (login → portal) ────────────────────────────
+function LoadingTransition() {
+  return (
+    <div className="ct-login-wrap" style={{ display: 'grid', placeItems: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="ct-ring-wrap">
+          <div className="ct-ring" />
+          <div className="ct-logo-pulse"><BrandLogo height={30} /></div>
+        </div>
+        <div style={{ marginTop: 20, color: '#ffffffc0', fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', fontWeight: 600 }}>
+          Preparing your workspace…
         </div>
       </div>
     </div>

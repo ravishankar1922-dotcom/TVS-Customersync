@@ -9,6 +9,9 @@ const ACTION_LABELS = {
   CONFIRMATION_SUBMITTED: 'Confirmation submitted', EMAIL_TRIGGER_BULK: 'Bulk emails triggered', EMAIL_TRIGGER_SINGLE: 'Single email sent',
   LEDGER_IMPORT: 'Ledger imported', RECON_NOTES_SAVED: 'Reconciliation notes saved', RECON_MARKED_COMPLETE: 'Reconciliation marked complete',
   RECON_EXPORTED: 'Reconciliation exported', RECON_SENT_TO_CUSTOMER: 'Reconciliation emailed to customer',
+  SOA_REUPLOAD_REQUESTED: 'SOA re-upload requested (customer)', SOA_REUPLOAD_APPROVED: 'SOA re-upload approved (admin)',
+  CONFIRMATION_RESUBMITTED: 'Confirmation resubmitted (re-upload)', CUSTOMER_MASTER_JSON_IMPORTED: 'Customer master imported (JSON)',
+  LEDGER_JSON_IMPORTED: 'Ledger imported (JSON)', CUSTOMERS_EXPORTED: 'Customer list exported', LEDGER_EXPORTED: 'Ledger exported',
 };
 
 export default function AuditLogView() {
@@ -28,10 +31,13 @@ export default function AuditLogView() {
     <div>
       <div className="sec-hd">
         <div><div className="sec-title disp">Audit Log</div><div className="sec-sub">Every admin and customer action affecting confirmations, tokens and the ledger</div></div>
-        <select className="flt-sel" value={filter} onChange={e => setFilter(e.target.value)}>
-          <option value="">All Actions</option>
-          {actions.map(a => <option key={a} value={a}>{ACTION_LABELS[a] || a}</option>)}
-        </select>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <select className="flt-sel" value={filter} onChange={e => setFilter(e.target.value)}>
+            <option value="">All Actions</option>
+            {actions.map(a => <option key={a} value={a}>{ACTION_LABELS[a] || a}</option>)}
+          </select>
+          <a href={api.auditExportUrl(filter ? { action: filter } : {})} className="btn btn-secondary btn-sm">📊 Export Excel</a>
+        </div>
       </div>
       <div className="tbl-wrap">
         <table className="tbl">

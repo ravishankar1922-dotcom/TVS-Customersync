@@ -31,12 +31,29 @@ export default function LedgerUpload() {
     if (!preview) return;
     setConfirming(true);
     try {
-      const r = await api.confirmImport({ import_id: preview.import_id, file_path: preview.file_path, filename: preview.filename });
+      const r = await api.confirmImport({ import_id: preview.import_id, filename: preview.filename });
       setDone(r);
       setPreview(null);
       toast(`✅ Ledger imported — ${r.customers_updated} customers, ${r.total_transactions} transactions`, 'success');
     } catch (e) { toast(e.message, 'err'); }
     finally { setConfirming(false); }
+  }
+
+  // ── JSON master-data upload (point 6) ────────────────────────────────
+  const [jsonBusy, setJsonBusy]   = useState(null); // 'customers' | 'ledger' | null
+  const [jsonResult, setJsonResult] = useState(null);
+
+  async function handleJsonFile(kind, file) {
+    if (!file) return;
+    setJsonBusy(kind); setJsonResult(null);
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const r = kind === 'customers' ? await api.importCustomersJson(json) : await api.importLedgerJson(json);
+      setJsonResult({ kind, ...r });
+      toast(`✅ ${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported — ${r.upserted} upserted${r.skipped ? `, ${r.skipped} skipped` : ''}`, 'success');
+    } catch (e) { toast(e.message.includes('JSON') ? e.message : `Import failed: ${e.message}`, 'err'); }
+    finally { setJsonBusy(null); }
   }
 
   return (
@@ -46,6 +63,7 @@ export default function LedgerUpload() {
           <div className="sec-title disp">Upload SAP FBL5N / Ledger</div>
           <div className="sec-sub">Admin only · Supports Excel (XLSX, XLS) and CSV · Multi-format column detection</div>
         </div>
+        <a href={api.ledgerExportUrl()} className="btn btn-secondary btn-sm">📊 Export Ledger (Excel)</a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -148,6 +166,40 @@ export default function LedgerUpload() {
           {done.customers_updated} customers updated · {done.total_transactions} transactions loaded · Dashboard balances recalculated immediately.
         </div>
       )}
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <div className="card-hd">
+          <div className="card-hd-l">
+            <div className="card-ico" style={{ background: 'var(--blue-bg)' }}>🗂️</div>
+            <div><div className="card-title">Master Data — JSON Upload</div><div className="card-sub">Bulk upsert customer master or ledger directly, same shape as the seed script's data files — no local `npm run seed` needed</div></div>
+          </div>
+        </div>
+        <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Customer Master JSON</div>
+            <div style={{ fontSize: 10, color: 'var(--muted)', marginBottom: 8 }}>Array of {'{ customer_id, customer_name, email, pan, ... }'}</div>
+            <input type="file" accept=".json" disabled={jsonBusy === 'customers'}
+              onChange={e => { if (e.target.files[0]) handleJsonFile('customers', e.target.files[0]); e.target.value = ''; }} />
+            {jsonBusy === 'customers' && <Spinner />}
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Ledger JSON</div>
+            <div style={{ fontSize: 10, color: 'var(--muted)', marginBottom: 8 }}>Array of {'{ customer_id, transactions: [...] }'}</div>
+            <input type="file" accept=".json" disabled={jsonBusy === 'ledger'}
+              onChange={e => { if (e.target.files[0]) handleJsonFile('ledger', e.target.files[0]); e.target.value = ''; }} />
+            {jsonBusy === 'ledger' && <Spinner />}
+          </div>
+        </div>
+        {jsonResult && (
+          <div className="card-body" style={{ paddingTop: 0 }}>
+            <div className={`info-box ${jsonResult.skipped ? 'ib-amber' : 'ib-green'}`}>
+              <strong>{jsonResult.kind === 'customers' ? 'Customer master' : 'Ledger'} import result</strong>
+              {jsonResult.upserted} upserted{jsonResult.skipped ? `, ${jsonResult.skipped} skipped` : ''}.
+              {jsonResult.errors?.length ? ` First issues: ${jsonResult.errors.join(' · ')}` : ''}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

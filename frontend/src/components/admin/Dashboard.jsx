@@ -76,6 +76,12 @@ export default function Dashboard({ onNavigate }) {
     finally { setResetting(null); }
   }
 
+  async function approveReupload(id) {
+    if (!window.confirm(`Approve re-upload for ${id}? Their existing confirmation link will reopen so they can resubmit the SOA.`)) return;
+    try { await api.approveReupload(id); toast(`Re-upload approved for ${id}`, 'success'); load(); }
+    catch (e) { toast(e.message, 'err'); }
+  }
+
   async function showPreview(id) {
     try { setPreviewModal(await api.emailPreview(id)); }
     catch (e) { toast(e.message, 'err'); }
@@ -114,6 +120,7 @@ export default function Dashboard({ onNavigate }) {
           <a href={api.outlookScriptUrl()} className="btn btn-secondary" title="If cloud SMTP is blocked by your mail provider, download a script that drafts these emails in your own Desktop Outlook instead (review &amp; send from there).">
             📥 Download Outlook Script
           </a>
+          <a href={api.customersExportUrl()} className="btn btn-secondary">📊 Export Excel</a>
         </div>
       </div>
 
@@ -173,7 +180,10 @@ export default function Dashboard({ onNavigate }) {
                       <td><span className={`td-mono ${diffCls}`}>{c.difference === null ? '—' : c.difference === 0 ? '✓ Nil' : fmtINR(c.difference)}</span></td>
                       <td>{statusBadge(c.status)}</td>
                       <td><span style={{ fontSize: 10, color: 'var(--muted)' }}>{c.submission_date ? fmtDate(c.submission_date) : '—'}</span></td>
-                      <td>{c.soa_file ? <a href={api.soaDownloadUrl(c.customer_id)} className="btn btn-ghost btn-sm" style={{ fontSize: 10 }}>📄 Download</a> : <span style={{ color: 'var(--muted-lt)', fontSize: 10 }}>—</span>}</td>
+                      <td>
+                        {c.soa_file ? <a href={api.soaDownloadUrl(c.customer_id)} className="btn btn-ghost btn-sm" style={{ fontSize: 10 }}>📄 Download</a> : <span style={{ color: 'var(--muted-lt)', fontSize: 10 }}>—</span>}
+                        {c.reupload_status === 'REQUESTED' && <div style={{ marginTop: 4 }}><span className="badge b-diff" style={{ fontSize: 9 }} title="Customer has requested to re-upload their SOA">⟳ Re-upload requested</span></div>}
+                      </td>
                       <td><span style={{ fontSize: 10, color: 'var(--muted)' }}>{c.token_status?.replace('_', ' ')}</span></td>
                       <td>
                         <div style={{ display: 'flex', gap: 4 }}>
@@ -185,6 +195,9 @@ export default function Dashboard({ onNavigate }) {
                           {c.status === 'DIFFERENCE' || c.soa_file
                             ? <button className="act-btn" title="Reconcile" onClick={() => onNavigate('recon', c.customer_id)}>🔍</button>
                             : null}
+                          {c.reupload_status === 'REQUESTED' && (
+                            <button className="act-btn" title="Approve SOA re-upload request" onClick={() => approveReupload(c.customer_id)} style={{ color: 'var(--green)' }}>✅</button>
+                          )}
                           <button className="act-btn" title="Reset (for testing)" onClick={() => resetCustomer(c.customer_id)} disabled={resetting === c.customer_id} style={{ fontSize: 10 }}>↺</button>
                         </div>
                       </td>

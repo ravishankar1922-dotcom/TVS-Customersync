@@ -6,6 +6,10 @@ export default function CustomerPortal() {
   const [token]      = useState(() => new URLSearchParams(window.location.search).get('t') || '');
   const [state, setState] = useState('LOADING'); // LOADING | INVALID | EXPIRED | USED | PAN_GATE | ACTIVE | SUCCESS
   const [reason, setReason]   = useState('');
+  const [usedCustomerId, setUsedCustomerId] = useState(null);
+  const [reuploadReason, setReuploadReason] = useState('');
+  const [reuploadSent, setReuploadSent]     = useState(false);
+  const [reuploadBusy, setReuploadBusy]     = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [pan, setPan]         = useState('');
   const [panErr, setPanErr]   = useState('');
@@ -27,10 +31,10 @@ export default function CustomerPortal() {
     api.validateToken(token)
       .then(d => { setCustomerName(d.customer_name || ''); setState('PAN_GATE'); })
       .catch(e => {
-        const msg = e.message || '';
-        if (msg.includes('EXPIRED'))      { setState('EXPIRED');  setReason('EXPIRED'); }
-        else if (msg.includes('ALREADY')) { setState('USED');     setReason('ALREADY_USED'); }
-        else                              { setState('INVALID');  setReason(msg); }
+        const r = e.data?.reason || e.message || '';
+        if (r.includes('EXPIRED'))      { setState('EXPIRED');  setReason('EXPIRED'); }
+        else if (r.includes('ALREADY')) { setState('USED');     setReason('ALREADY_USED'); setUsedCustomerId(e.data?.customer_id || null); }
+        else                            { setState('INVALID');  setReason(r); }
       });
   }, [token]);
 
@@ -95,8 +99,41 @@ export default function CustomerPortal() {
     desc={`This confirmation link is invalid or has been tampered with. (${reason})`} contact />;
   if (state === 'EXPIRED') return <StatusScreen icon="⏰" title="Link Expired" color="var(--amber)"
     desc="Your confirmation link has expired. Please contact the AR team to receive a new link." contact />;
-  if (state === 'USED') return <StatusScreen icon="✅" title="Already Submitted" color="var(--green)"
-    desc="This confirmation has already been submitted. If you need to make a correction, please contact the AR team." />;
+  async function requestReupload() {
+    if (!usedCustomerId) return;
+    setReuploadBusy(true);
+    try { await api.requestReupload(usedCustomerId, reuploadReason); setReuploadSent(true); }
+    catch (e) { setReuploadSent(false); alert(e.message); }
+    finally { setReuploadBusy(false); }
+  }
+
+  if (state === 'USED') return (
+    <div style={{ maxWidth: 440, margin: '60px auto', textAlign: 'center', padding: '0 20px' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+      <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 22, fontWeight: 700, color: 'var(--green)', marginBottom: 10 }}>Already Submitted</div>
+      <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 20 }}>
+        This confirmation has already been submitted. If you uploaded the wrong Statement of Account, you can request a re-upload below — an admin will review and reopen your link.
+      </div>
+      {usedCustomerId && !reuploadSent && (
+        <div className="card" style={{ padding: 20, textAlign: 'left' }}>
+          <div className="field">
+            <label className="lbl">Reason for re-upload (optional)</label>
+            <textarea className="inp" value={reuploadReason} onChange={e => setReuploadReason(e.target.value)}
+              style={{ minHeight: 70, resize: 'vertical' }} placeholder="e.g. Uploaded the wrong customer's statement by mistake" />
+          </div>
+          <button className="btn btn-primary btn-full" onClick={requestReupload} disabled={reuploadBusy}>
+            {reuploadBusy ? 'Sending…' : '↺ Request Re-upload Approval'}
+          </button>
+        </div>
+      )}
+      {reuploadSent && (
+        <div className="info-box ib-green">
+          <strong>Request sent</strong>
+          Your re-upload request has been sent to the AR admin team for approval. You'll be able to use your existing link again once approved.
+        </div>
+      )}
+    </div>
+  );
 
   // ── Second factor: PAN gate ─────────────────────────────────────────────
   if (state === 'PAN_GATE') return (

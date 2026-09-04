@@ -19,7 +19,11 @@ async function request(method, path, body, isFormData = false) {
   if (res.status === 401 && token) {
     setToken(null); // session expired — force re-login on next render
   }
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(data.error || data.reason || `Request failed: ${res.status}`);
+    err.data = data; // full response body (e.g. { reason, customer_id }) for callers that need more than the message
+    throw err;
+  }
   return data;
 }
 
@@ -51,6 +55,8 @@ const api = {
   customers:        ()      => request('GET',  '/api/customers'),
   customer:         (id)    => request('GET',  `/api/customers/${id}`),
   customerLedger:   (id)    => request('GET',  `/api/customers/${id}/ledger`),
+  customersExportUrl: ()    => `${BASE_URL}/api/customers/export.xlsx?token=${getToken() || ''}`,
+  importCustomersJson: (json) => request('POST', '/api/customers/import-json', json),
 
   // Tokens (admin)
   generateTokens:   (opts)  => request('POST', '/api/tokens/generate', opts || {}),
@@ -75,12 +81,19 @@ const api = {
   confirmation:       (id)   => request('GET',  `/api/confirmations/${id}`),
   updateRecon:        (id, b) => request('PATCH', `/api/confirmations/${id}/recon`, b),
   soaDownloadUrl:      (id)  => `${BASE_URL}/api/confirmations/${id}/soa?token=${getToken() || ''}`,
+  confirmationsExportUrl: () => `${BASE_URL}/api/confirmations/export.xlsx?token=${getToken() || ''}`,
+  requestReupload:    (id, reason, tokenId) => request('POST', `/api/confirmations/${id}/request-reupload`, { reason, token_id: tokenId }),
+  approveReupload:    (id)  => request('POST', `/api/confirmations/${id}/approve-reupload`),
+  soaHistory:         (id)  => request('GET', `/api/confirmations/${id}/soa-history`),
+  soaHistoryDownloadUrl: (id, version) => `${BASE_URL}/api/confirmations/${id}/soa-history/${version}?token=${getToken() || ''}`,
 
   // Ledger
   uploadLedger:     (fd)    => request('POST', '/api/ledger/upload', fd, true),
   confirmImport:    (body)  => request('POST', '/api/ledger/confirm-import', body),
   ledger:           ()      => request('GET',  '/api/ledger'),
   ledgerHistory:    ()      => request('GET',  '/api/ledger/history'),
+  ledgerExportUrl:  ()      => `${BASE_URL}/api/ledger/export.xlsx?token=${getToken() || ''}`,
+  importLedgerJson: (json)  => request('POST', '/api/ledger/import-json', json),
 
   // Reconciliation
   reconcile:            (id) => request('GET', `/api/reconciliation/${id}`),
@@ -90,6 +103,7 @@ const api = {
 
   // Audit
   auditLog: (params = {}) => request('GET', `/api/audit?${new URLSearchParams(params).toString()}`),
+  auditExportUrl: (params = {}) => `${BASE_URL}/api/audit/export.xlsx?${new URLSearchParams(params).toString()}&token=${getToken() || ''}`,
 
   BASE_URL,
 };

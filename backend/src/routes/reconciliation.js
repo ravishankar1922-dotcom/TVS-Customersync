@@ -45,8 +45,18 @@ function findColIdx(headers, group) {
   return -1;
 }
 
-function parseSOA(filePath) {
-  const wb = XLSX.readFile(filePath, { cellDates: true });
+// Rows whose "document number" / first text cell reads like a running total,
+// sub-total, or a carried-forward balance rather than an actual transaction.
+// Large real-world statements (1000+ lines) almost always end with one of
+// these, and without this filter it gets misread as a phantom line item
+// ("Not in SAP") because it has no real SAP counterpart.
+const SUMMARY_ROW_RE = /\b(grand\s*total|sub[\s-]?total|total|closing\s*balance|balance\s*c\/?f|balance\s*b\/?f|net\s*total|balance\s*carried\s*forward|balance\s*brought\s*forward)\b/i;
+function isSummaryRow(row) {
+  return row.some(c => c !== null && c !== undefined && SUMMARY_ROW_RE.test(c.toString().trim()));
+}
+
+function parseSOA(buffer) {
+  const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
@@ -56,7 +66,7 @@ function parseSOA(filePath) {
     if (filled.length >= 3 && filled.some(c => isNaN(parseFloat(c)))) { headerIdx = i; break; }
   }
   const headers  = (rows[headerIdx] || []).map(h => h?.toString() || '');
-  const dataRows = rows.slice(headerIdx + 1).filter(r => r && r.some(c => c !== null && c !== undefined && c.toString().trim() !== ''));
+  const dataRows = rows.slice(headerIdx + 1).filter(r => r && r.some(c => c !== null && c !== undefined && c.toString().trim() !== '') && !isSummaryRow(r));
 
   const cDoc = findColIdx(headers, 'doc'), cType = findColIdx(headers, 'type'), cDate = findColIdx(headers, 'date');
   const cDue = findColIdx(headers, 'due'), cDebit = findColIdx(headers, 'debit'), cCredit = findColIdx(headers, 'credit');
@@ -150,17 +160,85 @@ function reconcile(sapTxns, custItems) {
   return { results, summary };
 }
 
+// Builds a professional AR-style "balance bridge" reconciliation statement:
+// Opening SAP balance → itemised reconciling items (Debit/Credit + remark)
+// → Adjusted/Common balance. Derived algebraically from the same `results`
+// array the line-item grid uses, so it always ties out to zero difference
+// once every adjustment is applied.
+function buildBridge({ sapTxns, custItems, results, summary, customer, cycleId, asOfDate }) {
+  const items = [];
+  let seq = 1;
+  results.forEach(r => {
+    if (r.match_type === 'MATCHED' || r.match_type === 'AMOUNT_DATE_MATCH') return; // no adjustment needed
+
+    if (r.match_type === 'MATCHED_WITH_DIFFERENCE') {
+      const delta = parseFloat(((r.cust_amount || 0) - (r.sap_amount || 0)).toFixed(2));
+      if (Math.abs(delta) < 0.01) return;
+      items.push({
+        s_no: seq++, doc_number: r.sap_doc || r.cust_doc, doc_date: r.sap_date || r.cust_date,
+        particulars: `Amount difference on Doc ${r.sap_doc || r.cust_doc} (SAP ₹${(r.sap_amount||0).toLocaleString('en-IN')} vs Customer ₹${(r.cust_amount||0).toLocaleString('en-IN')})`,
+        debit: delta > 0 ? delta : 0, credit: delta < 0 ? -delta : 0,
+        remark: 'Amount mismatch between SAP and customer books — needs verification',
+      });
+      return;
+    }
+
+    if (r.match_type === 'MISSING_IN_CUSTOMER') {
+      // Item exists in SAP (as an open balance) but customer's SOA does not
+      // show it — it inflates the SAP balance relative to the customer's,
+      // so bridge it out as a credit-side reconciling item on the SAP side.
+      const amt = r.sap_amount || 0;
+      items.push({
+        s_no: seq++, doc_number: r.sap_doc, doc_date: r.sap_date,
+        particulars: `In SAP but not appearing in customer statement — Doc ${r.sap_doc}`,
+        debit: amt < 0 ? -amt : 0, credit: amt >= 0 ? amt : 0,
+        remark: 'Missing in customer books — request customer to confirm/book',
+      });
+      return;
+    }
+
+    if (r.match_type === 'NOT_IN_SAP') {
+      // Item appears in the customer's SOA but has no SAP counterpart —
+      // bridge it in as a debit-side reconciling item.
+      const amt = r.cust_amount || 0;
+      items.push({
+        s_no: seq++, doc_number: r.cust_doc, doc_date: r.cust_date,
+        particulars: `In customer statement but not in SAP — Doc ${r.cust_doc}`,
+        debit: amt >= 0 ? amt : 0, credit: amt < 0 ? -amt : 0,
+        remark: 'Not booked in SAP — needs investigation/booking',
+      });
+    }
+  });
+
+  const totalDebit  = parseFloat(items.reduce((s, i) => s + i.debit, 0).toFixed(2));
+  const totalCredit = parseFloat(items.reduce((s, i) => s + i.credit, 0).toFixed(2));
+  const openingSap   = parseFloat(summary.total_sap_balance.toFixed(2));
+  const openingCust  = parseFloat(summary.total_cust_balance.toFixed(2));
+  const adjustedSap  = parseFloat((openingSap + totalDebit - totalCredit).toFixed(2));
+  const difference   = parseFloat((adjustedSap - openingCust).toFixed(2));
+
+  return {
+    customer_name: customer?.customer_name, customer_id: customer?.customer_id,
+    cycle_id: cycleId, as_of_date: asOfDate,
+    opening_sap_balance: openingSap, opening_customer_balance: openingCust,
+    items, total_debit: totalDebit, total_credit: totalCredit,
+    adjusted_sap_balance: adjustedSap, difference,
+    is_tied_out: Math.abs(difference) < 1,
+  };
+}
+
 async function getReconData(customerId) {
   const conf = await Confirmation.findOne({ customer_id: customerId, cycle_id: cfg.CYCLE_ID }).lean();
   if (!conf) throw Object.assign(new Error('No confirmation found for this customer'), { status: 404 });
-  if (!conf.soa_path) throw Object.assign(new Error('No SOA file uploaded yet'), { status: 404 });
+  if (!conf.soa_data) throw Object.assign(new Error('No SOA file uploaded yet'), { status: 404 });
 
   const led = await LedgerEntry.findOne({ customer_id: customerId }).lean();
   if (!led) throw Object.assign(new Error('No ledger found for this customer'), { status: 404 });
 
   const customer = await Customer.findOne({ customer_id: customerId }).lean();
   const sapTxns = led.transactions.filter(t => t.status === 'OPEN');
-  const soaData = parseSOA(conf.soa_path);
+  const soaBuffer = conf.soa_data.buffer ? Buffer.from(conf.soa_data.buffer) : conf.soa_data;
+  const soaData = parseSOA(soaBuffer);
   const recon = reconcile(sapTxns, soaData.items);
   return { conf, customer, sapTxns, soaData, recon };
 }
@@ -169,10 +247,11 @@ async function getReconData(customerId) {
 router.get('/:customerId', requireAdmin, async (req, res) => {
   try {
     const { conf, customer, sapTxns, soaData, recon } = await getReconData(req.params.customerId);
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE });
     res.json({
       customer_id: req.params.customerId, cycle_id: cfg.CYCLE_ID, customer_name: customer?.customer_name,
       soa_filename: conf.soa_filename, soa_format: soaData.format_detected, soa_headers: soaData.headers,
-      sap_lines: sapTxns, customer_lines: soaData.items, results: recon.results, summary: recon.summary,
+      sap_lines: sapTxns, customer_lines: soaData.items, results: recon.results, summary: recon.summary, bridge,
       recon_status: conf.recon_status, recon_notes: conf.recon_notes, root_causes: conf.root_causes || {},
       recon_sent_to_customer_at: conf.recon_sent_to_customer_at,
     });
@@ -184,8 +263,9 @@ router.get('/:customerId', requireAdmin, async (req, res) => {
 // GET /api/reconciliation/:customerId/export.xlsx — download workbook
 router.get('/:customerId/export.xlsx', requireAdmin, async (req, res) => {
   try {
-    const { customer, recon } = await getReconData(req.params.customerId);
-    const buffer = await buildReconciliationExcel({ customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE, summary: recon.summary, results: recon.results });
+    const { customer, sapTxns, soaData, recon } = await getReconData(req.params.customerId);
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE });
+    const buffer = await buildReconciliationExcel({ customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE, summary: recon.summary, results: recon.results, bridge });
     await logAudit({ req, action: 'RECON_EXPORTED', entity_type: 'Confirmation', entity_id: req.params.customerId });
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="Reconciliation_${req.params.customerId}_${cfg.CYCLE_ID}.xlsx"`);
@@ -200,11 +280,12 @@ router.get('/:customerId/export.xlsx', requireAdmin, async (req, res) => {
 // (optionally) marks the reconciliation as COMPLETED at the same time.
 router.post('/:customerId/send-to-customer', requireAdmin, async (req, res) => {
   try {
-    const { customer, recon, conf } = await getReconData(req.params.customerId);
+    const { customer, sapTxns, soaData, recon, conf } = await getReconData(req.params.customerId);
     if (!isConfigured()) return res.status(400).json({ error: 'SMTP is not configured on the server. Set SMTP_* in .env to enable sending.' });
     if (!customer?.email) return res.status(400).json({ error: 'Customer has no email on file.' });
 
-    const buffer = await buildReconciliationExcel({ customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE, summary: recon.summary, results: recon.results });
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE });
+    const buffer = await buildReconciliationExcel({ customer, cycleId: cfg.CYCLE_ID, asOfDate: cfg.AS_OF_DATE, summary: recon.summary, results: recon.results, bridge });
     const to = customer.email.match(/<(.+)>/)?.[1] || customer.email;
     const html = reconciliationCompleteEmail(customer, recon.summary, cfg.AS_OF_DATE, conf.recon_notes);
     const subject = `Reconciliation Summary – ${customer.customer_name} – ${cfg.AS_OF_DATE}`;

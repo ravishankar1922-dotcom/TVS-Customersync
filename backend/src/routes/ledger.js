@@ -2,17 +2,17 @@ const express = require('express');
 const router  = express.Router();
 const multer  = require('multer');
 const XLSX    = require('xlsx');
-const path    = require('path');
-const fs      = require('fs');
-const cfg     = require('../config');
+const ExcelJS = require('exceljs');
 const LedgerEntry = require('../models/LedgerEntry');
 const ImportHistory = require('../models/ImportHistory');
+const LedgerImportStaging = require('../models/LedgerImportStaging');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
 
-const UPLOAD_TMP = path.join(cfg.UPLOAD_ROOT, '_uploads');
-fs.mkdirSync(UPLOAD_TMP, { recursive: true });
-const upload = multer({ dest: UPLOAD_TMP });
+// In-memory only for the duration of one request — the parsed result gets
+// staged in MongoDB (see LedgerImportStaging) before this buffer is
+// discarded, so nothing depends on Render's ephemeral local disk.
+const upload = multer({ storage: multer.memoryStorage() });
 
 const DOC_NUM_KEYS  = ['document_number','doc_number','document number','document no','doc no','doc#','invoice no','invoice number','inv no','inv#','reference','ref no','ref','voucher no','voucher','bill no','bill number'];
 const DOC_TYPE_KEYS = ['document_type','doc_type','type','transaction type','doc type'];
@@ -43,8 +43,8 @@ function parseDate(v) {
   return isNaN(d) ? s : d.toISOString().split('T')[0];
 }
 
-function parseUploadedLedger(filePath, originalName) {
-  const wb = XLSX.readFile(filePath, { raw: false });
+function parseUploadedLedger(buffer, originalName) {
+  const wb = XLSX.read(buffer, { type: 'buffer', raw: false });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
@@ -78,12 +78,17 @@ function parseUploadedLedger(filePath, originalName) {
   return { transactions, headers, colMappings: { colDoc, colType, colDate, colDue, colAmt, colStatus } };
 }
 
-router.post('/upload', requireAdmin, upload.single('ledger_file'), (req, res) => {
+router.post('/upload', requireAdmin, upload.single('ledger_file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   try {
-    const parsed = parseUploadedLedger(req.file.path, req.file.originalname);
+    const parsed = parseUploadedLedger(req.file.buffer, req.file.originalname);
+    const import_id = `IMP-${Date.now()}`;
+    await LedgerImportStaging.create({
+      import_id, filename: req.file.originalname,
+      transactions: parsed.transactions, headers: parsed.headers, col_mappings: parsed.colMappings,
+    });
     res.json({ ok: true, preview: {
-      import_id: `IMP-${Date.now()}`, filename: req.file.originalname, file_path: req.file.path,
+      import_id, filename: req.file.originalname,
       total_rows: parsed.transactions.length, column_mapping: parsed.colMappings, headers: parsed.headers,
       preview_rows: parsed.transactions.slice(0, 10), uploaded_at: new Date().toISOString(),
     }});
@@ -93,13 +98,15 @@ router.post('/upload', requireAdmin, upload.single('ledger_file'), (req, res) =>
 });
 
 router.post('/confirm-import', requireAdmin, async (req, res) => {
-  const { import_id, file_path, filename } = req.body;
-  if (!file_path || !fs.existsSync(file_path)) return res.status(400).json({ error: 'Import file not found. Please re-upload.' });
+  const { import_id, filename } = req.body;
+  if (!import_id) return res.status(400).json({ error: 'import_id is required' });
+
+  const staged = await LedgerImportStaging.findOne({ import_id }).lean();
+  if (!staged) return res.status(400).json({ error: 'This import has expired or was not found. Please re-upload the file.' });
 
   try {
-    const parsed = parseUploadedLedger(file_path, filename);
     const byCustomer = {};
-    parsed.transactions.forEach(t => {
+    staged.transactions.forEach(t => {
       const id = t.customer_id || 'UNKNOWN';
       (byCustomer[id] ||= []).push(t);
     });
@@ -109,21 +116,63 @@ router.post('/confirm-import', requireAdmin, async (req, res) => {
     }
 
     await ImportHistory.create({
-      import_id, filename, customers_updated: Object.keys(byCustomer).length,
-      total_transactions: parsed.transactions.length, imported_by: req.admin?.email, imported_at: new Date(),
+      import_id, filename: filename || staged.filename, customers_updated: Object.keys(byCustomer).length,
+      total_transactions: staged.transactions.length, imported_by: req.admin?.email, imported_at: new Date(),
     });
-    await logAudit({ req, action: 'LEDGER_IMPORT', entity_type: 'Ledger', details: { filename, customers_updated: Object.keys(byCustomer).length } });
+    await logAudit({ req, action: 'LEDGER_IMPORT', entity_type: 'Ledger', details: { filename: filename || staged.filename, customers_updated: Object.keys(byCustomer).length } });
+    await LedgerImportStaging.deleteOne({ import_id }); // consumed — no need to keep it around
 
-    res.json({ ok: true, customers_updated: Object.keys(byCustomer).length, total_transactions: parsed.transactions.length });
+    res.json({ ok: true, customers_updated: Object.keys(byCustomer).length, total_transactions: staged.transactions.length });
   } catch (err) {
     res.status(500).json({ error: 'Import failed: ' + err.message });
   }
+});
+
+// POST /api/ledger/import-json — bulk upsert ledgers from JSON, same shape
+// as data/TSL_ledger.json: [{ customer_id, transactions: [...] }, ...]
+router.post('/import-json', requireAdmin, async (req, res) => {
+  const ledgers = Array.isArray(req.body) ? req.body : req.body?.ledgers;
+  if (!Array.isArray(ledgers) || !ledgers.length) return res.status(400).json({ error: 'Expected a JSON array of { customer_id, transactions } objects (or { "ledgers": [...] }).' });
+
+  let upserted = 0, skipped = 0;
+  for (const l of ledgers) {
+    if (!l.customer_id || !Array.isArray(l.transactions)) { skipped++; continue; }
+    await LedgerEntry.findOneAndUpdate({ customer_id: l.customer_id }, { customer_id: l.customer_id, transactions: l.transactions }, { upsert: true });
+    upserted++;
+  }
+  await logAudit({ req, action: 'LEDGER_JSON_IMPORTED', entity_type: 'Ledger', details: { upserted, skipped } });
+  res.json({ ok: true, upserted, skipped });
 });
 
 router.get('/', requireAdmin, async (req, res) => {
   const ledger = await LedgerEntry.find().lean();
   if (!ledger.length) return res.status(404).json({ error: 'Ledger not found' });
   res.json({ ledger, total: ledger.length });
+});
+
+// GET /api/ledger/export.xlsx — full open-items ledger as a workbook
+router.get('/export.xlsx', requireAdmin, async (req, res) => {
+  const ledgers = await LedgerEntry.find().sort({ customer_id: 1 }).lean();
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Ledger');
+  ws.columns = [
+    { header: 'Customer ID', key: 'customer_id', width: 14 },
+    { header: 'Document No', key: 'document_number', width: 18 },
+    { header: 'Type', key: 'document_type', width: 14 },
+    { header: 'Document Date', key: 'document_date', width: 14 },
+    { header: 'Due Date', key: 'due_date', width: 14 },
+    { header: 'Amount', key: 'amount', width: 15 },
+    { header: 'Status', key: 'status', width: 12 },
+  ];
+  ws.getRow(1).font = { bold: true };
+  ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEDEDED' } };
+  ledgers.forEach(l => (l.transactions || []).forEach(t => ws.addRow({ customer_id: l.customer_id, ...t })));
+  ws.autoFilter = { from: 'A1', to: 'G1' };
+  const buffer = await wb.xlsx.writeBuffer();
+  await logAudit({ req, action: 'LEDGER_EXPORTED', entity_type: 'Ledger' });
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="Ledger_Export.xlsx"`);
+  res.send(buffer);
 });
 
 router.get('/history', requireAdmin, async (req, res) => res.json({ imports: await ImportHistory.find().sort({ createdAt: -1 }).lean() }));
