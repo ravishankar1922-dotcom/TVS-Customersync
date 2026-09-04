@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, Spinner } from '../shared';
+import { fmtINR, fmtDate, Spinner, Icon } from '../shared';
 
 export default function CustomerPortal() {
   const [token]      = useState(() => new URLSearchParams(window.location.search).get('t') || '');
@@ -95,9 +95,9 @@ export default function CustomerPortal() {
     </div>
   );
 
-  if (state === 'INVALID') return <StatusScreen icon="❌" title="Invalid Link" color="var(--diff)"
+  if (state === 'INVALID') return <StatusScreen icon="xCircle" title="Invalid Link" color="var(--diff)"
     desc={`This confirmation link is invalid or has been tampered with. (${reason})`} contact />;
-  if (state === 'EXPIRED') return <StatusScreen icon="⏰" title="Link Expired" color="var(--amber)"
+  if (state === 'EXPIRED') return <StatusScreen icon="clock" title="Link Expired" color="var(--amber)"
     desc="Your confirmation link has expired. Please contact the AR team to receive a new link." contact />;
   async function requestReupload() {
     if (!usedCustomerId) return;
@@ -109,7 +109,7 @@ export default function CustomerPortal() {
 
   if (state === 'USED') return (
     <div style={{ maxWidth: 440, margin: '60px auto', textAlign: 'center', padding: '0 20px' }}>
-      <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+      <div style={{ marginBottom: 16, color: 'var(--green)' }}><Icon name="checkCircle" size={48} /></div>
       <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 22, fontWeight: 700, color: 'var(--green)', marginBottom: 10 }}>Already Submitted</div>
       <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 20 }}>
         This confirmation has already been submitted. If you uploaded the wrong Statement of Account, you can request a re-upload below — an admin will review and reopen your link.
@@ -122,7 +122,7 @@ export default function CustomerPortal() {
               style={{ minHeight: 70, resize: 'vertical' }} placeholder="e.g. Uploaded the wrong customer's statement by mistake" />
           </div>
           <button className="btn btn-primary btn-full" onClick={requestReupload} disabled={reuploadBusy}>
-            {reuploadBusy ? 'Sending…' : '↺ Request Re-upload Approval'}
+            {reuploadBusy ? 'Sending…' : <><Icon name="reset" size={13} /> Request Re-upload Approval</>}
           </button>
         </div>
       )}
@@ -140,7 +140,7 @@ export default function CustomerPortal() {
     <div className="portal-wrap" style={{ maxWidth: 420, margin: '40px auto' }}>
       <div className="card" style={{ padding: '28px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 18 }}>
-          <div style={{ fontSize: 30, marginBottom: 8 }}>🔐</div>
+          <div style={{ marginBottom: 8, color: 'var(--red)' }}><Icon name="lock" size={30} /></div>
           <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, fontWeight: 700, marginBottom: 4 }}>Verify Your Identity</div>
           <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
             {customerName ? `Hello ${customerName}, please` : 'Please'} enter your registered PAN to open this balance confirmation link.
@@ -170,7 +170,7 @@ export default function CustomerPortal() {
   if (state === 'SUCCESS') return (
     <div className="portal-wrap">
       <div style={{ textAlign: 'center', padding: '40px 16px' }}>
-        <div className="ps-check">✅</div>
+        <div className="ps-check"><Icon name="checkCircle" size={30} color="var(--green)" /></div>
         <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Confirmation Submitted</div>
         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 16, maxWidth: 420, margin: '0 auto 16px' }}>
           {result?.message}<br/>The AR team will review and respond within 3 working days.
@@ -214,7 +214,7 @@ export default function CustomerPortal() {
       {step === 1 && (
         <>
           <div className="bal-widget">
-            <div className="bw-hd">⚖️ Balance as per Our Books vs Your Books</div>
+            <div className="bw-hd" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="scale" size={15} /> Balance as per Our Books vs Your Books</div>
             <div className="bw-body">
               <div className="bw-cmp">
                 <div className="bw-box bw-sap">
@@ -233,7 +233,7 @@ export default function CustomerPortal() {
               </div>
               {liveDiff !== null && (
                 <div className={`info-box ${liveDiff === 0 ? 'ib-green' : 'ib-amber'}`} style={{ marginBottom: 12 }}>
-                  <strong>{liveDiff === 0 ? '✓ Balances Agree' : '⚠️ Difference Detected'}</strong>
+                  <strong><Icon name={liveDiff === 0 ? 'checkCircle' : 'warning'} size={13} /> {liveDiff === 0 ? 'Balances Agree' : 'Difference Detected'}</strong>
                   {liveDiff === 0 ? 'Your balance matches our records.' : `${fmtINR(Math.abs(liveDiff))} difference. Please explain in remarks.`}
                 </div>
               )}
@@ -257,7 +257,7 @@ export default function CustomerPortal() {
             <div className="card" style={{ marginBottom: 12 }}>
               <div className="card-hd">
                 <div className="card-hd-l">
-                  <div className="card-ico" style={{ background: 'var(--blue-bg)' }}>📋</div>
+                  <div className="card-ico" style={{ background: 'var(--blue-bg)' }}><Icon name="checklist" size={17} /></div>
                   <div><div className="card-title">Open Items as per Our Books</div><div className="card-sub">{transactions.filter(t => t.status === 'OPEN').length} open items</div></div>
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function CustomerPortal() {
           <div className="card" style={{ marginBottom: 12 }}>
             <div className="card-hd">
               <div className="card-hd-l">
-                <div className="card-ico" style={{ background: 'var(--blue-bg)' }}>📄</div>
+                <div className="card-ico" style={{ background: 'var(--blue-bg)' }}><Icon name="cloud" size={17} /></div>
                 <div><div className="card-title">Upload Statement of Account</div><div className="card-sub">Excel, CSV or PDF · Max 20 MB</div></div>
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function CustomerPortal() {
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>☁️</div>
+                <div style={{ marginBottom: 8, color: 'var(--muted)' }}><Icon name="cloud" size={28} /></div>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Drop your SOA here or click to browse</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)' }}>Excel (.xlsx, .xls), CSV, PDF · Maximum 20 MB</div>
               </div>
@@ -306,7 +306,7 @@ export default function CustomerPortal() {
                 onChange={e => { if (e.target.files[0]) handleFile(e.target.files[0]); }} />
               {file && (
                 <div className="up-preview">
-                  <span style={{ fontSize: 20 }}>✅</span>
+                  <Icon name="checkCircle" size={20} color="var(--green)" />
                   <div><div className="up-name">{file.name}</div><div style={{ fontSize: 9, color: 'var(--muted)' }}>{(file.size / 1024).toFixed(1)} KB</div></div>
                   <button className="btn btn-ghost btn-sm" onClick={() => setFile(null)}>Remove</button>
                 </div>
@@ -324,7 +324,7 @@ export default function CustomerPortal() {
       {step === 3 && (
         <>
           <div className="card" style={{ marginBottom: 12 }}>
-            <div className="card-hd"><div className="card-hd-l"><div className="card-ico" style={{ background: 'var(--amber-bg)' }}>📋</div><div><div className="card-title">Review Your Submission</div></div></div></div>
+            <div className="card-hd"><div className="card-hd-l"><div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="checklist" size={17} /></div><div><div className="card-title">Review Your Submission</div></div></div></div>
             <div className="card-body">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <tbody>
@@ -353,7 +353,7 @@ export default function CustomerPortal() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-secondary" onClick={() => setStep(2)}>← Back</button>
             <button className="btn btn-green btn-full btn-lg" onClick={submit} disabled={submitting}>
-              {submitting ? <><Spinner /> Submitting…</> : '✓ Submit Confirmation'}
+              {submitting ? <><Spinner /> Submitting…</> : <><Icon name="checkCircle" size={14} /> Submit Confirmation</>}
             </button>
           </div>
         </>
@@ -365,7 +365,7 @@ export default function CustomerPortal() {
 function StatusScreen({ icon, title, color, desc, contact }) {
   return (
     <div style={{ maxWidth: 440, margin: '60px auto', textAlign: 'center', padding: '0 20px' }}>
-      <div style={{ fontSize: 48, marginBottom: 16 }}>{icon}</div>
+      <div style={{ marginBottom: 16, color }}><Icon name={icon} size={48} /></div>
       <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 22, fontWeight: 700, color, marginBottom: 10 }}>{title}</div>
       <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 20 }}>{desc}</div>
       {contact && (

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, Spinner, useToast } from '../shared';
+import { fmtINR, fmtDate, Spinner, useToast, Icon } from '../shared';
 
 const MATCH_CONFIG = {
-  MATCHED:                 { label: '✓ Matched',              cls: 'hl-ok',      tagCls: 'rt-ok'  },
-  MATCHED_WITH_DIFFERENCE: { label: '≈ Matched (Diff)',        cls: 'hl-diff',    tagCls: 'rt-diff'},
-  AMOUNT_DATE_MATCH:       { label: '~ Approx Match',          cls: 'hl-diff',    tagCls: 'rt-diff'},
-  MISSING_IN_CUSTOMER:     { label: '✗ Missing in Customer',   cls: 'hl-missing', tagCls: 'rt-miss'},
-  NOT_IN_SAP:              { label: '+ Not in SAP',            cls: 'hl-extra',   tagCls: 'rt-extra'},
+  MATCHED:                 { label: 'Matched',              icon: 'checkCircle', cls: 'hl-ok',      tagCls: 'rt-ok'  },
+  MATCHED_WITH_DIFFERENCE: { label: 'Matched (Diff)',        icon: 'warning',     cls: 'hl-diff',    tagCls: 'rt-diff'},
+  AMOUNT_DATE_MATCH:       { label: 'Approx Match',          icon: 'warning',     cls: 'hl-diff',    tagCls: 'rt-diff'},
+  MISSING_IN_CUSTOMER:     { label: 'Missing in Customer',   icon: 'xCircle',     cls: 'hl-missing', tagCls: 'rt-miss'},
+  NOT_IN_SAP:              { label: 'Not in SAP',            icon: 'info',        cls: 'hl-extra',   tagCls: 'rt-extra'},
 };
 const ROOT_CAUSES = ['Invoice in Transit', 'Credit Note Pending', 'Payment Timing', 'Disputed', 'Data Entry Error', 'Resolved', 'Other'];
 
@@ -77,7 +77,7 @@ export default function Reconciliation({ customerId, onBack }) {
     setSending(true);
     try {
       const r = await api.sendReconToCustomer(customerId);
-      toast(`✅ Sent to ${r.sent_to}`, 'success');
+      toast(`Sent to ${r.sent_to}`, 'success');
       load();
     } catch (e) { toast(e.message, 'err'); }
     finally { setSending(false); }
@@ -85,9 +85,9 @@ export default function Reconciliation({ customerId, onBack }) {
 
   if (!customerId) return (
     <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)' }}>
-      <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+      <div style={{ marginBottom: 12 }}><Icon name="search" size={32} /></div>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>No customer selected</div>
-      <div style={{ fontSize: 12 }}>Open from the Dashboard by clicking 🔍 on a customer with a submission.</div>
+      <div style={{ fontSize: 12 }}>Open from the Dashboard by clicking the search icon on a customer with a submission.</div>
     </div>
   );
 
@@ -108,16 +108,16 @@ export default function Reconciliation({ customerId, onBack }) {
         <div>
           <div className="sec-title disp">Reconciliation Workspace</div>
           <div className="sec-sub">{customerId} · {data.soa_filename} · Format: {data.soa_format}
-            {data.recon_sent_to_customer_at && <span style={{ color: 'var(--green)', marginLeft: 8 }}>· ✓ Sent to customer {fmtDate(data.recon_sent_to_customer_at)}</span>}
+            {data.recon_sent_to_customer_at && <span style={{ color: 'var(--green)', marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 3 }}>· <Icon name="checkCircle" size={11} /> Sent to customer {fmtDate(data.recon_sent_to_customer_at)}</span>}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn btn-secondary btn-sm" onClick={onBack}>← Dashboard</button>
-          <a className="btn btn-secondary btn-sm" href={api.soaDownloadUrl(customerId)} download>⬇ Download SOA</a>
-          <button className="btn btn-secondary btn-sm" onClick={exportExcel} disabled={exporting}>{exporting ? '…' : '📊 Export Excel'}</button>
-          <button className="btn btn-secondary btn-sm" onClick={saveNotes} disabled={saving}>💾 Save Notes</button>
-          <button className="btn btn-primary btn-sm" onClick={sendToCustomer} disabled={sending}>{sending ? '…' : '📤 Send to Customer'}</button>
-          <button className="btn btn-green" onClick={markComplete} disabled={saving}>✓ Mark Complete</button>
+          <button className="btn btn-secondary btn-sm" onClick={onBack}><Icon name="back" size={13} /> Dashboard</button>
+          <a className="btn btn-secondary btn-sm" href={api.soaDownloadUrl(customerId)} download><Icon name="download" size={13} /> Download SOA</a>
+          <button className="btn btn-secondary btn-sm" onClick={exportExcel} disabled={exporting}>{exporting ? '…' : <><Icon name="excel" size={13} /> Export Excel</>}</button>
+          <button className="btn btn-secondary btn-sm" onClick={saveNotes} disabled={saving}><Icon name="note" size={13} /> Save Notes</button>
+          <button className="btn btn-primary btn-sm" onClick={sendToCustomer} disabled={sending}>{sending ? '…' : <><Icon name="sendMail" size={13} /> Send to Customer</>}</button>
+          <button className="btn btn-green" onClick={markComplete} disabled={saving}><Icon name="checkCircle" size={13} /> Mark Complete</button>
         </div>
       </div>
 
@@ -156,10 +156,10 @@ export default function Reconciliation({ customerId, onBack }) {
         <div className="card" style={{ marginBottom: 16 }}>
           <div className="card-hd">
             <div className="card-hd-l">
-              <div className="card-ico" style={{ background: 'var(--amber-bg)' }}>🌉</div>
+              <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="bridge" size={17} /></div>
               <div><div className="card-title">Balance Reconciliation Statement</div><div className="card-sub">SAP balance bridged to customer balance via reconciling items</div></div>
             </div>
-            <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(true)}>🔎 View Detailed Line Items →</button>
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(true)}><Icon name="detail" size={13} /> View Detailed Line Items <Icon name="arrow" size={13} /></button>
           </div>
           <div className="card-body">
             <table className="tbl">
@@ -214,7 +214,7 @@ export default function Reconciliation({ customerId, onBack }) {
       {showDetail && (
       <>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-        <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(false)}>← Back to Bridge Statement</button>
+        <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(false)}><Icon name="back" size={13} /> Back to Bridge Statement</button>
         {[['ALL', `All (${results.length})`], ...Object.entries(MATCH_CONFIG).map(([k, cfg]) => [k, `${cfg.label} (${results.filter(r => r.match_type === k).length})`])].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)} className={`btn btn-sm ${filter === val ? 'btn-primary' : 'btn-secondary'}`}>{label}</button>
         ))}
@@ -224,7 +224,7 @@ export default function Reconciliation({ customerId, onBack }) {
 
       <div className="recon-grid">
         <div className="recon-panel">
-          <div className="rp-hd rp-sap">📘 SAP Ledger — Open Items ({sap_lines?.length})</div>
+          <div className="rp-hd rp-sap"><Icon name="book" size={14} /> SAP Ledger — Open Items ({sap_lines?.length})</div>
           {sap_lines?.map((l, i) => {
             const match = results.find(r => r.sap_doc === l.document_number);
             const mt    = match?.match_type || 'MISSING_IN_CUSTOMER';
@@ -233,13 +233,13 @@ export default function Reconciliation({ customerId, onBack }) {
               <div key={i} className={`re-row ${cfg.cls || ''}`}>
                 <div><div className="re-doc">{l.document_number}</div><div className="re-date">{l.document_type} · {fmtDate(l.document_date)}</div></div>
                 <span className="re-amt" style={{ color: l.amount < 0 ? 'var(--diff)' : 'var(--blue)' }}>{fmtINR(l.amount)}</span>
-                <span className={`re-tag ${cfg.tagCls || 'rt-miss'}`}>{cfg.label?.split(' ').slice(1).join(' ') || 'No Match'}</span>
+                <span className={`re-tag ${cfg.tagCls || 'rt-miss'}`}>{cfg.icon && <Icon name={cfg.icon} size={10} />} {cfg.label || 'No Match'}</span>
               </div>
             );
           })}
         </div>
         <div className="recon-panel">
-          <div className="rp-hd rp-cust">📗 Customer SOA — Extracted ({customer_lines?.length})</div>
+          <div className="rp-hd rp-cust"><Icon name="folder" size={14} /> Customer SOA — Extracted ({customer_lines?.length})</div>
           {customer_lines?.map((l, i) => {
             const match = results.find(r => r.cust_doc === l.doc_number);
             const mt    = match?.match_type || 'NOT_IN_SAP';
@@ -248,7 +248,7 @@ export default function Reconciliation({ customerId, onBack }) {
               <div key={i} className={`re-row ${cfg.cls || 'hl-extra'}`}>
                 <div><div className="re-doc">{l.doc_number}</div><div className="re-date">{l.doc_type} · {fmtDate(l.doc_date)}</div></div>
                 <span className="re-amt" style={{ color: l.amount < 0 ? 'var(--diff)' : 'var(--green)' }}>{fmtINR(l.amount)}</span>
-                <span className={`re-tag ${cfg.tagCls || 'rt-extra'}`}>{cfg.label?.split(' ').slice(1).join(' ') || 'Extra'}</span>
+                <span className={`re-tag ${cfg.tagCls || 'rt-extra'}`}>{cfg.icon && <Icon name={cfg.icon} size={10} />} {cfg.label || 'Extra'}</span>
               </div>
             );
           })}
@@ -258,15 +258,15 @@ export default function Reconciliation({ customerId, onBack }) {
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="card-hd">
           <div className="card-hd-l">
-            <div className="card-ico" style={{ background: 'var(--amber-bg)' }}>⚖️</div>
+            <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="scale" size={17} /></div>
             <div><div className="card-title">Match Results ({filtered.length})</div><div className="card-sub">Hierarchy: Exact → Normalised → Amount+Date</div></div>
           </div>
-          <div style={{ display: 'flex', gap: 6, fontSize: 11 }}>
+          <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
             {[
-              { l: '✓ Matched', v: summary.matched, c: 'var(--green)' },
-              { l: '≈ Diff', v: summary.matched_with_difference + summary.amount_date_match, c: 'var(--amber)' },
-              { l: '✗ Missing', v: summary.missing_in_customer, c: 'var(--diff)' },
-              { l: '+ Extra', v: summary.not_in_sap, c: 'var(--amber)' },
+              { l: 'Matched', v: summary.matched, c: 'var(--green)' },
+              { l: 'Diff', v: summary.matched_with_difference + summary.amount_date_match, c: 'var(--amber)' },
+              { l: 'Missing', v: summary.missing_in_customer, c: 'var(--diff)' },
+              { l: 'Extra', v: summary.not_in_sap, c: 'var(--amber)' },
             ].map(({ l, v, c }) => <span key={l} style={{ color: c, fontWeight: 600 }}>{l}: <span className="mono">{v}</span></span>)}
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function Reconciliation({ customerId, onBack }) {
                 const key = results.indexOf(r); // stable index into the full results array for root-cause persistence
                 return (
                   <tr key={i}>
-                    <td><span className={`re-tag ${cfg.tagCls || 'rt-miss'}`}>{cfg.label}</span></td>
+                    <td><span className={`re-tag ${cfg.tagCls || 'rt-miss'}`}>{cfg.icon && <Icon name={cfg.icon} size={10} />} {cfg.label}</span></td>
                     <td><span className="td-mono" style={{ fontSize: 11 }}>{r.sap_doc || '—'}</span></td>
                     <td><span className="td-mono">{r.sap_amount != null ? fmtINR(r.sap_amount) : '—'}</span></td>
                     <td><span className="td-mono" style={{ fontSize: 11 }}>{r.cust_doc || '—'}</span></td>
@@ -307,7 +307,7 @@ export default function Reconciliation({ customerId, onBack }) {
       <div className="card">
         <div className="card-hd">
           <div className="card-hd-l">
-            <div className="card-ico" style={{ background: 'var(--amber-bg)' }}>📝</div>
+            <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="note" size={17} /></div>
             <div><div className="card-title">Reconciliation Notes</div><div className="card-sub">Saved to confirmation record · included in the "Send to Customer" email</div></div>
           </div>
         </div>

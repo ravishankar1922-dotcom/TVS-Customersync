@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ToastProvider, Topbar, CycleRibbon, useToast, Spinner, BrandLogo } from './components/shared';
+import { ToastProvider, Topbar, CycleRibbon, useToast, Spinner, BrandLogo, Icon } from './components/shared';
 import Dashboard      from './components/admin/Dashboard';
 import Reconciliation from './components/admin/Reconciliation';
 import LedgerUpload   from './components/admin/LedgerUpload';
@@ -89,11 +89,11 @@ function AdminShell() {
   if (!loggedIn) return <Login onLogin={(email) => { setAdminEmail(email); setTransitioning(true); setTimeout(() => { setLoggedIn(true); setTransitioning(false); }, 1400); }} />;
 
   const NAV = [
-    { id: 'dashboard', ico: '📊', label: 'Dashboard' },
-    { id: 'recon',     ico: '🔍', label: 'Reconciliation' },
-    { id: 'ledger',    ico: '📋', label: 'Upload Ledger' },
-    { id: 'audit',     ico: '🛡️', label: 'Audit Log' },
-    { id: 'health',    ico: '🔧', label: 'System Status' },
+    { id: 'dashboard', ico: 'dashboard', label: 'Dashboard' },
+    { id: 'recon',     ico: 'search',    label: 'Reconciliation' },
+    { id: 'ledger',    ico: 'ledger',    label: 'Upload Ledger' },
+    { id: 'audit',     ico: 'shield',    label: 'Audit Log' },
+    { id: 'health',    ico: 'refresh',   label: 'System Status' },
   ];
 
   return (
@@ -104,7 +104,7 @@ function AdminShell() {
         <nav className="sidebar">
           {NAV.map(n => (
             <button key={n.id} className={`sidebar-link ${page === n.id ? 'active' : ''}`} onClick={() => navigate(n.id)}>
-              <span className="sico">{n.ico}</span>{n.label}
+              <span className="sico"><Icon name={n.ico} size={16} /></span>{n.label}
             </button>
           ))}
         </nav>
@@ -112,13 +112,13 @@ function AdminShell() {
           {healthLoading && <Spinner full />}
           {!healthLoading && health && !health.checks?.customerMaster?.exists && (
             <div className="info-box ib-red" style={{ marginBottom: 16 }}>
-              <strong>⚠️ No Customers Loaded</strong>
+              <strong><Icon name="warning" size={13} /> No Customers Loaded</strong>
               Run <code>npm run seed</code> in the backend folder to load <code>data/customer_master.json</code>.
             </div>
           )}
           {!healthLoading && health && !health.checks?.ledger?.exists && (
             <div className="info-box ib-red" style={{ marginBottom: 16 }}>
-              <strong>⚠️ No Ledger Loaded</strong>
+              <strong><Icon name="warning" size={13} /> No Ledger Loaded</strong>
               Run <code>npm run seed</code> in the backend folder to load <code>data/TSL_ledger.json</code>.
             </div>
           )}
@@ -233,7 +233,7 @@ function SystemHealth({ health, onRefresh }) {
             <div style={{ display: 'grid', gap: 10 }}>
               {Object.entries(health.checks || {}).map(([key, check]) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ fontSize: 16 }}>{check.exists ? '✅' : '❌'}</span>
+                  <Icon name={check.exists ? 'checkCircle' : 'xCircle'} size={17} color={check.exists ? 'var(--green)' : 'var(--diff)'} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600 }}>{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                     <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: "'JetBrains Mono',monospace" }}>{check.path}</div>

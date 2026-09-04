@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
-import { fmtDate, Spinner, useToast } from '../shared';
+import { fmtDate, Spinner, useToast, Icon } from '../shared';
 
 const ACTION_LABELS = {
   LOGIN_SUCCESS: 'Admin login', LOGIN_FAILED: 'Failed login attempt',
@@ -36,7 +36,7 @@ export default function AuditLogView() {
             <option value="">All Actions</option>
             {actions.map(a => <option key={a} value={a}>{ACTION_LABELS[a] || a}</option>)}
           </select>
-          <a href={api.auditExportUrl(filter ? { action: filter } : {})} className="btn btn-secondary btn-sm">📊 Export Excel</a>
+          <a href={api.auditExportUrl(filter ? { action: filter } : {})} className="btn btn-secondary btn-sm"><Icon name="excel" size={13} /> Export Excel</a>
         </div>
       </div>
       <div className="tbl-wrap">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, Spinner, useToast } from '../shared';
+import { fmtINR, fmtDate, Spinner, useToast, Icon } from '../shared';
 
 export default function LedgerUpload() {
   const toast = useToast();
@@ -34,7 +34,7 @@ export default function LedgerUpload() {
       const r = await api.confirmImport({ import_id: preview.import_id, filename: preview.filename });
       setDone(r);
       setPreview(null);
-      toast(`✅ Ledger imported — ${r.customers_updated} customers, ${r.total_transactions} transactions`, 'success');
+      toast(`Ledger imported — ${r.customers_updated} customers, ${r.total_transactions} transactions`, 'success');
     } catch (e) { toast(e.message, 'err'); }
     finally { setConfirming(false); }
   }
@@ -51,7 +51,7 @@ export default function LedgerUpload() {
       const json = JSON.parse(text);
       const r = kind === 'customers' ? await api.importCustomersJson(json) : await api.importLedgerJson(json);
       setJsonResult({ kind, ...r });
-      toast(`✅ ${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported — ${r.upserted} upserted${r.skipped ? `, ${r.skipped} skipped` : ''}`, 'success');
+      toast(`${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported — ${r.upserted} upserted${r.skipped ? `, ${r.skipped} skipped` : ''}`, 'success');
     } catch (e) { toast(e.message.includes('JSON') ? e.message : `Import failed: ${e.message}`, 'err'); }
     finally { setJsonBusy(null); }
   }
@@ -63,14 +63,14 @@ export default function LedgerUpload() {
           <div className="sec-title disp">Upload SAP FBL5N / Ledger</div>
           <div className="sec-sub">Admin only · Supports Excel (XLSX, XLS) and CSV · Multi-format column detection</div>
         </div>
-        <a href={api.ledgerExportUrl()} className="btn btn-secondary btn-sm">📊 Export Ledger (Excel)</a>
+        <a href={api.ledgerExportUrl()} className="btn btn-secondary btn-sm"><Icon name="excel" size={13} /> Export Ledger (Excel)</a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div className="card">
           <div className="card-hd">
             <div className="card-hd-l">
-              <div className="card-ico" style={{ background: 'var(--blue-bg)' }}>📊</div>
+              <div className="card-ico" style={{ background: 'var(--blue-bg)' }}><Icon name="excel" size={17} /></div>
               <div><div className="card-title">Upload Ledger File</div><div className="card-sub">XLSX · XLS · CSV</div></div>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function LedgerUpload() {
               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={e => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>📋</div>
+              <div style={{ marginBottom: 8, color: 'var(--muted)' }}><Icon name="ledger" size={28} /></div>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Drop FBL5N export here or click to browse</div>
               <div style={{ fontSize: 11, color: 'var(--muted)' }}>Excel or CSV · Max 20 MB</div>
             </div>
@@ -97,7 +97,7 @@ export default function LedgerUpload() {
         <div className="card">
           <div className="card-hd">
             <div className="card-hd-l">
-              <div className="card-ico" style={{ background: 'var(--green-bg)' }}>📖</div>
+              <div className="card-ico" style={{ background: 'var(--green-bg)' }}><Icon name="checklist" size={17} /></div>
               <div><div className="card-title">Import Process</div></div>
             </div>
           </div>
@@ -122,13 +122,13 @@ export default function LedgerUpload() {
         <div className="card" style={{ marginTop: 16 }}>
           <div className="card-hd">
             <div className="card-hd-l">
-              <div className="card-ico" style={{ background: 'var(--amber-bg)' }}>🔍</div>
+              <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="search" size={17} /></div>
               <div><div className="card-title">Preview — {preview.filename}</div><div className="card-sub">{preview.total_rows} transactions detected · Review before confirming</div></div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn btn-secondary btn-sm" onClick={() => setPreview(null)}>Cancel</button>
               <button className="btn btn-primary" onClick={confirmImport} disabled={confirming}>
-                {confirming ? <><Spinner /> Importing…</> : `✓ Confirm Import (${preview.total_rows} rows)`}
+                {confirming ? <><Spinner /> Importing…</> : <><Icon name="checkCircle" size={13} /> Confirm Import ({preview.total_rows} rows)</>}
               </button>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function LedgerUpload() {
 
       {done && (
         <div className="info-box ib-green" style={{ marginTop: 16 }}>
-          <strong>✅ Import Successful</strong>
+          <strong><Icon name="checkCircle" size={13} /> Import Successful</strong>
           {done.customers_updated} customers updated · {done.total_transactions} transactions loaded · Dashboard balances recalculated immediately.
         </div>
       )}
@@ -170,7 +170,7 @@ export default function LedgerUpload() {
       <div className="card" style={{ marginTop: 24 }}>
         <div className="card-hd">
           <div className="card-hd-l">
-            <div className="card-ico" style={{ background: 'var(--blue-bg)' }}>🗂️</div>
+            <div className="card-ico" style={{ background: 'var(--blue-bg)' }}><Icon name="json" size={17} /></div>
             <div><div className="card-title">Master Data — JSON Upload</div><div className="card-sub">Bulk upsert customer master or ledger directly, same shape as the seed script's data files — no local `npm run seed` needed</div></div>
           </div>
         </div>

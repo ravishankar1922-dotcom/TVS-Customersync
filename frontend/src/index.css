@@ -202,7 +202,7 @@ button, input, select, textarea { font-family: 'Inter', sans-serif; }
 .re-doc { font-weight:600; }
 .re-date{ font-size:9px;color:var(--muted);margin-top:1px; }
 .re-amt { font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;text-align:right; }
-.re-tag { font-size:8px;font-weight:700;padding:2px 6px;border-radius:999px;white-space:nowrap; }
+.re-tag { font-size:8px;font-weight:700;padding:2px 6px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:3px; }
 .rt-ok  { background:var(--green-bg);color:#065F46; }
 .rt-diff{ background:var(--amber-bg);color:#92400E; }
 .rt-miss{ background:var(--diff-bg);color:#991B1B; }
