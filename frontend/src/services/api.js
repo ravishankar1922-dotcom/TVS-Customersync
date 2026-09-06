@@ -62,6 +62,7 @@ const api = {
   generateTokens:   (opts)  => request('POST', '/api/tokens/generate', opts || {}),
   tokenExpiry:      (id, expiry_date) => request('PATCH', `/api/tokens/${id}/expiry`, { expiry_date }),
   resetToken:       (id)    => request('POST', `/api/tokens/reset/${id}`),
+  resetExpiredTokens: ()    => request('POST', '/api/tokens/reset-expired'),
   tokens:           ()      => request('GET',  '/api/tokens'),
 
   // Tokens (customer portal — public, two-factor)

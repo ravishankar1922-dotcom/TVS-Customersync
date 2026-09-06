@@ -12,8 +12,21 @@ const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
 
 async function ensureTokenAndBalance(customer) {
-  let tokenRec = await TokenRecord.findOne({ customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE' });
+  // Only reuse a token that is both ACTIVE *and* not yet past its own expiry —
+  // a token whose expires_at has passed still shows status:'ACTIVE' in the DB
+  // (nothing flips it automatically), so without the expires_at check here
+  // this would keep resending the same dead link forever on every re-trigger.
+  let tokenRec = await TokenRecord.findOne({
+    customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE', expires_at: { $gt: new Date() },
+  }).sort({ expires_at: -1 });
+
   if (!tokenRec) {
+    // Retire any stale ACTIVE-but-expired records for this customer/cycle so
+    // there's never more than one live ACTIVE token to be confused about.
+    await TokenRecord.updateMany(
+      { customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE' },
+      { status: 'EXPIRED' }
+    );
     const gen = te.generateToken(customer.customer_id, cfg.CYCLE_ID, cfg.COMPANY, cfg.TOKEN_EXPIRY_HOURS);
     tokenRec = await TokenRecord.create({
       token_id: gen.token_id, customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, company: cfg.COMPANY,

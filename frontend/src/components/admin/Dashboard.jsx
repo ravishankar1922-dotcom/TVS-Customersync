@@ -76,6 +76,17 @@ export default function Dashboard({ onNavigate }) {
     finally { setResetting(null); }
   }
 
+  const [resettingExpired, setResettingExpired] = useState(false);
+  async function resetExpiredLinks() {
+    setResettingExpired(true);
+    try {
+      const r = await api.resetExpiredTokens();
+      toast(r.reset > 0 ? `Cleared ${r.reset} expired link(s). Trigger emails again to issue fresh ones.` : 'No expired links found — everything is current.', 'success');
+      load();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setResettingExpired(false); }
+  }
+
   async function approveReupload(id) {
     if (!window.confirm(`Approve re-upload for ${id}? Their existing confirmation link will reopen so they can resubmit the SOA.`)) return;
     try { await api.approveReupload(id); toast(`Re-upload approved for ${id}`, 'success'); load(); }
@@ -120,6 +131,9 @@ export default function Dashboard({ onNavigate }) {
           <a href={api.outlookScriptUrl()} className="btn btn-secondary" title="If cloud SMTP is blocked by your mail provider, download a script that drafts these emails in your own Desktop Outlook instead (review &amp; send from there).">
             <Icon name="outlook" size={13} /> Download Outlook Script
           </a>
+          <button className="btn btn-secondary" onClick={resetExpiredLinks} disabled={resettingExpired} title="Clear every expired confirmation link across all customers. Safe to run any time — then Trigger Customer Emails to issue fresh links.">
+            {resettingExpired ? '…' : <><Icon name="reset" size={13} /> Reset Expired Links</>}
+          </button>
           <a href={api.customersExportUrl()} className="btn btn-secondary"><Icon name="excel" size={13} /> Export Excel</a>
         </div>
       </div>

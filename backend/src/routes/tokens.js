@@ -24,7 +24,10 @@ router.post('/generate', requireAdmin, async (req, res) => {
   const skipped   = [];
 
   for (const c of customers) {
-    const existing = await TokenRecord.findOne({ customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE' });
+    // Skip only if there's a token that is BOTH status ACTIVE and not yet
+    // past its own expiry — an ACTIVE-but-expired record must still be
+    // replaced (status never auto-flips to EXPIRED on its own).
+    const existing = await TokenRecord.findOne({ customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE' }).sort({ expires_at: -1 });
     if (existing && existing.expires_at > new Date()) { skipped.push(c.customer_id); continue; }
 
     let hours = expiry_hours && expiry_hours > 0 ? expiry_hours : cfg.TOKEN_EXPIRY_HOURS;
@@ -33,17 +36,18 @@ router.post('/generate', requireAdmin, async (req, res) => {
       hours = Math.max(1, Math.round((target.getTime() - Date.now()) / 3600000));
     }
 
+    // Retire any stale ACTIVE-but-expired record first, then create the
+    // fresh one — avoids ever having two ACTIVE tokens for the same
+    // customer/cycle where a later lookup could pick the wrong (dead) one.
+    await TokenRecord.updateMany({ customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, status: 'ACTIVE' }, { status: 'EXPIRED' });
+
     const result = te.generateToken(c.customer_id, cfg.CYCLE_ID, cfg.COMPANY, hours);
-    const record = await TokenRecord.findOneAndUpdate(
-      { customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, status: { $ne: 'ACTIVE' } },
-      {
-        token_id: result.token_id, customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, company: cfg.COMPANY,
-        token: result.token, portal_url: te.buildPortalUrl(result.token),
-        created_at: new Date(result.issued_at), expires_at: new Date(result.expires_at),
-        status: 'ACTIVE', used_at: null,
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    const record = await TokenRecord.create({
+      token_id: result.token_id, customer_id: c.customer_id, cycle_id: cfg.CYCLE_ID, company: cfg.COMPANY,
+      token: result.token, portal_url: te.buildPortalUrl(result.token),
+      created_at: new Date(result.issued_at), expires_at: new Date(result.expires_at),
+      status: 'ACTIVE', used_at: null,
+    });
     generated.push({ customer_id: c.customer_id, token_id: record.token_id, portal_url: record.portal_url, expires_at: record.expires_at });
   }
 
@@ -125,6 +129,21 @@ router.post('/verify-pan', async (req, res) => {
     as_of_date: cfg.AS_OF_DATE,
     transactions: ledger ? ledger.transactions : [],
   });
+});
+
+// POST /api/tokens/reset-expired — bulk: marks every ACTIVE-but-past-expiry
+// token as EXPIRED across all customers in this cycle. Doesn't touch
+// Confirmations (an expired, never-verified token has none to worry about)
+// and doesn't send anything — it just clears the way so the next
+// "Trigger Customer Emails" issues a fresh, working link for anyone whose
+// link had died. Safe to run any time, including right before a demo.
+router.post('/reset-expired', requireAdmin, async (req, res) => {
+  const result = await TokenRecord.updateMany(
+    { cycle_id: cfg.CYCLE_ID, status: 'ACTIVE', expires_at: { $lte: new Date() } },
+    { status: 'EXPIRED' }
+  );
+  await logAudit({ req, action: 'TOKENS_RESET_EXPIRED', entity_type: 'Token', details: { matched: result.matchedCount ?? result.n, modified: result.modifiedCount ?? result.nModified } });
+  res.json({ ok: true, reset: result.modifiedCount ?? result.nModified ?? 0, message: 'Expired links cleared. Trigger customer emails again to issue fresh links for anyone affected.' });
 });
 
 // POST /api/tokens/reset/:customerId — admin resets token + confirmation for re-testing
