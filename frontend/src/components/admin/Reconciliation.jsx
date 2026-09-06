@@ -106,7 +106,7 @@ export default function Reconciliation({ customerId, onBack }) {
     <div>
       <div className="sec-hd">
         <div>
-          <div className="sec-title disp">Reconciliation Workspace</div>
+          <div className="sec-title disp">Reconciliation Studio</div>
           <div className="sec-sub">{customerId} · {data.soa_filename} · Format: {data.soa_format}
             {data.recon_sent_to_customer_at && <span style={{ color: 'var(--green)', marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 3 }}>· <Icon name="checkCircle" size={11} /> Sent to customer {fmtDate(data.recon_sent_to_customer_at)}</span>}
           </div>
@@ -121,8 +121,8 @@ export default function Reconciliation({ customerId, onBack }) {
         </div>
       </div>
 
-      {/* Summary banner with match-rate ring */}
-      <div style={{ background: '#1E1E2E', borderRadius: 12, padding: '18px 22px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
+      {/* Customer identity + match-rate banner */}
+      <div style={{ background: 'linear-gradient(135deg,#1E1E2E 0%,#14213D 100%)', borderRadius: 12, padding: '18px 22px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{
             width: 56, height: 56, borderRadius: '50%', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 14, color: '#fff',
@@ -135,80 +135,90 @@ export default function Reconciliation({ customerId, onBack }) {
             <div style={{ fontSize: 10, color: '#ffffff50', marginTop: 2 }}>SAP Lines: {sap_lines?.length} · Customer Lines: {customer_lines?.length} · Match Rate: {matchRate}%</div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 20 }}>
-          {[
-            { l: 'SAP Balance',   v: fmtINR(summary.total_sap_balance),  c: '#fff' },
-            { l: 'Cust. Balance', v: fmtINR(summary.total_cust_balance),  c: '#6EE7B7' },
-            { l: 'Difference',    v: fmtINR(summary.net_difference),      c: summary.net_difference === 0 ? '#6EE7B7' : '#FCA5A5' },
-          ].map(({ l, v, c }) => (
-            <div key={l} style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.07em', color: '#ffffff40', marginBottom: 2 }}>{l}</div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 600, color: c }}>{v}</div>
-            </div>
-          ))}
-        </div>
+        {bridge && (
+          <span className={`cert-badge ${bridge.is_tied_out ? 'cert-ok' : 'cert-warn'}`}>
+            <Icon name={bridge.is_tied_out ? 'checkCircle' : 'warning'} size={13} />
+            {bridge.is_tied_out ? 'Fully Reconciled' : 'Unreconciled Difference'}
+          </span>
+        )}
       </div>
 
       {/* Bridge statement — the default reconciliation view (opening balance →
           reconciling items → adjusted balance), matching the ALLFINE-style
           statement format. The detailed line-item grid is one click away. */}
       {bridge && !showDetail && (
-        <div className="card" style={{ marginBottom: 16 }}>
-          <div className="card-hd">
-            <div className="card-hd-l">
-              <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="bridge" size={17} /></div>
-              <div><div className="card-title">Balance Reconciliation Statement</div><div className="card-sub">SAP balance bridged to customer balance via reconciling items</div></div>
+        <>
+          <div className="bridge-stat-strip">
+            <div className="bridge-stat">
+              <div className="bridge-stat-lbl">SAP Balance</div>
+              <div className="bridge-stat-val" style={{ color: 'var(--ink)' }}>{fmtINR(bridge.opening_sap_balance)}</div>
             </div>
-            <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(true)}><Icon name="detail" size={13} /> View Detailed Line Items <Icon name="arrow" size={13} /></button>
+            <div className="bridge-stat">
+              <div className="bridge-stat-lbl">Customer Balance</div>
+              <div className="bridge-stat-val" style={{ color: 'var(--blue)' }}>{fmtINR(bridge.opening_customer_balance)}</div>
+            </div>
+            <div className="bridge-stat">
+              <div className="bridge-stat-lbl">Adjusted SAP Balance</div>
+              <div className="bridge-stat-val" style={{ color: 'var(--ink)' }}>{fmtINR(bridge.adjusted_sap_balance)}</div>
+            </div>
+            <div className="bridge-stat">
+              <div className="bridge-stat-lbl">{bridge.is_tied_out ? 'Difference' : 'Unreconciled'}</div>
+              <div className="bridge-stat-val" style={{ color: bridge.is_tied_out ? 'var(--green)' : 'var(--diff)' }}>{fmtINR(bridge.difference)}</div>
+            </div>
           </div>
-          <div className="card-body">
-            <table className="tbl">
-              <tbody>
-                <tr><td style={{ fontWeight: 700 }}>Balance as per SAP (Company Books)</td><td colSpan={2}></td><td className="td-mono" style={{ fontWeight: 700 }}>{fmtINR(bridge.opening_sap_balance)}</td><td></td></tr>
-                <tr><td style={{ fontWeight: 700 }}>Balance as per Customer Statement</td><td colSpan={2}></td><td className="td-mono" style={{ fontWeight: 700 }}>{fmtINR(bridge.opening_customer_balance)}</td><td></td></tr>
-              </tbody>
-            </table>
-            <div style={{ overflowX: 'auto', marginTop: 12 }}>
-              <table className="tbl">
-                <thead><tr><th>S.No</th><th>Document No</th><th>Date</th><th>Particulars / Reconciling Item</th><th>Debit (₹)</th><th>Credit (₹)</th><th>Remarks</th></tr></thead>
-                <tbody>
-                  {bridge.items.length === 0 && (
-                    <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--green)', fontWeight: 600, padding: 16 }}>No reconciling items — SAP and customer balances match fully.</td></tr>
-                  )}
-                  {bridge.items.map(it => (
-                    <tr key={it.s_no}>
-                      <td>{it.s_no}</td>
-                      <td><span className="td-mono" style={{ fontSize: 11 }}>{it.doc_number || '—'}</span></td>
-                      <td><span style={{ fontSize: 10, color: 'var(--muted)' }}>{fmtDate(it.doc_date)}</span></td>
-                      <td style={{ fontSize: 12 }}>{it.particulars}</td>
-                      <td><span className="td-mono">{it.debit ? fmtINR(it.debit) : ''}</span></td>
-                      <td><span className="td-mono">{it.credit ? fmtINR(it.credit) : ''}</span></td>
-                      <td style={{ fontSize: 11, color: 'var(--muted)' }}>{it.remark}</td>
+
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div className="card-hd">
+              <div className="card-hd-l">
+                <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="bridge" size={17} /></div>
+                <div><div className="card-title">Balance Reconciliation Statement</div><div className="card-sub">SAP balance bridged to customer balance via reconciling items</div></div>
+              </div>
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowDetail(true)}><Icon name="detail" size={13} /> View Detailed Line Items <Icon name="arrow" size={13} /></button>
+            </div>
+            <div className="card-body">
+              <div style={{ overflowX: 'auto', maxHeight: 460, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <table className="tbl bridge-tbl">
+                  <thead><tr><th>S.No</th><th>Document No</th><th>Date</th><th>Particulars / Reconciling Item</th><th>Debit (₹)</th><th>Credit (₹)</th><th>Remarks</th></tr></thead>
+                  <tbody>
+                    {bridge.items.length === 0 && (
+                      <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--green)', fontWeight: 600, padding: 24 }}><Icon name="checkCircle" size={16} style={{ marginRight: 6 }} />No reconciling items — SAP and customer balances match fully.</td></tr>
+                    )}
+                    {bridge.items.map(it => (
+                      <tr key={it.s_no}>
+                        <td>{it.s_no}</td>
+                        <td><span className="td-mono" style={{ fontSize: 11 }}>{it.doc_number || '—'}</span></td>
+                        <td><span style={{ fontSize: 10, color: 'var(--muted)' }}>{fmtDate(it.doc_date)}</span></td>
+                        <td style={{ fontSize: 12 }}>{it.particulars}</td>
+                        <td><span className="td-mono">{it.debit ? fmtINR(it.debit) : ''}</span></td>
+                        <td><span className="td-mono">{it.credit ? fmtINR(it.credit) : ''}</span></td>
+                        <td style={{ fontSize: 11, color: 'var(--muted)' }}>{it.remark}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ fontWeight: 700, borderTop: '2px solid var(--border)', background: 'var(--surf2)' }}>
+                      <td colSpan={4}>Total Reconciling Items</td>
+                      <td className="td-mono">{fmtINR(bridge.total_debit)}</td>
+                      <td className="td-mono">{fmtINR(bridge.total_credit)}</td>
+                      <td></td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr style={{ fontWeight: 700, borderTop: '2px solid var(--border)' }}>
-                    <td colSpan={4}>Total Reconciling Items</td>
-                    <td className="td-mono">{fmtINR(bridge.total_debit)}</td>
-                    <td className="td-mono">{fmtINR(bridge.total_credit)}</td>
-                    <td></td>
-                  </tr>
-                  <tr style={{ fontWeight: 700 }}>
-                    <td colSpan={3}>Adjusted SAP Balance</td>
-                    <td colSpan={2} className="td-mono">{fmtINR(bridge.adjusted_sap_balance)}</td>
-                    <td colSpan={2}></td>
-                  </tr>
-                  <tr style={{ fontWeight: 700 }}>
-                    <td colSpan={3} style={{ color: bridge.is_tied_out ? 'var(--green)' : 'var(--diff)' }}>{bridge.is_tied_out ? 'Difference (Reconciled)' : 'Unreconciled Difference'}</td>
-                    <td colSpan={2} className="td-mono" style={{ color: bridge.is_tied_out ? 'var(--green)' : 'var(--diff)' }}>{fmtINR(bridge.difference)}</td>
-                    <td colSpan={2}></td>
-                  </tr>
-                </tfoot>
-              </table>
+                    <tr style={{ fontWeight: 700, background: 'var(--surf2)' }}>
+                      <td colSpan={3}>Adjusted SAP Balance</td>
+                      <td colSpan={2} className="td-mono">{fmtINR(bridge.adjusted_sap_balance)}</td>
+                      <td colSpan={2}></td>
+                    </tr>
+                    <tr style={{ fontWeight: 700, background: 'var(--surf2)' }}>
+                      <td colSpan={3} style={{ color: bridge.is_tied_out ? 'var(--green)' : 'var(--diff)' }}>{bridge.is_tied_out ? 'Difference (Reconciled)' : 'Unreconciled Difference'}</td>
+                      <td colSpan={2} className="td-mono" style={{ color: bridge.is_tied_out ? 'var(--green)' : 'var(--diff)' }}>{fmtINR(bridge.difference)}</td>
+                      <td colSpan={2}></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+
+        </>
       )}
 
       {showDetail && (

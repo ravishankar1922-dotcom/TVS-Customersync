@@ -149,9 +149,10 @@ export function statusBadge(status) {
 export function Topbar({ onLogout, cycleId, company, asOfDate, adminEmail }) {
   return (
     <header style={{
-      height: 56, background: '#1E1E2E', display: 'flex', alignItems: 'center',
+      height: 56, background: 'linear-gradient(135deg,#1E1E2E,#161622)', display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', padding: '0 20px',
       borderBottom: '2px solid #C8102E', position: 'sticky', top: 0, zIndex: 200,
+      boxShadow: '0 2px 12px rgba(0,0,0,.18)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ background: '#fff', borderRadius: 6, padding: '4px 10px', display: 'flex', alignItems: 'center' }}>

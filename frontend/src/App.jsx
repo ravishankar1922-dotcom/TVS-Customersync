@@ -48,6 +48,12 @@ function AdminShell() {
   const [transitioning, setTransitioning] = useState(false); // animated loading screen shown right after a fresh sign-in
   const [adminEmail, setAdminEmail] = useState(null);
   const [page, setPage]           = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem('bsync_sidebar_collapsed') === '1'; } catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('bsync_sidebar_collapsed', sidebarCollapsed ? '1' : '0'); } catch {}
+  }, [sidebarCollapsed]);
   const [reconId, setReconId]     = useState(null);
   const [health, setHealth]       = useState(null);
   const [dashboard, setDashboard] = useState(null);
@@ -89,11 +95,11 @@ function AdminShell() {
   if (!loggedIn) return <Login onLogin={(email) => { setAdminEmail(email); setTransitioning(true); setTimeout(() => { setLoggedIn(true); setTransitioning(false); }, 1400); }} />;
 
   const NAV = [
-    { id: 'dashboard', ico: 'dashboard', label: 'Dashboard' },
-    { id: 'recon',     ico: 'search',    label: 'Reconciliation' },
-    { id: 'ledger',    ico: 'ledger',    label: 'Upload Ledger' },
-    { id: 'audit',     ico: 'shield',    label: 'Audit Log' },
-    { id: 'health',    ico: 'refresh',   label: 'System Status' },
+    { id: 'dashboard', ico: 'dashboard', label: 'Overview' },
+    { id: 'recon',     ico: 'search',    label: 'Reconciliation Studio' },
+    { id: 'ledger',    ico: 'ledger',    label: 'Ledger Sync' },
+    { id: 'audit',     ico: 'shield',    label: 'Audit Trail' },
+    { id: 'health',    ico: 'refresh',   label: 'System Health' },
   ];
 
   return (
@@ -101,12 +107,18 @@ function AdminShell() {
       <Topbar onLogout={logout} cycleId={health?.cycle_id || '—'} company={health?.company || 'TSL'} asOfDate={health?.as_of_date || '—'} adminEmail={adminEmail} />
       <CycleRibbon data={dashboard} />
       <div className="layout">
-        <nav className="sidebar">
+        <nav className={`sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
           {NAV.map(n => (
             <button key={n.id} className={`sidebar-link ${page === n.id ? 'active' : ''}`} onClick={() => navigate(n.id)}>
-              <span className="sico"><Icon name={n.ico} size={16} /></span>{n.label}
+              <span className="sico"><Icon name={n.ico} size={16} /></span>
+              <span className="slabel">{n.label}</span>
+              {sidebarCollapsed && <span className="sidebar-tip">{n.label}</span>}
             </button>
           ))}
+          <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(c => !c)} title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            <Icon name={sidebarCollapsed ? 'arrow' : 'back'} size={12} />
+            {!sidebarCollapsed && <span>Collapse</span>}
+          </button>
         </nav>
         <main className="main-content">
           {healthLoading && <Spinner full />}
@@ -123,11 +135,13 @@ function AdminShell() {
             </div>
           )}
 
-          {page === 'dashboard' && <Dashboard onNavigate={navigate} />}
-          {page === 'recon'     && <Reconciliation customerId={reconId} onBack={() => navigate('dashboard')} />}
-          {page === 'ledger'    && <LedgerUpload />}
-          {page === 'audit'     && <AuditLogView />}
-          {page === 'health'    && <SystemHealth health={health} onRefresh={loadHealth} />}
+          <div key={page} className="page-in">
+            {page === 'dashboard' && <Dashboard onNavigate={navigate} />}
+            {page === 'recon'     && <Reconciliation customerId={reconId} onBack={() => navigate('dashboard')} />}
+            {page === 'ledger'    && <LedgerUpload />}
+            {page === 'audit'     && <AuditLogView />}
+            {page === 'health'    && <SystemHealth health={health} onRefresh={loadHealth} />}
+          </div>
         </main>
       </div>
     </div>
@@ -173,12 +187,13 @@ function Login({ onLogin }) {
       </svg>
 
       <div className="login-card ct-glass">
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ display: 'inline-flex', background: '#fff', borderRadius: 10, padding: '10px 18px', marginBottom: 14, boxShadow: '0 8px 24px rgba(0,0,0,.25)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 26 }}>
+          <div style={{ display: 'inline-flex', background: '#fff', borderRadius: 10, padding: '10px 18px', marginBottom: 16, boxShadow: '0 8px 24px rgba(0,0,0,.25)' }}>
             <BrandLogo height={30} />
           </div>
-          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 4, color: '#fff' }}>BalanceSync — Admin</div>
-          <div style={{ fontSize: 12, color: '#ffffffa0' }}>Balance Confirmation &amp; Reconciliation Portal</div>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: '#FCA5A5', marginBottom: 8 }}>Accounts Receivable Platform</div>
+          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 20, fontWeight: 700, marginBottom: 5, color: '#fff' }}>BalanceSync</div>
+          <div style={{ fontSize: 12, color: '#ffffffa0', lineHeight: 1.5 }}>Balance Confirmation &amp; Reconciliation Console</div>
         </div>
         <form onSubmit={attempt}>
           <div className="field">
@@ -191,9 +206,14 @@ function Login({ onLogin }) {
               onChange={e => { setPwd(e.target.value); setErr(''); }} placeholder="Enter admin password" />
             {err && <div className="err-msg">{err}</div>}
           </div>
-          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={busy}>{busy ? 'Signing in…' : 'Login →'}</button>
+          <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={busy}>
+            {busy ? <><Spinner /> Signing in…</> : <>Sign In to Console <Icon name="arrow" size={14} /></>}
+          </button>
         </form>
-        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 10, color: '#ffffff70' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20, fontSize: 10, color: '#ffffff65' }}>
+          <Icon name="shield" size={12} /> Two-factor verified customer links · Encrypted balance data
+        </div>
+        <div style={{ marginTop: 14, textAlign: 'center', fontSize: 10, color: '#ffffff55' }}>
           Set ADMIN_EMAIL / ADMIN_PASSWORD in backend/.env<br/>
           <span style={{ color: '#FCA5A5', fontWeight: 600 }}>TEST DATA ONLY — NOT FOR PRODUCTION</span>
         </div>
@@ -203,7 +223,14 @@ function Login({ onLogin }) {
 }
 
 // ── Animated loading transition (login → portal) ────────────────────────────
+const LOADING_STEPS = ['Authenticating session', 'Loading customer ledger', 'Preparing your workspace'];
 function LoadingTransition() {
+  const [step, setStep] = useState(0);
+  const STEPS = LOADING_STEPS;
+  useEffect(() => {
+    const iv = setInterval(() => setStep(s => Math.min(s + 1, LOADING_STEPS.length - 1)), 420);
+    return () => clearInterval(iv);
+  }, []);
   return (
     <div className="ct-login-wrap" style={{ display: 'grid', placeItems: 'center' }}>
       <div style={{ textAlign: 'center' }}>
@@ -211,8 +238,11 @@ function LoadingTransition() {
           <div className="ct-ring" />
           <div className="ct-logo-pulse"><BrandLogo height={30} /></div>
         </div>
-        <div style={{ marginTop: 20, color: '#ffffffc0', fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', fontWeight: 600 }}>
-          Preparing your workspace…
+        <div style={{ marginTop: 22, color: '#ffffffc0', fontSize: 12, letterSpacing: '.06em', fontWeight: 600 }}>
+          {STEPS[step]}…
+        </div>
+        <div style={{ width: 160, height: 3, background: '#ffffff15', borderRadius: 999, margin: '14px auto 0', overflow: 'hidden' }}>
+          <div style={{ height: '100%', background: 'var(--red)', borderRadius: 999, width: `${((step + 1) / STEPS.length) * 100}%`, transition: 'width .35s ease' }} />
         </div>
       </div>
     </div>
