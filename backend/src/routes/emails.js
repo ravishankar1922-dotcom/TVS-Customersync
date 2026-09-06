@@ -209,14 +209,16 @@ Write-Host "Review them there, then send individually or select-all + send."
 });
 
 // GET /api/emails/preview/:customerId
+// Uses the same ensureTokenAndBalance() the actual trigger/Outlook-script flows
+// use, so the preview always reflects the exact link that would really be
+// sent — never a stale token from an older cycle/reset that happened to be
+// sitting in the database without this shared lookup.
 router.get('/preview/:customerId', requireAdmin, async (req, res) => {
   const customer = await Customer.findOne({ customer_id: req.params.customerId }).lean();
   if (!customer) return res.status(404).json({ error: 'Customer not found' });
 
-  const tokenRec = await TokenRecord.findOne({ customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID }).lean();
-  const portalUrl = tokenRec ? tokenRec.portal_url : `${cfg.FRONTEND_URL}/portal?t=PREVIEW_ONLY`;
-  const led = await LedgerEntry.findOne({ customer_id: customer.customer_id }).lean();
-  const sapBalance = led ? led.transactions.filter(t => t.status === 'OPEN').reduce((s, t) => s + (t.amount || 0), 0) : 0;
+  const { tokenRec, sapBalance } = await ensureTokenAndBalance(customer);
+  const portalUrl = tokenRec.portal_url;
 
   const html = confirmationRequestEmail(customer, sapBalance, portalUrl, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
   res.json({ subject: `${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`, body: html, portal_url: portalUrl });
