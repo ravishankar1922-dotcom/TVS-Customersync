@@ -56,7 +56,7 @@ const api = {
   customer:         (id)    => request('GET',  `/api/customers/${id}`),
   customerLedger:   (id)    => request('GET',  `/api/customers/${id}/ledger`),
   customersExportUrl: ()    => `${BASE_URL}/api/customers/export.xlsx?token=${getToken() || ''}`,
-  importCustomersJson: (json) => request('POST', '/api/customers/import-json', json),
+  importCustomersJson: (customers, opts = {}) => request('POST', '/api/customers/import-json', { customers, mode: opts.mode, dryRun: !!opts.dryRun }),
 
   // Tokens (admin)
   generateTokens:   (opts)  => request('POST', '/api/tokens/generate', opts || {}),
@@ -68,6 +68,7 @@ const api = {
   // Tokens (customer portal — public, two-factor)
   validateToken:    (tok)        => request('POST', '/api/tokens/validate', { token: tok }),
   verifyPan:        (tok, pan)   => request('POST', '/api/tokens/verify-pan', { token: tok, pan }),
+  sapLedgerUrl:     (tok, pan)   => `${BASE_URL}/api/tokens/${encodeURIComponent(tok)}/sap-ledger.xlsx?pan=${encodeURIComponent(pan || '')}`,
 
   // Emails
   triggerEmails:       ()   => request('POST', '/api/emails/trigger'),
@@ -94,7 +95,7 @@ const api = {
   ledger:           ()      => request('GET',  '/api/ledger'),
   ledgerHistory:    ()      => request('GET',  '/api/ledger/history'),
   ledgerExportUrl:  ()      => `${BASE_URL}/api/ledger/export.xlsx?token=${getToken() || ''}`,
-  importLedgerJson: (json)  => request('POST', '/api/ledger/import-json', json),
+  importLedgerJson: (ledgers, opts = {}) => request('POST', '/api/ledger/import-json', { ledgers, mode: opts.mode, dryRun: !!opts.dryRun }),
 
   // Reconciliation
   reconcile:            (id) => request('GET', `/api/reconciliation/${id}`),

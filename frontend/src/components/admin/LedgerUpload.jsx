@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, Spinner, useToast, Icon } from '../shared';
+import { fmtINR, fmtDate, Spinner, useToast, Icon, Modal } from '../shared';
 
 export default function LedgerUpload() {
   const toast = useToast();
@@ -39,9 +39,19 @@ export default function LedgerUpload() {
     finally { setConfirming(false); }
   }
 
-  // ── JSON master-data upload (point 6) ────────────────────────────────
+  // ── JSON master-data upload (replace/append) ─────────────────────────
   const [jsonBusy, setJsonBusy]   = useState(null); // 'customers' | 'ledger' | null
   const [jsonResult, setJsonResult] = useState(null);
+  const [importGate, setImportGate] = useState(null); // { kind, records, matched, brandNew }
+
+  function extractRecords(kind, json) {
+    if (Array.isArray(json)) return json;
+    if (kind === 'customers') return json.customers || [];
+    return json.ledgers || [];
+  }
+  function runImport(kind, records, mode) {
+    return kind === 'customers' ? api.importCustomersJson(records, { mode }) : api.importLedgerJson(records, { mode });
+  }
 
   async function handleJsonFile(kind, file) {
     if (!file) return;
@@ -49,11 +59,37 @@ export default function LedgerUpload() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      const r = kind === 'customers' ? await api.importCustomersJson(json) : await api.importLedgerJson(json);
+      const records = extractRecords(kind, json);
+      if (!records.length) throw new Error('No records found in the JSON file.');
+
+      const dry = kind === 'customers'
+        ? await api.importCustomersJson(records, { dryRun: true })
+        : await api.importLedgerJson(records, { dryRun: true });
+
+      if (dry.matched > 0) {
+        // Existing records overlap — ask Replace or Append before writing anything.
+        setImportGate({ kind, records, matched: dry.matched, brandNew: dry.new });
+        setJsonBusy(null);
+        return;
+      }
+      // Nothing overlaps — safe to import straight away as a plain append.
+      const r = await runImport(kind, records, 'append');
       setJsonResult({ kind, ...r });
-      toast(`${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported — ${r.upserted} upserted${r.skipped ? `, ${r.skipped} skipped` : ''}`, 'success');
+      toast(`${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported — ${r.upserted} upserted`, 'success');
     } catch (e) { toast(e.message.includes('JSON') ? e.message : `Import failed: ${e.message}`, 'err'); }
     finally { setJsonBusy(null); }
+  }
+
+  async function resolveImportGate(mode) {
+    if (!importGate) return;
+    const { kind, records } = importGate;
+    setJsonBusy(kind);
+    try {
+      const r = await runImport(kind, records, mode);
+      setJsonResult({ kind, ...r });
+      toast(`${kind === 'customers' ? 'Customer master' : 'Ledger'} JSON imported (${mode}) — ${r.upserted} upserted${r.skipped ? `, ${r.skipped} skipped` : ''}${r.appendedSkipped ? `, ${r.appendedSkipped} left untouched` : ''}`, 'success');
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setJsonBusy(null); setImportGate(null); }
   }
 
   return (
@@ -200,6 +236,30 @@ export default function LedgerUpload() {
           </div>
         )}
       </div>
+
+      <Modal open={!!importGate} onClose={() => setImportGate(null)}
+        title="Existing records found" sub="Choose how to handle the overlap before importing">
+        {importGate && (
+          <div>
+            <div className="info-box ib-amber" style={{ marginBottom: 16 }}>
+              <strong>{importGate.matched} of {importGate.records.length} record(s)</strong> in this file match
+              {importGate.kind === 'customers' ? ' customers' : ' ledgers'} already on file
+              {importGate.brandNew > 0 ? ` (${importGate.brandNew} are brand new and will be added either way).` : '.'}
+            </div>
+            <div style={{ display: 'grid', gap: 10 }}>
+              <button className="btn btn-primary btn-full" onClick={() => resolveImportGate('replace')}>
+                <Icon name="reset" size={13} /> Replace — overwrite the {importGate.matched} matching record(s) with this file
+              </button>
+              <button className="btn btn-secondary btn-full" onClick={() => resolveImportGate('append')}>
+                <Icon name="checklist" size={13} />
+                {importGate.kind === 'customers'
+                  ? ' Append — only add the new ones, leave existing customers untouched'
+                  : ' Append — merge in new transactions, keep existing ones (by document no.)'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

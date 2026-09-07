@@ -6,6 +6,7 @@ import LedgerUpload   from './components/admin/LedgerUpload';
 import AuditLogView   from './components/admin/AuditLogView';
 import CustomerPortal from './components/portal/CustomerPortal';
 import api from './services/api';
+import datamaticsLogo from './assets/datamatics-logo.png';
 import './index.css';
 
 // ── Main App ───────────────────────────────────────────────────────────────
@@ -15,9 +16,9 @@ export default function App() {
   if (isPortal) {
     return (
       <ToastProvider>
-        <div style={{ minHeight: '100vh', background: 'var(--slate)' }}>
+        <div style={{ height: '100vh', overflow: 'hidden', background: 'var(--slate)', display: 'flex', flexDirection: 'column' }}>
           <header style={{
-            height: 56, background: '#1E1E2E', display: 'flex', alignItems: 'center',
+            height: 56, flexShrink: 0, background: '#1E1E2E', display: 'flex', alignItems: 'center',
             padding: '0 20px', borderBottom: '2px solid #C8102E',
           }}>
             <div style={{ background: '#fff', borderRadius: 6, padding: '4px 10px', display: 'flex', alignItems: 'center' }}>
@@ -25,11 +26,17 @@ export default function App() {
             </div>
             <div style={{ width: 1, height: 18, background: '#ffffff20', margin: '0 14px' }} />
             <div style={{ color: '#ffffff50', fontSize: 11 }}>Customer Balance Confirmation</div>
-            <div style={{ marginLeft: 'auto' }}>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
               <span style={{ background: '#C8102E20', border: '1px solid #C8102E50', color: '#FCA5A5', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 999, letterSpacing: '.06em', textTransform: 'uppercase' }}>TEST DATA</span>
+              <div style={{ width: 1, height: 18, background: '#ffffff20' }} />
+              <div style={{ background: '#fff', borderRadius: 6, padding: '4px 10px', display: 'flex', alignItems: 'center' }}>
+                <img src={datamaticsLogo} alt="Datamatics" style={{ height: 20, display: 'block' }} />
+              </div>
             </div>
           </header>
-          <CustomerPortal />
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <CustomerPortal />
+          </div>
         </div>
       </ToastProvider>
     );
@@ -234,11 +241,18 @@ function LoadingTransition() {
   return (
     <div className="ct-login-wrap" style={{ display: 'grid', placeItems: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div className="ct-ring-wrap">
-          <div className="ct-ring" />
-          <div className="ct-logo-pulse"><BrandLogo height={30} /></div>
+        <div className="ld-orbit">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#ffffff12" strokeWidth="3" />
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--red)" strokeWidth="3" strokeLinecap="round"
+              strokeDasharray="90 300" className="ld-arc-1" />
+            <circle cx="60" cy="60" r="38" fill="none" stroke="#ffffff10" strokeWidth="2" />
+            <circle cx="60" cy="60" r="38" fill="none" stroke="#ffffffb0" strokeWidth="2" strokeLinecap="round"
+              strokeDasharray="50 220" className="ld-arc-2" />
+            <circle cx="60" cy="60" r="7" fill="var(--red)" className="ld-core" />
+          </svg>
         </div>
-        <div style={{ marginTop: 22, color: '#ffffffc0', fontSize: 12, letterSpacing: '.06em', fontWeight: 600 }}>
+        <div style={{ marginTop: 20, color: '#ffffffc0', fontSize: 12, letterSpacing: '.06em', fontWeight: 600 }}>
           {STEPS[step]}…
         </div>
         <div style={{ width: 160, height: 3, background: '#ffffff15', borderRadius: 999, margin: '14px auto 0', overflow: 'hidden' }}>

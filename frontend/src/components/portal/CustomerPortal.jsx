@@ -186,12 +186,12 @@ export default function CustomerPortal() {
   const liveDiff = custBal ? sap_balance - custNum : null;
 
   return (
-    <div className="portal-wrap">
-      <div className="portal-hdr">
+    <div className="portal-split">
+      <aside className="portal-left">
         <div className="pi-eye">Accounts Receivable</div>
         <div className="pi-co">Balance Confirmation Request</div>
         <div className="pi-desc">Please confirm the outstanding balance in your books and upload your Statement of Account.</div>
-        <div className="pi-meta">
+        <div className="pi-meta" style={{ gridTemplateColumns: '1fr' }}>
           {[
             { l: 'Customer', v: customer?.customer_name },
             { l: 'Customer ID', v: customer?.customer_id },
@@ -201,7 +201,14 @@ export default function CustomerPortal() {
             <div key={l} className="pi-mi"><div className="pi-ml">{l}</div><div className="pi-mv">{v}</div></div>
           ))}
         </div>
-      </div>
+        <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid #ffffff14', fontSize: 10, color: '#ffffff55', lineHeight: 1.7 }}>
+          <Icon name="lock" size={11} /> Your submission is encrypted and reviewed only by the AR team. This link is single-use.
+        </div>
+      </aside>
+
+      <main className="portal-right">
+        <div className="portal-right-scroll">
+          <div className="portal-right-inner">
 
       <div className="steps-bar">
         {['Balance', 'Upload SOA', 'Review', 'Submit'].map((s, i) => (
@@ -221,6 +228,10 @@ export default function CustomerPortal() {
                   <div className="bw-lbl">Our Books (SAP)</div>
                   <div className="bw-amt">{fmtINR(sap_balance)}</div>
                   <div style={{ fontSize: 9, color: 'var(--muted)', marginTop: 3 }}>As on {as_of_date}</div>
+                  <a href={api.sapLedgerUrl(token, pan)} target="_blank" rel="noreferrer"
+                    className="btn btn-ghost btn-sm" style={{ marginTop: 8, fontSize: 10 }}>
+                    <Icon name="download" size={12} /> Download SAP Ledger
+                  </a>
                 </div>
                 <div className="bw-vs">vs</div>
                 <div className="bw-box bw-cust">
@@ -358,6 +369,10 @@ export default function CustomerPortal() {
           </div>
         </>
       )}
+
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

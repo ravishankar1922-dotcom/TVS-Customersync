@@ -233,6 +233,20 @@ button, input, select, textarea { font-family: 'Inter', sans-serif; }
 .sidebar.collapsed .sidebar-link:hover .sidebar-tip { opacity:1; }
 .main-content { flex:1;overflow-y:auto;padding:20px 24px; }
 
+/* ── Portal split-screen (no page scroll — each pane scrolls internally) ── */
+.portal-split { display:flex;height:100%;overflow:hidden; }
+.portal-left  { width:360px;flex-shrink:0;background:var(--ink2);color:#fff;padding:34px 28px;overflow-y:auto;position:relative; }
+.portal-left::after { content:'';position:absolute;bottom:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:var(--red);opacity:.08;pointer-events:none; }
+.portal-right { flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--slate);min-width:0; }
+.portal-right-scroll { flex:1;overflow-y:auto;padding:22px 32px 32px; }
+.portal-right-inner { max-width:640px;margin:0 auto; }
+@media (max-width: 760px) {
+  .portal-split { flex-direction:column;height:auto;overflow:visible; }
+  .portal-left  { width:100%;padding:22px 20px; }
+  .portal-right { overflow:visible; }
+  .portal-right-scroll { overflow:visible;padding:18px 16px 32px; }
+}
+
 /* ── Portal specific ── */
 .portal-wrap { max-width:580px;width:100%;margin:0 auto;padding:28px 16px 56px; }
 .portal-hdr  { background:var(--ink2);border-radius:var(--rxl);padding:24px;margin-bottom:14px;position:relative;overflow:hidden; }
@@ -307,6 +321,15 @@ button, input, select, textarea { font-family: 'Inter', sans-serif; }
 @keyframes ctSpin { to { transform: rotate(360deg); } }
 .ct-logo-pulse { background: #fff; border-radius: 8px; padding: 8px 12px; display: inline-flex; animation: ctPulseLogo 1.4s ease-in-out infinite; }
 @keyframes ctPulseLogo { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .85; } }
+
+/* ── Loading-transition orbit animation (logo-free) ── */
+.ld-orbit { width: 120px; height: 120px; margin: 0 auto; }
+.ld-arc-1 { transform-origin: 60px 60px; animation: ldSpin 1.6s linear infinite; }
+.ld-arc-2 { transform-origin: 60px 60px; animation: ldSpinRev 1.15s linear infinite; }
+.ld-core  { animation: ldCorePulse 1.1s ease-in-out infinite; transform-origin: 60px 60px; }
+@keyframes ldSpin    { to { transform: rotate(360deg); } }
+@keyframes ldSpinRev { to { transform: rotate(-360deg); } }
+@keyframes ldCorePulse { 0%,100% { r: 7; opacity: 1; } 50% { r: 9; opacity: .6; } }
 
 /* ── Spinner ── */
 .spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }

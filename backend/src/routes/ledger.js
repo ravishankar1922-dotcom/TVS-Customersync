@@ -130,18 +130,48 @@ router.post('/confirm-import', requireAdmin, async (req, res) => {
 
 // POST /api/ledger/import-json — bulk upsert ledgers from JSON, same shape
 // as data/TSL_ledger.json: [{ customer_id, transactions: [...] }, ...]
+// Body: { ledgers: [...], mode?: 'replace'|'append', dryRun?: boolean }
+// - dryRun:true counts customers that already have a ledger on file vs. ones
+//   that don't, without writing anything.
+// - mode:'replace' (default) overwrites a matched customer's transactions
+//   list entirely with the uploaded one.
+// - mode:'append' merges the uploaded transactions into whatever that
+//   customer already has, de-duplicating by document_number (an uploaded
+//   line with the same document number replaces that one line; anything new
+//   is added on). A customer with no existing ledger is created either way.
 router.post('/import-json', requireAdmin, async (req, res) => {
   const ledgers = Array.isArray(req.body) ? req.body : req.body?.ledgers;
+  const mode = req.body?.mode === 'append' ? 'append' : 'replace';
+  const dryRun = !!req.body?.dryRun;
   if (!Array.isArray(ledgers) || !ledgers.length) return res.status(400).json({ error: 'Expected a JSON array of { customer_id, transactions } objects (or { "ledgers": [...] }).' });
+
+  if (dryRun) {
+    const ids = ledgers.map(l => l.customer_id).filter(Boolean);
+    const existing = await LedgerEntry.find({ customer_id: { $in: ids } }).distinct('customer_id');
+    const existingSet = new Set(existing);
+    const matched = ids.filter(id => existingSet.has(id)).length;
+    const brandNew = ids.length - matched;
+    return res.json({ ok: true, dryRun: true, total: ids.length, matched, new: brandNew });
+  }
 
   let upserted = 0, skipped = 0;
   for (const l of ledgers) {
     if (!l.customer_id || !Array.isArray(l.transactions)) { skipped++; continue; }
+    if (mode === 'append') {
+      const existingDoc = await LedgerEntry.findOne({ customer_id: l.customer_id }).lean();
+      if (existingDoc) {
+        const byDocNo = new Map(existingDoc.transactions.map(t => [t.document_number, t]));
+        for (const t of l.transactions) byDocNo.set(t.document_number, t);
+        await LedgerEntry.updateOne({ customer_id: l.customer_id }, { transactions: Array.from(byDocNo.values()) });
+        upserted++;
+        continue;
+      }
+    }
     await LedgerEntry.findOneAndUpdate({ customer_id: l.customer_id }, { customer_id: l.customer_id, transactions: l.transactions }, { upsert: true });
     upserted++;
   }
-  await logAudit({ req, action: 'LEDGER_JSON_IMPORTED', entity_type: 'Ledger', details: { upserted, skipped } });
-  res.json({ ok: true, upserted, skipped });
+  await logAudit({ req, action: 'LEDGER_JSON_IMPORTED', entity_type: 'Ledger', details: { upserted, skipped, mode } });
+  res.json({ ok: true, upserted, skipped, mode });
 });
 
 router.get('/', requireAdmin, async (req, res) => {

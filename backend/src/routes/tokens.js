@@ -8,6 +8,7 @@ const Confirmation = require('../models/Confirmation');
 const te = require('../utils/tokenEngine');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
+const ExcelJS = require('exceljs');
 
 // POST /api/tokens/generate — admin only
 // Body: { customer_ids?: string[], expiry_hours?: number, expiry_date?: ISOString }
@@ -129,6 +130,58 @@ router.post('/verify-pan', async (req, res) => {
     as_of_date: cfg.AS_OF_DATE,
     transactions: ledger ? ledger.transactions : [],
   });
+});
+
+// GET /api/tokens/:token/sap-ledger.xlsx?pan=XXXXX — customer-portal download
+// Same two-factor bar as the portal itself (valid, unexpired token + matching
+// PAN) — lets the customer download only THEIR OWN SAP open-items ledger as a
+// reference file while filling in their book balance. Never exposes any
+// other customer's data.
+router.get('/:token/sap-ledger.xlsx', async (req, res) => {
+  const result = te.validateToken(req.params.token);
+  if (!result.valid) return res.status(400).json({ error: 'Invalid or expired link', reason: result.reason });
+
+  const { payload } = result;
+  const record = await TokenRecord.findOne({ token_id: payload.token_id });
+  if (!record || record.status === 'REVOKED') return res.status(400).json({ error: 'Link no longer valid' });
+
+  const customer = await Customer.findOne({ customer_id: payload.customer_id }).lean();
+  if (!customer) return res.status(404).json({ error: 'Customer not found' });
+
+  const pan = (req.query.pan || '').toString().trim().toUpperCase();
+  if (!pan || pan !== customer.pan) return res.status(401).json({ error: 'PAN verification required' });
+
+  const led = await LedgerEntry.findOne({ customer_id: customer.customer_id }).lean();
+  const openTxns = led ? led.transactions.filter(t => t.status === 'OPEN') : [];
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'BalanceSync';
+  wb.created = new Date();
+  const sh = wb.addWorksheet('SAP Ledger');
+  sh.columns = [{ width: 20 }, { width: 16 }, { width: 14 }, { width: 14 }, { width: 18 }, { width: 10 }];
+  sh.mergeCells('A1:F1');
+  sh.getCell('A1').value = `SAP Open Items – ${customer.customer_name} (${customer.customer_id})`;
+  sh.getCell('A1').font = { bold: true, size: 13 };
+  sh.mergeCells('A2:F2');
+  sh.getCell('A2').value = `Cycle: ${cfg.CYCLE_ID}   |   As of: ${cfg.AS_OF_DATE}   |   Company: ${cfg.COMPANY}`;
+  sh.getCell('A2').font = { italic: true, color: { argb: 'FF666666' } };
+  sh.addRow([]);
+  const hdr = sh.addRow(['Document No', 'Type', 'Document Date', 'Due Date', 'Amount', 'Currency']);
+  hdr.font = { bold: true };
+  hdr.eachCell(c => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E1E2E' } }; c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; });
+  openTxns.forEach(t => {
+    sh.addRow([t.document_number, t.document_type, t.document_date, t.due_date, t.amount, t.currency || 'INR']);
+  });
+  const totalRow = sh.addRow(['', '', '', 'TOTAL', openTxns.reduce((s, t) => s + (t.amount || 0), 0), '']);
+  totalRow.font = { bold: true };
+  sh.getColumn(5).numFmt = '#,##0.00';
+
+  await logAudit({ req, actor: `CUSTOMER:${customer.customer_id}`, actor_role: 'customer', action: 'SAP_LEDGER_DOWNLOADED', entity_type: 'Customer', entity_id: customer.customer_id });
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="SAP_Ledger_${customer.customer_id}.xlsx"`);
+  await wb.xlsx.write(res);
+  res.end();
 });
 
 // POST /api/tokens/reset-expired — bulk: marks every ACTIVE-but-past-expiry

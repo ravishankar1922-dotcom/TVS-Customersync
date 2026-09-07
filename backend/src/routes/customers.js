@@ -55,20 +55,42 @@ router.get('/', requireAdmin, async (req, res) => {
 // POST /api/customers/import-json — bulk upsert customer master from a JSON
 // array (same shape as data/customer_master.json), directly from the admin
 // UI instead of the local npm run seed script.
+// Body: { customers: [...], mode?: 'replace'|'append', dryRun?: boolean }
+// - dryRun:true just counts how many uploaded records match existing
+//   customer_ids vs. are brand new, so the UI can ask Replace/Append first
+//   without writing anything.
+// - mode:'replace' (default) overwrites matched customers with the uploaded
+//   data. mode:'append' only inserts customers that don't already exist —
+//   any customer_id already on file is left completely untouched.
 router.post('/import-json', requireAdmin, async (req, res) => {
   const customers = Array.isArray(req.body) ? req.body : req.body?.customers;
+  const mode = req.body?.mode === 'append' ? 'append' : 'replace';
+  const dryRun = !!req.body?.dryRun;
   if (!Array.isArray(customers) || !customers.length) return res.status(400).json({ error: 'Expected a JSON array of customer objects (or { "customers": [...] }).' });
 
-  let upserted = 0, skipped = 0;
+  if (dryRun) {
+    const ids = customers.map(c => c.customer_id).filter(Boolean);
+    const existing = await Customer.find({ customer_id: { $in: ids } }).distinct('customer_id');
+    const existingSet = new Set(existing);
+    const matched = ids.filter(id => existingSet.has(id)).length;
+    const brandNew = ids.length - matched;
+    return res.json({ ok: true, dryRun: true, total: ids.length, matched, new: brandNew });
+  }
+
+  let upserted = 0, skipped = 0, appendedSkipped = 0;
   const errors = [];
   for (const c of customers) {
     if (!c.customer_id || !c.customer_name) { skipped++; errors.push(`Missing customer_id/customer_name: ${JSON.stringify(c).slice(0, 80)}`); continue; }
     if (!c.pan) { skipped++; errors.push(`${c.customer_id}: no PAN on file (required for portal login) — skipped`); continue; }
+    if (mode === 'append') {
+      const exists = await Customer.exists({ customer_id: c.customer_id });
+      if (exists) { appendedSkipped++; continue; }
+    }
     await Customer.findOneAndUpdate({ customer_id: c.customer_id }, { ...c, pan: c.pan.toUpperCase() }, { upsert: true });
     upserted++;
   }
-  await logAudit({ req, action: 'CUSTOMER_MASTER_JSON_IMPORTED', entity_type: 'Customer', details: { upserted, skipped } });
-  res.json({ ok: true, upserted, skipped, errors: errors.slice(0, 20) });
+  await logAudit({ req, action: 'CUSTOMER_MASTER_JSON_IMPORTED', entity_type: 'Customer', details: { upserted, skipped, mode, appendedSkipped } });
+  res.json({ ok: true, upserted, skipped, appendedSkipped, mode, errors: errors.slice(0, 20) });
 });
 
 // GET /api/customers/export.xlsx — full customer list as a workbook

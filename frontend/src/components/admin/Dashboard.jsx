@@ -11,6 +11,7 @@ export default function Dashboard({ onNavigate }) {
   const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState('');
   const [statusF, setStatusF]         = useState('');
+  const [statusSort, setStatusSort]   = useState(''); // '' | 'asc' | 'desc'
   const [page, setPage]               = useState(1);
   const [selected, setSelected]       = useState(new Set());
   const [detailModal, setDetailModal] = useState(null);
@@ -40,7 +41,11 @@ export default function Dashboard({ onNavigate }) {
     (c.email || '').toLowerCase().includes(search.toLowerCase())
   );
   if (statusF) data = data.filter(c => c.status === statusF);
-  data.sort((a, b) => (Math.abs(b.difference || 0)) - (Math.abs(a.difference || 0)));
+  if (statusSort) {
+    data.sort((a, b) => (a.status || '').localeCompare(b.status || '') * (statusSort === 'asc' ? 1 : -1));
+  } else {
+    data.sort((a, b) => (Math.abs(b.difference || 0)) - (Math.abs(a.difference || 0)));
+  }
 
   const totalPages = Math.ceil(data.length / PAGE);
   const pageData   = data.slice((page - 1) * PAGE, page * PAGE);
@@ -162,7 +167,7 @@ export default function Dashboard({ onNavigate }) {
               <option value="DIFFERENCE">Difference</option>
               <option value="PENDING">Pending</option>
             </select>
-            <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setStatusF(''); setPage(1); }}>Clear</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setStatusF(''); setStatusSort(''); setPage(1); }}>Clear</button>
             <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 4 }}>{data.length} of {customers.length} customers</span>
           </div>
 
@@ -172,7 +177,11 @@ export default function Dashboard({ onNavigate }) {
                 <tr>
                   <th><input type="checkbox" onChange={e => setSelected(e.target.checked ? new Set(pageData.map(c => c.customer_id)) : new Set())} style={{ accentColor: '#C8102E' }} /></th>
                   <th>Customer</th><th>Customer ID</th><th>SAP Balance</th>
-                  <th>Cust. Balance</th><th>Difference</th><th>Status</th>
+                  <th>Cust. Balance</th><th>Difference</th>
+                  <th onClick={() => setStatusSort(s => s === 'asc' ? 'desc' : s === 'desc' ? '' : 'asc')}
+                    style={{ cursor: 'pointer', userSelect: 'none' }} title="Click to sort by status">
+                    Status {statusSort === 'asc' ? '▲' : statusSort === 'desc' ? '▼' : ''}
+                  </th>
                   <th>Submission Date</th><th>SOA</th><th>Token</th><th>Actions</th>
                 </tr>
               </thead>
