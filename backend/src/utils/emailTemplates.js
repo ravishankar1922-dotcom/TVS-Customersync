@@ -59,4 +59,34 @@ ${notes ? `<p><strong>AR Team Notes:</strong><br/>${notes.replace(/\n/g, '<br/>'
 <p style="font-size:12px;color:#444;">Regards,<br/><strong>${cfg.COMPANY} Accounts Receivable — Shared Services Centre</strong></p>`);
 }
 
-module.exports = { confirmationRequestEmail, reconciliationCompleteEmail };
+// ── Reminder email (customer hasn't responded yet) ───────────────────────
+function reminderEmail(customer, sapBalance, portalUrl, asOfDate, tokenExpiryHours) {
+  return baseWrap(`
+<p>Dear ${customer.customer_name},</p>
+<p style="background:#FFF7E6;border-left:3px solid #D97706;padding:8px 14px;color:#92400E;">
+  <strong>Reminder:</strong> We haven't yet received your balance confirmation for the period ending
+  <strong>${asOfDate}</strong>. Please take a moment to review and submit — it only takes a couple of minutes.
+</p>
+<table style="border:1px solid #ccc;border-collapse:collapse;margin:16px 0;">
+  <tr style="background:${BRAND_RED};color:#fff;">
+    <td style="padding:8px 16px;font-weight:bold;">Balance as per Our Books</td>
+    <td style="padding:8px 24px;font-weight:bold;font-family:'Courier New',monospace;">${fmtCurrencyHTML(sapBalance)}</td>
+  </tr>
+</table>
+<p>
+  <a href="${portalUrl}" style="background:${BRAND_RED};color:#fff;padding:10px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">
+    CONFIRM BALANCE NOW
+  </a>
+</p>
+<p style="font-size:11px;color:#666;">Or copy this link into your browser:<br/><a href="${portalUrl}">${portalUrl}</a></p>
+<p style="font-size:11px;color:#666;">
+  &#9888; This link expires in ${tokenExpiryHours} hours from when it was (re)issued. You will be asked to enter your registered PAN before it opens.
+</p>
+<hr/>
+<p style="font-size:12px;color:#444;">
+  Regards,<br/><strong>${cfg.COMPANY} Accounts Receivable — Shared Services Centre</strong><br/>
+  <em>This is an automated reminder. Please do not reply to this email.</em>
+</p>`);
+}
+
+module.exports = { confirmationRequestEmail, reconciliationCompleteEmail, reminderEmail };

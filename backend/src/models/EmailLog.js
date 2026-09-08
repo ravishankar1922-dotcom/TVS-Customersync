@@ -8,7 +8,8 @@ const EmailLogSchema = new mongoose.Schema({
   token_id:      String,
   portal_url:    String,
   subject:       String,
-  kind:          { type: String, enum: ['CONFIRMATION_REQUEST', 'RECON_COMPLETE'], default: 'CONFIRMATION_REQUEST' },
+  kind:          { type: String, enum: ['CONFIRMATION_REQUEST', 'RECON_COMPLETE', 'REMINDER'], default: 'CONFIRMATION_REQUEST' },
+  reminder_count: { type: Number, default: 0 },
   status:        String, // SENT | FAILED | DRAFT_CREATED | OUTLOOK_UNAVAILABLE | READY
   error:         String,
   sent_at:       Date,

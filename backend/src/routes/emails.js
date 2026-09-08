@@ -7,7 +7,8 @@ const TokenRecord = require('../models/TokenRecord');
 const EmailLog = require('../models/EmailLog');
 const te = require('../utils/tokenEngine');
 const { sendMail, isConfigured } = require('../utils/mailer');
-const { confirmationRequestEmail } = require('../utils/emailTemplates');
+const Confirmation = require('../models/Confirmation');
+const { confirmationRequestEmail, reminderEmail } = require('../utils/emailTemplates');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
 
@@ -69,6 +70,71 @@ async function sendConfirmationEmail(customer) {
 
   return { customer_id: customer.customer_id, customer_name: customer.customer_name, status, portal_url: tokenRec.portal_url, error: errorMsg };
 }
+
+async function sendReminderEmail(customer) {
+  const { tokenRec, sapBalance } = await ensureTokenAndBalance(customer);
+  const subject = `Reminder: ${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`;
+  const html    = reminderEmail(customer, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
+
+  let status = 'READY', errorMsg = null;
+  if (isConfigured()) {
+    try {
+      await sendMail({ to: customer.email?.match(/<(.+)>/)?.[1] || customer.email, subject, html });
+      status = 'SENT';
+    } catch (err) {
+      status = 'FAILED';
+      errorMsg = err.message;
+    }
+  }
+
+  const existing = await EmailLog.findOne({ customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, kind: 'REMINDER' }).lean();
+  await EmailLog.findOneAndUpdate(
+    { customer_id: customer.customer_id, cycle_id: cfg.CYCLE_ID, kind: 'REMINDER' },
+    {
+      customer_id: customer.customer_id, customer_name: customer.customer_name, email: customer.email,
+      cycle_id: cfg.CYCLE_ID, token_id: tokenRec.token_id, portal_url: tokenRec.portal_url, subject,
+      kind: 'REMINDER', status, error: errorMsg, sent_at: new Date(),
+      reminder_count: (existing?.reminder_count || 0) + 1,
+    },
+    { upsert: true }
+  );
+
+  return { customer_id: customer.customer_id, customer_name: customer.customer_name, status, error: errorMsg };
+}
+
+// POST /api/emails/remind-pending — bulk reminder to every customer who has
+// NOT yet submitted a confirmation for the current cycle (no Confirmation
+// record on file). Safe to run repeatedly — each run just bumps that
+// customer's reminder_count and refreshes their link if it had expired
+// (via ensureTokenAndBalance), so nobody is ever stuck on a dead link.
+router.post('/remind-pending', requireAdmin, async (req, res) => {
+  const allCustomers = await Customer.find().lean();
+  const responded = await Confirmation.find({ cycle_id: cfg.CYCLE_ID }).distinct('customer_id');
+  const respondedSet = new Set(responded);
+  const pending = allCustomers.filter(c => !respondedSet.has(c.customer_id));
+
+  if (!pending.length) return res.json({ ok: true, total: 0, sent: 0, ready: 0, failed: 0, results: [], note: 'Every customer has already responded — no reminders needed.' });
+
+  const results = [];
+  for (const c of pending) {
+    try { results.push(await sendReminderEmail(c)); }
+    catch (err) { results.push({ customer_id: c.customer_id, status: 'FAILED', error: err.message }); }
+  }
+  await logAudit({ req, action: 'EMAIL_REMINDER_BULK', entity_type: 'Customer', details: { total: pending.length } });
+
+  res.json({
+    ok: true,
+    smtp_configured: isConfigured(),
+    total: pending.length,
+    sent: results.filter(r => r.status === 'SENT').length,
+    ready: results.filter(r => r.status === 'READY').length,
+    failed: results.filter(r => r.status === 'FAILED').length,
+    results,
+    note: isConfigured()
+      ? 'Reminder emails sent via SMTP to all non-responders.'
+      : 'SMTP not configured — reminder links generated and logged. Configure SMTP_* in .env to send automatically, or copy links from the Email Log.',
+  });
+});
 
 // POST /api/emails/trigger — bulk, all customers
 router.post('/trigger', requireAdmin, async (req, res) => {

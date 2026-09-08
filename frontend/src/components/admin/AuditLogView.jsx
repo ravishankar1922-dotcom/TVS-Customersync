@@ -12,7 +12,8 @@ const ACTION_LABELS = {
   SOA_REUPLOAD_REQUESTED: 'SOA re-upload requested (customer)', SOA_REUPLOAD_APPROVED: 'SOA re-upload approved (admin)',
   CONFIRMATION_RESUBMITTED: 'Confirmation resubmitted (re-upload)', CUSTOMER_MASTER_JSON_IMPORTED: 'Customer master imported (JSON)',
   LEDGER_JSON_IMPORTED: 'Ledger imported (JSON)', CUSTOMERS_EXPORTED: 'Customer list exported', LEDGER_EXPORTED: 'Ledger exported',
-  TOKENS_RESET_EXPIRED: 'Expired links cleared (bulk)',
+  TOKENS_RESET_EXPIRED: 'Expired links cleared (bulk)', EMAIL_REMINDER_BULK: 'Reminder emails sent (bulk)',
+  SAP_LEDGER_DOWNLOADED: 'Customer downloaded SAP ledger',
 };
 
 export default function AuditLogView() {

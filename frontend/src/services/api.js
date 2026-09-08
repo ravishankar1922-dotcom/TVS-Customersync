@@ -72,6 +72,7 @@ const api = {
 
   // Emails
   triggerEmails:       ()   => request('POST', '/api/emails/trigger'),
+  remindPending:       ()   => request('POST', '/api/emails/remind-pending'),
   triggerEmailsSingle: (id) => request('POST', `/api/emails/trigger/${id}`),
   emailLog:            ()   => request('GET',  '/api/emails/log'),
   emailPreview:         (id) => request('GET', `/api/emails/preview/${id}`),

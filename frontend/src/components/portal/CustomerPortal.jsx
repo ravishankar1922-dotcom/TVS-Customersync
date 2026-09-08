@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, Spinner, Icon } from '../shared';
+import { fmtINR, Spinner, Icon } from '../shared';
 
 export default function CustomerPortal() {
   const [token]      = useState(() => new URLSearchParams(window.location.search).get('t') || '');
@@ -181,7 +181,7 @@ export default function CustomerPortal() {
     </div>
   );
 
-  const { customer, sap_balance, transactions, as_of_date } = tokenData || {};
+  const { customer, sap_balance, as_of_date } = tokenData || {};
   const custNum  = parseFloat(custBal) || 0;
   const liveDiff = custBal ? sap_balance - custNum : null;
 
@@ -225,12 +225,12 @@ export default function CustomerPortal() {
             <div className="bw-body">
               <div className="bw-cmp">
                 <div className="bw-box bw-sap">
-                  <div className="bw-lbl">Our Books (SAP)</div>
+                  <div className="bw-lbl">Our Books (TVS)</div>
                   <div className="bw-amt">{fmtINR(sap_balance)}</div>
                   <div style={{ fontSize: 9, color: 'var(--muted)', marginTop: 3 }}>As on {as_of_date}</div>
                   <a href={api.sapLedgerUrl(token, pan)} target="_blank" rel="noreferrer"
                     className="btn btn-ghost btn-sm" style={{ marginTop: 8, fontSize: 10 }}>
-                    <Icon name="download" size={12} /> Download SAP Ledger
+                    <Icon name="download" size={12} /> Download TVS Ledger
                   </a>
                 </div>
                 <div className="bw-vs">vs</div>
@@ -264,32 +264,6 @@ export default function CustomerPortal() {
             </div>
           </div>
 
-          {transactions?.length > 0 && (
-            <div className="card" style={{ marginBottom: 12 }}>
-              <div className="card-hd">
-                <div className="card-hd-l">
-                  <div className="card-ico" style={{ background: 'var(--blue-bg)' }}><Icon name="checklist" size={17} /></div>
-                  <div><div className="card-title">Open Items as per Our Books</div><div className="card-sub">{transactions.filter(t => t.status === 'OPEN').length} open items</div></div>
-                </div>
-              </div>
-              <div style={{ maxHeight: 220, overflowY: 'auto' }}>
-                <table className="tbl" style={{ minWidth: 'unset' }}>
-                  <thead><tr><th>Document No</th><th>Type</th><th>Date</th><th>Due Date</th><th>Amount</th></tr></thead>
-                  <tbody>
-                    {transactions.filter(t => t.status === 'OPEN').map((t, i) => (
-                      <tr key={i}>
-                        <td><span className="mono" style={{ fontSize: 11 }}>{t.document_number}</span></td>
-                        <td style={{ fontSize: 11 }}>{t.document_type}</td>
-                        <td style={{ fontSize: 10, color: 'var(--muted)' }}>{fmtDate(t.document_date)}</td>
-                        <td style={{ fontSize: 10, color: 'var(--muted)' }}>{fmtDate(t.due_date)}</td>
-                        <td><span className="mono" style={{ color: t.amount < 0 ? 'var(--diff)' : 'var(--blue)', fontWeight: 600 }}>{fmtINR(t.amount)}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
           <button className="btn btn-primary btn-full btn-lg" onClick={() => next(1)}>Continue to SOA Upload →</button>
         </>
       )}
@@ -341,8 +315,8 @@ export default function CustomerPortal() {
                 <tbody>
                 {[
                   ['Customer', customer?.customer_name],
-                  ['SAP Balance', fmtINR(sap_balance)],
-                  ['Your Balance', fmtINR(parseFloat(custBal))],
+                  ['TVS Balance', fmtINR(sap_balance)],
+                  ['Your Balance (Customer)', fmtINR(parseFloat(custBal))],
                   ['Difference', (() => { const d = sap_balance - parseFloat(custBal); return d === 0 ? 'NIL ✓' : fmtINR(d); })()],
                   ['SOA File', file?.name || '(None uploaded)'],
                   ['Remarks', remarks || '(None)'],

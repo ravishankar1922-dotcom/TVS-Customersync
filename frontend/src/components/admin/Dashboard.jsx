@@ -92,6 +92,17 @@ export default function Dashboard({ onNavigate }) {
     finally { setResettingExpired(false); }
   }
 
+  const [reminding, setReminding] = useState(false);
+  async function remindPending() {
+    setReminding(true);
+    try {
+      const r = await api.remindPending();
+      toast(r.total === 0 ? r.note : `Reminder sent to ${r.total} non-responder(s)${r.smtp_configured ? '' : ' (SMTP not configured — links logged, see Email Log)'}`, 'success', 5000);
+      load();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setReminding(false); }
+  }
+
   async function approveReupload(id) {
     if (!window.confirm(`Approve re-upload for ${id}? Their existing confirmation link will reopen so they can resubmit the SOA.`)) return;
     try { await api.approveReupload(id); toast(`Re-upload approved for ${id}`, 'success'); load(); }
@@ -138,6 +149,9 @@ export default function Dashboard({ onNavigate }) {
           </a>
           <button className="btn btn-secondary" onClick={resetExpiredLinks} disabled={resettingExpired} title="Clear every expired confirmation link across all customers. Safe to run any time — then Trigger Customer Emails to issue fresh links.">
             {resettingExpired ? '…' : <><Icon name="reset" size={13} /> Reset Expired Links</>}
+          </button>
+          <button className="btn btn-secondary" onClick={remindPending} disabled={reminding} title="Send a reminder email (with a working link) to every customer who has not yet submitted a confirmation this cycle. Safe to run as often as you like.">
+            {reminding ? <><Spinner /> Sending…</> : <><Icon name="mail" size={13} /> Send Reminder to Non-Responders</>}
           </button>
           <a href={api.customersExportUrl()} className="btn btn-secondary"><Icon name="excel" size={13} /> Export Excel</a>
         </div>
@@ -230,7 +244,9 @@ export default function Dashboard({ onNavigate }) {
               </tbody>
             </table>
             <div className="pgn">
-              <span className="pg-info">Page {page} of {Math.max(1, totalPages)}</span>
+              <span className="pg-info">
+                Showing {data.length === 0 ? 0 : (page - 1) * PAGE + 1}–{Math.min(page * PAGE, data.length)} of {data.length} · Page {page} of {Math.max(1, totalPages)}
+              </span>
               <button className="pg-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>‹</button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const pg = Math.max(1, page - 2) + i;
