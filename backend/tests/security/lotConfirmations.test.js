@@ -156,6 +156,35 @@ describe('Customer portal flow, Lot-aware — reopen/amend/resubmit (CRITICAL sp
     expect(versionsRes.body.versions[1]).toMatchObject({ version: 2, status: 'CURRENT', cust_balance: 10000 });
   });
 
+  // REGRESSION (Sept 2026: "I uploaded 2 customer's SOA but it is not
+  // showing in admin. Why?") — root cause was the customer-portal frontend
+  // always posting to the LEGACY /api/confirmations/submit endpoint even
+  // for a Lot-issued token, so the resulting Confirmation had lot_id:null
+  // and never matched Lot Overview's Confirmation.find({lot_id}) query.
+  // The frontend fix branches on verify-pan's `lot` field; this test locks
+  // down the backend half of that contract: verify-pan must return `lot`
+  // for a Lot-issued token, and a submission through the Lot-scoped
+  // endpoint must be immediately visible via GET /:lotId/confirmations —
+  // the exact query Lot Overview uses to render the admin list.
+  test('a Lot-issued token verify-pan response carries `lot`, and the resulting submission is visible in the admin confirmations list', async () => {
+    const { lot, rawToken } = await setup();
+
+    const pan = await request(app).post('/api/tokens/verify-pan').send({ token: rawToken, pan: 'ABCDE1234F' });
+    expect(pan.status).toBe(200);
+    expect(pan.body.lot).toBeTruthy();
+    expect(pan.body.lot.lot_id).toBe(String(lot._id));
+
+    await request(app).post(`/api/lots/${lot._id}/confirmations/submit`)
+      .field('token_id', pan.body.token_id).field('sap_balance', '10000').field('cust_balance', '9500').field('remarks', 'testing admin visibility');
+
+    const listRes = await request(app).get(`/api/lots/${lot._id}/confirmations`).set('Authorization', `Bearer ${adminJwt()}`);
+    expect(listRes.status).toBe(200);
+    const seen = listRes.body.rows.find(r => r.customer_id === 'TEST_C001');
+    expect(seen).toBeTruthy();
+    expect(seen.confirmation).toBeTruthy();
+    expect(seen.confirmation.cust_balance).toBe(9500);
+  });
+
   test('an expired Lot-scoped token is rejected on submit', async () => {
     const { lot } = await setup();
     // Force-expire the token directly (simulating time passing).

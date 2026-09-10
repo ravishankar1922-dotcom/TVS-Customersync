@@ -83,7 +83,19 @@ export default function CustomerPortal() {
       fd.append('cust_balance', custBal);
       fd.append('remarks',      remarks);
       if (file) fd.append('soa_file', file);
-      const r = await api.submitConfirmation(fd);
+      // BUGFIX (Sept 2026: "I uploaded 2 customer's SOA but it is not
+      // showing in admin"): this always posted to the LEGACY endpoint,
+      // which never sets lot_id on the resulting Confirmation. Admin's
+      // only screen (LotOverview) queries Confirmation.find({lot_id}), so a
+      // legacy-shaped submission from a Lot-issued token was saved but
+      // invisible everywhere in the UI (it only ever showed up in the raw
+      // Audit Log). tokenData.lot is already returned by /verify-pan for
+      // any Lot-issued token — route through the Lot-scoped endpoint
+      // whenever it's present, and fall back to legacy only for a genuine
+      // pre-Lot token.
+      const r = tokenData.lot
+        ? await api.submitLotConfirmation(tokenData.lot.lot_id, fd)
+        : await api.submitConfirmation(fd);
       setResult(r); setState('SUCCESS');
     } catch (e) { setErrors({ submit: e.message }); }
     finally { setSubmitting(false); }
