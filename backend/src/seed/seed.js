@@ -45,10 +45,28 @@ async function run() {
   const existingAdmin = await Admin.findOne({ email: cfg.ADMIN_EMAIL.toLowerCase() });
   if (!existingAdmin) {
     const hash = await bcrypt.hash(cfg.ADMIN_PASSWORD, 10);
-    await Admin.create({ email: cfg.ADMIN_EMAIL.toLowerCase(), password_hash: hash, name: 'Admin' });
+    await Admin.create({ email: cfg.ADMIN_EMAIL.toLowerCase(), password_hash: hash, name: 'Admin', role: 'ADMIN', business_type: 'BOTH' });
     console.log(`  Admin user   : created (${cfg.ADMIN_EMAIL})`);
   } else {
     console.log(`  Admin user   : already exists (${cfg.ADMIN_EMAIL})`);
+  }
+
+  // Finance login (Phase 4/5 workflow) — only created when both
+  // FINANCE_EMAIL and FINANCE_PASSWORD are set in the environment. There is
+  // no hardcoded default here on purpose: unlike the Admin account, a
+  // Finance login was never issued before, so there is no "existing"
+  // credential to preserve compatibility with.
+  if (cfg.FINANCE_EMAIL && cfg.FINANCE_PASSWORD) {
+    const existingFinance = await Admin.findOne({ email: cfg.FINANCE_EMAIL.toLowerCase() });
+    if (!existingFinance) {
+      const hash = await bcrypt.hash(cfg.FINANCE_PASSWORD, 10);
+      await Admin.create({ email: cfg.FINANCE_EMAIL.toLowerCase(), password_hash: hash, name: 'Finance', role: 'FINANCE', business_type: 'BOTH' });
+      console.log(`  Finance user : created (${cfg.FINANCE_EMAIL})`);
+    } else {
+      console.log(`  Finance user : already exists (${cfg.FINANCE_EMAIL})`);
+    }
+  } else {
+    console.log('  Finance user : FINANCE_EMAIL / FINANCE_PASSWORD not set — skipped (see .env.example)');
   }
 
   console.log('\n✅ Seed complete.\n');

@@ -39,6 +39,7 @@ const ICON_PATHS = {
   json:       'M8 4a2 2 0 00-2 2v3a2 2 0 01-2 2 2 2 0 012 2v3a2 2 0 002 2M16 4a2 2 0 012 2v3a2 2 0 002 2 2 2 0 00-2 2v3a2 2 0 01-2 2',
   refresh:    'M21 2v6h-6M3 22v-6h6M3.5 9a9 9 0 0114.9-4.2L21 8M20.5 15a9 9 0 01-14.9 4.2L3 16',
   arrow:      'M5 12h14m0 0l-6-6m6 6l-6 6',
+  trash:      'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z',
 };
 export function Icon({ name, size = 16, color = 'currentColor', style, ...rest }) {
   const d = ICON_PATHS[name];

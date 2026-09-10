@@ -78,10 +78,30 @@ const { nextLotNumber } = require('../utils/lotNumbering');
 const { parseUploadedLedger } = require('./ledger');
 const te = require('../utils/tokenEngine');
 const { passesBalanceFilter } = require('../utils/balanceFilter');
-const { confirmationRequestEmail, financeClarificationEmail } = require('../utils/emailTemplates');
+const { confirmationRequestEmail, financeClarificationEmail, reminderEmail } = require('../utils/emailTemplates');
 const AuditLog = require('../models/AuditLog');
 const { sendMail, isConfigured } = require('../utils/mailer');
+const { buildOutlookScript } = require('../utils/outlookScript');
 const ExcelJS = require('exceljs');
+
+// Shared by the bulk-action routes below: reuse a still-valid token for
+// {lot_id, customer_id} or mint a fresh one — identical rule to the one
+// already used in POST /:lotId/tokens/generate above, factored out so the
+// reminder/outlook-script routes don't duplicate it a third time.
+async function ensureLotToken(lot, customerId, expiryHours) {
+  let tokenRec = await TokenRecord.findOne({ lot_id: lot._id, customer_id: customerId, status: 'ACTIVE', expires_at: { $gt: new Date() } }).sort({ expires_at: -1 });
+  if (!tokenRec) {
+    await TokenRecord.updateMany({ lot_id: lot._id, customer_id: customerId, status: 'ACTIVE' }, { status: 'EXPIRED' });
+    const hours = expiryHours && expiryHours > 0 ? expiryHours : cfg.TOKEN_EXPIRY_HOURS;
+    const gen = te.generateToken(customerId, lot.lot_number, cfg.COMPANY, hours, { lot_id: lot._id, business_type: lot.business_type });
+    tokenRec = await TokenRecord.create({
+      token_id: gen.token_id, customer_id: customerId, cycle_id: lot.lot_number, lot_id: lot._id, business_type: lot.business_type,
+      company: cfg.COMPANY, token: gen.token, portal_url: te.buildPortalUrl(gen.token),
+      created_at: new Date(gen.issued_at), expires_at: new Date(gen.expires_at), status: 'ACTIVE',
+    });
+  }
+  return tokenRec;
+}
 
 const MAX_LEDGER_MB = 20;
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_LEDGER_MB * 1024 * 1024 } });
@@ -104,29 +124,114 @@ const soaUpload = multer({
 // set, per the architecture decision) is a later phase and intentionally
 // not wired in here yet.
 router.post('/', requireAdminOnly, async (req, res) => {
-  const { period, business_type } = req.body || {};
+  const { period, business_type, remarks } = req.body || {};
   let parsed;
   try { parsed = parsePeriod(period); }
   catch (e) { return res.status(400).json({ error: e.message }); }
 
   const bt = business_type === 'VENDOR' ? 'VENDOR' : 'CUSTOMER';
+  const cleanRemarks = (remarks || '').toString().trim().slice(0, 500);
 
   const existing = await Lot.find({ period_year: parsed.year, period_month: parsed.month, business_type: bt }).distinct('lot_number');
   const lot_number = nextLotNumber(parsed.year, parsed.month, existing);
 
   const lot = await Lot.create({
     lot_number, period_year: parsed.year, period_month: parsed.month, period_label: parsed.label,
-    business_type: bt, status: 'DRAFT', created_by: req.admin?.email || null,
+    business_type: bt, status: 'DRAFT', created_by: req.admin?.email || null, remarks: cleanRemarks,
   });
 
-  await logAudit({ req, action: 'LOT_CREATED', entity_type: 'Lot', entity_id: lot.lot_number, details: { period: parsed.label, business_type: bt } });
+  await logAudit({ req, action: 'LOT_CREATED', entity_type: 'Lot', entity_id: lot.lot_number, details: { period: parsed.label, business_type: bt, remarks: cleanRemarks } });
   res.json({ ok: true, lot });
+});
+
+// PATCH /api/lots/:lotId — currently only remarks is editable post-creation.
+router.patch('/:lotId', requireAdminOnly, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId);
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+  if (req.body && typeof req.body.remarks === 'string') {
+    lot.remarks = req.body.remarks.trim().slice(0, 500);
+    await lot.save();
+    await logAudit({ req, action: 'LOT_REMARKS_UPDATED', entity_type: 'Lot', entity_id: lot.lot_number, details: { remarks: lot.remarks } });
+  }
+  res.json({ ok: true, lot });
+});
+
+// DELETE /api/lots/:lotId — Admin only, DRAFT lots only. A Lot moves from
+// DRAFT to ACTIVE the moment a ledger is uploaded to it (see the upload
+// route below), so a still-DRAFT Lot has no population/confirmations/tokens
+// yet — this is a safe "undo an accidental Create Lot" action, never a way
+// to remove a Lot that has any real activity against it. ACTIVE/CLOSED Lots
+// must be handled deliberately (e.g. by an admin process outside the UI),
+// never through this endpoint.
+router.delete('/:lotId', requireAdminOnly, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId);
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+  if (lot.status !== 'DRAFT') {
+    return res.status(400).json({ error: `Only a DRAFT Lot can be deleted (this Lot is ${lot.status}). Active/closed Lots carry real confirmation history and must not be removed here.` });
+  }
+  // Defensive cleanup in case of any partial/orphaned state — a genuine
+  // DRAFT Lot should have none of these rows.
+  await Promise.all([
+    LotPopulation.deleteMany({ lot_id: lot._id }),
+    LedgerEntry.deleteMany({ lot_id: lot._id }),
+    Confirmation.deleteMany({ lot_id: lot._id }),
+    SubmissionVersion.deleteMany({ lot_id: lot._id }),
+    TokenRecord.deleteMany({ lot_id: lot._id }),
+  ]);
+  await Lot.deleteOne({ _id: lot._id });
+  await logAudit({ req, action: 'LOT_DELETED', entity_type: 'Lot', entity_id: lot.lot_number, details: { lot_id: String(lot._id), period: lot.period_label, business_type: lot.business_type } });
+  res.json({ ok: true });
 });
 
 // GET /api/lots — list, newest first
 router.get('/', requireAdminOrFinance, async (req, res) => {
   const lots = await Lot.find().sort({ createdAt: -1 }).lean();
   res.json({ lots });
+});
+
+// GET /api/lots/summary — aggregate KPI numbers for the Overview screen
+// (item 2 of the Sept 2026 feedback batch: "KPI cards will be showing the
+// data based on the lot we are opening, if no lot is opened then it can
+// show the total of all lots"). MUST be registered before GET /:lotId,
+// otherwise Express would match "summary" as a lotId.
+// Query params (both optional, combinable):
+//   ?business_type=CUSTOMER|VENDOR — scope to one module (Customer/Vendor
+//     Overview each pass their own business_type so the two modules never
+//     mix each other's numbers — item 1).
+//   ?lot_id=<id> — scope to exactly one Lot (when the admin has expanded
+//     one); omit for the all-Lots total.
+router.get('/summary', requireAdminOrFinance, async (req, res) => {
+  const { business_type, lot_id } = req.query;
+  const lotFilter = {};
+  if (business_type === 'CUSTOMER' || business_type === 'VENDOR') lotFilter.business_type = business_type;
+  if (lot_id) lotFilter._id = lot_id;
+
+  const lots = await Lot.find(lotFilter).lean();
+  const lotIds = lots.map(l => l._id);
+  const [population, confirmations] = await Promise.all([
+    LotPopulation.find({ lot_id: { $in: lotIds } }).lean(),
+    Confirmation.find({ lot_id: { $in: lotIds } }).lean(),
+  ]);
+
+  const totalPopulation = population.length;
+  const totalBalance = lots.reduce((s, l) => s + (l.total_ledger_balance || 0), 0);
+  const submitted = confirmations.length;
+  const matched = confirmations.filter(c => c.status === 'MATCHED').length;
+  const difference = confirmations.filter(c => c.status === 'DIFFERENCE').length;
+  const reconCompleted = confirmations.filter(c => c.recon_status === 'COMPLETED').length;
+  const totalVariance = confirmations.reduce((s, c) => s + Math.abs(c.difference || 0), 0);
+
+  res.json({
+    ok: true,
+    lot_count: lots.length,
+    scope: lot_id ? 'lot' : (business_type ? 'business_type' : 'all'),
+    total_population: totalPopulation,
+    total_balance: parseFloat(totalBalance.toFixed(2)),
+    submitted, matched, difference,
+    pending: Math.max(0, totalPopulation - submitted),
+    recon_completed: reconCompleted,
+    total_variance: parseFloat(totalVariance.toFixed(2)),
+  });
 });
 
 // GET /api/lots/:lotId — detail (population summary comes from LotPopulation,
@@ -248,17 +353,7 @@ router.post('/:lotId/tokens/generate', requireAdminOnly, async (req, res) => {
   for (const p of population) {
     // Reuse an existing still-valid link rather than mint a new one on every
     // click of "send" — same pattern as the legacy /api/tokens/generate.
-    let tokenRec = await TokenRecord.findOne({ lot_id: lot._id, customer_id: p.customer_id, status: 'ACTIVE', expires_at: { $gt: new Date() } }).sort({ expires_at: -1 });
-    if (!tokenRec) {
-      await TokenRecord.updateMany({ lot_id: lot._id, customer_id: p.customer_id, status: 'ACTIVE' }, { status: 'EXPIRED' });
-      const hours = expiry_hours && expiry_hours > 0 ? expiry_hours : cfg.TOKEN_EXPIRY_HOURS;
-      const gen = te.generateToken(p.customer_id, lot.lot_number, cfg.COMPANY, hours, { lot_id: lot._id, business_type: lot.business_type });
-      tokenRec = await TokenRecord.create({
-        token_id: gen.token_id, customer_id: p.customer_id, cycle_id: lot.lot_number, lot_id: lot._id, business_type: lot.business_type,
-        company: cfg.COMPANY, token: gen.token, portal_url: te.buildPortalUrl(gen.token),
-        created_at: new Date(gen.issued_at), expires_at: new Date(gen.expires_at), status: 'ACTIVE',
-      });
-    }
+    const tokenRec = await ensureLotToken(lot, p.customer_id, expiry_hours);
 
     generated.push({ customer_id: p.customer_id, token_id: tokenRec.token_id, portal_url: tokenRec.portal_url, expires_at: tokenRec.expires_at, opening_balance: p.opening_balance });
 
@@ -283,6 +378,123 @@ router.post('/:lotId/tokens/generate', requireAdminOnly, async (req, res) => {
   await logAudit({ req, action: 'CONFIRMATION_SENT', entity_type: 'Lot', entity_id: lot.lot_number, details: { lot_id: lot._id, generated: generated.length, filter: balance_filter || null, targeted: !!(customer_ids && customer_ids.length), emailed: shouldEmail } });
 
   res.json({ ok: true, lot_id: lot._id, generated: generated.length, tokens: generated, no_email_address: noEmailAddress, smtp_configured: isConfigured() });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// Lot-scoped bulk actions — the same admin actions that used to run
+// globally (routes/emails.js, routes/tokens.js) now scoped to exactly one
+// Lot's population, so running one never touches any other Lot/period. The
+// legacy global routes are left untouched for backward compatibility, but
+// the admin UI should call these instead once a Lot is selected (see item 4
+// of the Sept 2026 feedback batch).
+// ─────────────────────────────────────────────────────────────────────────
+
+// POST /api/lots/:lotId/tokens/reset-expired — clears ACTIVE-but-past-expiry
+// tokens for THIS Lot only, so "Trigger Emails" for this Lot issues fresh
+// links for anyone affected, without touching any other Lot's tokens.
+router.post('/:lotId/tokens/reset-expired', requireAdminOnly, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+
+  const result = await TokenRecord.updateMany(
+    { lot_id: lot._id, status: 'ACTIVE', expires_at: { $lte: new Date() } },
+    { status: 'EXPIRED' }
+  );
+  const reset = result.modifiedCount ?? result.nModified ?? 0;
+  await logAudit({ req, action: 'TOKENS_RESET_EXPIRED', entity_type: 'Lot', entity_id: lot.lot_number, details: { lot_id: lot._id, reset } });
+  res.json({ ok: true, lot_id: lot._id, lot_number: lot.lot_number, reset, message: 'Expired links cleared for this Lot. Trigger emails again to issue fresh links for anyone affected.' });
+});
+
+// POST /api/lots/:lotId/emails/remind-pending — reminder to every member of
+// THIS Lot's population who has not yet submitted a confirmation *for this
+// Lot* (no Confirmation row at {lot_id, customer_id}) — never cross-Lot.
+router.post('/:lotId/emails/remind-pending', requireAdminOnly, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+
+  const population = await LotPopulation.find({ lot_id: lot._id }).lean();
+  if (!population.length) return res.status(404).json({ error: 'This Lot has no population yet — upload a ledger first.' });
+  const responded = await Confirmation.find({ lot_id: lot._id }).distinct('customer_id');
+  const respondedSet = new Set(responded);
+  const pending = population.filter(p => !respondedSet.has(p.customer_id));
+
+  if (!pending.length) {
+    return res.json({ ok: true, lot_id: lot._id, lot_number: lot.lot_number, total: 0, sent: 0, ready: 0, failed: 0, results: [], note: 'Every member of this Lot has already responded — no reminders needed.' });
+  }
+
+  const masterById = await lookupMasterByIds(lot, pending.map(p => p.customer_id));
+  const results = [];
+  for (const p of pending) {
+    const person = masterById.get(p.customer_id);
+    try {
+      const tokenRec = await ensureLotToken(lot, p.customer_id);
+      if (!person || !person.email) { results.push({ customer_id: p.customer_id, status: 'NO_EMAIL_ADDRESS' }); continue; }
+
+      const subject = `Reminder: ${cfg.COMPANY} ${lot.business_type === 'VENDOR' ? 'Vendor' : 'Customer'} Balance Confirmation – ${lot.period_label}`;
+      const html = reminderEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS);
+      let status = 'READY', errorMsg = null;
+      if (isConfigured()) {
+        try { await sendMail({ to: person.email?.match(/<(.+)>/)?.[1] || person.email, subject, html }); status = 'SENT'; }
+        catch (err) { status = 'FAILED'; errorMsg = err.message; }
+      }
+      const existing = await EmailLog.findOne({ lot_id: lot._id, customer_id: p.customer_id, kind: 'REMINDER' }).lean();
+      await EmailLog.findOneAndUpdate(
+        { lot_id: lot._id, customer_id: p.customer_id, kind: 'REMINDER' },
+        { customer_id: p.customer_id, customer_name: person.name, email: person.email, lot_id: lot._id, cycle_id: lot.lot_number, token_id: tokenRec.token_id, portal_url: tokenRec.portal_url, subject, kind: 'REMINDER', status, error: errorMsg, sent_at: new Date(), reminder_count: (existing?.reminder_count || 0) + 1 },
+        { upsert: true }
+      );
+      results.push({ customer_id: p.customer_id, status, error: errorMsg });
+    } catch (err) { results.push({ customer_id: p.customer_id, status: 'FAILED', error: err.message }); }
+  }
+
+  await logAudit({ req, action: 'EMAIL_REMINDER_BULK', entity_type: 'Lot', entity_id: lot.lot_number, details: { lot_id: lot._id, total: pending.length } });
+  res.json({
+    ok: true, lot_id: lot._id, lot_number: lot.lot_number,
+    smtp_configured: isConfigured(), total: pending.length,
+    sent: results.filter(r => r.status === 'SENT').length,
+    ready: results.filter(r => r.status === 'READY').length,
+    failed: results.filter(r => r.status === 'FAILED').length,
+    results,
+    note: isConfigured() ? 'Reminder emails sent to all non-responders in this Lot.' : 'SMTP not configured — reminder links generated and logged. Configure SMTP_* in .env, or copy links from the Email Log.',
+  });
+});
+
+// GET /api/lots/:lotId/emails/outlook-script — same Outlook-draft generator
+// as the legacy global one, but built only from THIS Lot's population, so
+// the .ps1 it downloads never drafts an email for a customer/vendor outside
+// this Lot.
+router.get('/:lotId/emails/outlook-script', requireAdminOnly, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+
+  const population = await LotPopulation.find({ lot_id: lot._id }).lean();
+  if (!population.length) return res.status(404).json({ error: 'This Lot has no population yet — upload a ledger first.' });
+
+  const masterById = await lookupMasterByIds(lot, population.map(p => p.customer_id));
+  const mails = [];
+  for (const p of population) {
+    const person = masterById.get(p.customer_id);
+    if (!person || !person.email) continue;
+    const tokenRec = await ensureLotToken(lot, p.customer_id);
+    const subject = `${cfg.COMPANY} ${lot.business_type === 'VENDOR' ? 'Vendor' : 'Customer'} Balance Confirmation – ${lot.period_label}`;
+    const html = confirmationRequestEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS);
+    const to = person.email?.match(/<(.+)>/)?.[1] || person.email;
+    mails.push({ to, subjectB64: Buffer.from(subject, 'utf8').toString('base64'), bodyB64: Buffer.from(html, 'utf8').toString('base64') });
+
+    await EmailLog.findOneAndUpdate(
+      { lot_id: lot._id, customer_id: p.customer_id, kind: 'CONFIRMATION_REQUEST' },
+      { customer_id: p.customer_id, customer_name: person.name, email: person.email, lot_id: lot._id, cycle_id: lot.lot_number, token_id: tokenRec.token_id, portal_url: tokenRec.portal_url, subject, kind: 'CONFIRMATION_REQUEST', status: 'DRAFT_CREATED', error: null, sent_at: new Date() },
+      { upsert: true }
+    );
+  }
+  if (!mails.length) return res.status(404).json({ error: 'No one in this Lot has an email address on file.' });
+
+  await logAudit({ req, action: 'EMAIL_OUTLOOK_SCRIPT_GENERATED', entity_type: 'Lot', entity_id: lot.lot_number, details: { lot_id: lot._id, total: mails.length } });
+
+  const buf = buildOutlookScript(mails, `Lot ${lot.lot_number} (${lot.period_label})`);
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="BalanceSync_Outlook_Drafts_${lot.lot_number}.ps1"`);
+  res.send(buf);
 });
 
 // ─────────────────────────────────────────────────────────────────────────

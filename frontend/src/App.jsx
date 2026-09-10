@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ToastProvider, Topbar, CycleRibbon, useToast, Spinner, BrandLogo, Icon } from './components/shared';
-import Dashboard      from './components/admin/Dashboard';
 import LotOverview    from './components/admin/LotOverview';
 import Reconciliation from './components/admin/Reconciliation';
-import LedgerUpload   from './components/admin/LedgerUpload';
 import AuditLogView   from './components/admin/AuditLogView';
 import CustomerPortal from './components/portal/CustomerPortal';
 import api from './services/api';
@@ -55,7 +53,7 @@ function AdminShell() {
   const [loggedIn, setLoggedIn]   = useState(() => api.isLoggedIn());
   const [transitioning, setTransitioning] = useState(false); // animated loading screen shown right after a fresh sign-in
   const [adminEmail, setAdminEmail] = useState(null);
-  const [page, setPage]           = useState('dashboard');
+  const [page, setPage]           = useState('customer-overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem('bsync_sidebar_collapsed') === '1'; } catch { return false; }
   });
@@ -102,14 +100,26 @@ function AdminShell() {
 
   if (!loggedIn) return <Login onLogin={(email) => { setAdminEmail(email); setTransitioning(true); setTimeout(() => { setLoggedIn(true); setTransitioning(false); }, 1400); }} />;
 
-  const NAV = [
-    { id: 'dashboard', ico: 'dashboard', label: 'Overview' },
-    { id: 'lots',      ico: 'folder',    label: 'Lots' },
-    { id: 'recon',     ico: 'search',    label: 'Reconciliation Studio' },
-    { id: 'ledger',    ico: 'ledger',    label: 'Ledger Sync' },
-    { id: 'audit',     ico: 'shield',    label: 'Audit Trail' },
-    { id: 'health',    ico: 'refresh',   label: 'System Health' },
+  // Two fully separate modules (item 1 — user's confirmed choice: "Two full
+  // separate modules"). Each has its own Overview (which now also holds the
+  // Lot list — item 11 — with KPI cards that total across that module's
+  // Lots or narrow to whichever one is expanded — item 2) plus its own
+  // Reconciliation Studio and Audit Trail entry points. There is no
+  // standalone "Ledger Sync" tab any more (item 5) — ledger upload only
+  // happens inside a Lot (Overview → expand a Lot → upload).
+  const NAV_GROUPS = [
+    { group: 'CUSTOMER', items: [
+      { id: 'customer-overview', ico: 'dashboard', label: 'Overview' },
+      { id: 'customer-recon',    ico: 'search',    label: 'Reconciliation Studio' },
+      { id: 'customer-audit',    ico: 'shield',    label: 'Audit Trail' },
+    ] },
+    { group: 'VENDOR', items: [
+      { id: 'vendor-overview', ico: 'dashboard', label: 'Overview' },
+      { id: 'vendor-recon',    ico: 'search',    label: 'Reconciliation Studio' },
+      { id: 'vendor-audit',    ico: 'shield',    label: 'Audit Trail' },
+    ] },
   ];
+  const FLAT_NAV = [{ id: 'health', ico: 'refresh', label: 'System Health' }];
 
   return (
     <div className="app">
@@ -117,7 +127,21 @@ function AdminShell() {
       <CycleRibbon data={dashboard} />
       <div className="layout">
         <nav className={`sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
-          {NAV.map(n => (
+          {NAV_GROUPS.map(g => (
+            <div key={g.group} style={{ marginBottom: 6 }}>
+              {!sidebarCollapsed && (
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: 'var(--muted)', padding: '10px 14px 4px' }}>{g.group}</div>
+              )}
+              {g.items.map(n => (
+                <button key={n.id} className={`sidebar-link ${page === n.id ? 'active' : ''}`} onClick={() => navigate(n.id)}>
+                  <span className="sico"><Icon name={n.ico} size={16} /></span>
+                  <span className="slabel">{n.label}</span>
+                  {sidebarCollapsed && <span className="sidebar-tip">{g.group} · {n.label}</span>}
+                </button>
+              ))}
+            </div>
+          ))}
+          {FLAT_NAV.map(n => (
             <button key={n.id} className={`sidebar-link ${page === n.id ? 'active' : ''}`} onClick={() => navigate(n.id)}>
               <span className="sico"><Icon name={n.ico} size={16} /></span>
               <span className="slabel">{n.label}</span>
@@ -131,26 +155,15 @@ function AdminShell() {
         </nav>
         <main className="main-content">
           {healthLoading && <Spinner full />}
-          {!healthLoading && health && !health.checks?.customerMaster?.exists && (
-            <div className="info-box ib-red" style={{ marginBottom: 16 }}>
-              <strong><Icon name="warning" size={13} /> No Customers Loaded</strong>
-              Run <code>npm run seed</code> in the backend folder to load <code>data/customer_master.json</code>.
-            </div>
-          )}
-          {!healthLoading && health && !health.checks?.ledger?.exists && (
-            <div className="info-box ib-red" style={{ marginBottom: 16 }}>
-              <strong><Icon name="warning" size={13} /> No Ledger Loaded</strong>
-              Run <code>npm run seed</code> in the backend folder to load <code>data/TSL_ledger.json</code>.
-            </div>
-          )}
 
           <div key={page} className="page-in">
-            {page === 'dashboard' && <Dashboard onNavigate={navigate} />}
-            {page === 'lots'      && <LotOverview />}
-            {page === 'recon'     && <Reconciliation customerId={reconId} onBack={() => navigate('dashboard')} />}
-            {page === 'ledger'    && <LedgerUpload />}
-            {page === 'audit'     && <AuditLogView />}
-            {page === 'health'    && <SystemHealth health={health} onRefresh={loadHealth} />}
+            {page === 'customer-overview' && <LotOverview businessType="CUSTOMER" />}
+            {page === 'vendor-overview'   && <LotOverview businessType="VENDOR" />}
+            {(page === 'customer-recon' || page === 'vendor-recon') && (
+              <Reconciliation customerId={reconId} onBack={() => navigate(page === 'vendor-recon' ? 'vendor-overview' : 'customer-overview')} />
+            )}
+            {(page === 'customer-audit' || page === 'vendor-audit') && <AuditLogView />}
+            {page === 'health' && <SystemHealth health={health} onRefresh={loadHealth} />}
           </div>
         </main>
       </div>
@@ -198,8 +211,10 @@ function Login({ onLogin }) {
 
       <div className="login-card ct-glass">
         <div style={{ textAlign: 'center', marginBottom: 26 }}>
-          <div style={{ display: 'inline-flex', background: '#fff', borderRadius: 10, padding: '10px 18px', marginBottom: 16, boxShadow: '0 8px 24px rgba(0,0,0,.25)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#fff', borderRadius: 10, padding: '10px 16px', marginBottom: 16, boxShadow: '0 8px 24px rgba(0,0,0,.25)' }}>
             <BrandLogo height={30} />
+            <div style={{ width: 1, height: 22, background: '#00000018' }} />
+            <img src={datamaticsLogo} alt="Datamatics" style={{ height: 22, display: 'block' }} />
           </div>
           <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: '#FCA5A5', marginBottom: 8 }}>Accounts Receivable Platform</div>
           <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 20, fontWeight: 700, marginBottom: 5, color: '#fff' }}>BalanceSync</div>

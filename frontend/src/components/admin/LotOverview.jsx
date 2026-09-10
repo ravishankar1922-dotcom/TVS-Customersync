@@ -29,35 +29,78 @@ const FILTER_OPS = [
   { v: 'positive', label: 'Positive balance' },
 ];
 
-export default function LotOverview() {
+// businessType: 'CUSTOMER' | 'VENDOR' — this screen is now the full Overview
+// for one module (item 1: two fully separate modules, item 11: the Lot list
+// lives here instead of its own nav tab). KPI cards default to the total
+// across every Lot in this module; expanding one Lot switches them to that
+// Lot's own numbers (item 2).
+export default function LotOverview({ businessType = 'CUSTOMER' }) {
   const toast = useToast();
   const [lots, setLots] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [summary, setSummary] = useState(null);
 
   const loadLots = useCallback(async () => {
-    try { setLots((await api.lots()).lots || []); }
+    try { setLots(((await api.lots()).lots || []).filter(l => l.business_type === businessType)); }
     catch (e) { toast(e.message, 'err'); }
-  }, [toast]);
+  }, [toast, businessType]);
+
+  const loadSummary = useCallback(async () => {
+    try { setSummary(await api.lotsSummary(expandedId ? { lot_id: expandedId } : { business_type: businessType })); }
+    catch (e) { toast(e.message, 'err'); }
+  }, [toast, businessType, expandedId]);
 
   useEffect(() => { loadLots(); }, [loadLots]);
+  useEffect(() => { loadSummary(); }, [loadSummary]);
+
+  const noun = businessType === 'VENDOR' ? 'Vendor' : 'Customer';
+  const expandedLot = lots?.find(l => l._id === expandedId);
+
+  function refreshAll() { loadLots(); loadSummary(); }
+
+  const kpis = summary ? [
+    { label: expandedLot ? `${noun}s in this Lot` : `Total ${noun}s`, val: summary.total_population, cls: 'kpi-ink' },
+    { label: 'Submitted', val: summary.submitted, cls: 'kpi-blue' },
+    { label: 'Matched', val: summary.matched, cls: 'kpi-green' },
+    { label: 'Difference', val: summary.difference, cls: 'kpi-red' },
+    { label: 'Pending', val: summary.pending, cls: 'kpi-amber' },
+    { label: 'Recon Done', val: summary.recon_completed, cls: 'kpi-grey' },
+    { label: 'Total Balance', val: fmtINR(summary.total_balance), cls: 'kpi-ink', isText: true },
+    { label: 'Total Variance', val: fmtINR(summary.total_variance), cls: 'kpi-red', isText: true },
+  ] : [];
 
   return (
     <div>
       <div className="sec-hd">
         <div>
-          <div className="sec-title disp">Lots</div>
-          <div className="sec-sub">Every fresh ledger/period upload is its own Lot — isolated confirmations, SOAs, reconciliation and history, never merged.</div>
+          <div className="sec-title disp">{noun} Overview</div>
+          <div className="sec-sub">
+            {expandedLot
+              ? `Showing ${expandedLot.lot_number} (${expandedLot.period_label}) only — collapse it to see totals across every ${noun.toLowerCase()} Lot.`
+              : `Totals across every ${noun.toLowerCase()} Lot. Every fresh ledger/period upload is its own Lot — isolated confirmations, SOAs, reconciliation and history, never merged.`}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-secondary btn-sm" onClick={loadLots}><Icon name="refresh" size={13} /> Refresh</button>
+          <button className="btn btn-secondary btn-sm" onClick={refreshAll}><Icon name="refresh" size={13} /> Refresh</button>
           <button className="btn btn-primary" onClick={() => setCreateOpen(true)}><Icon name="folder" size={13} /> Create New Lot</button>
         </div>
       </div>
 
+      {summary && (
+        <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', marginBottom: 18 }}>
+          {kpis.map(k => (
+            <div key={k.label} className={`kpi ${k.cls}`}>
+              <div className="kpi-lbl">{k.label}</div>
+              <div className="kpi-val disp" style={k.isText ? { fontSize: 16 } : {}}>{k.val}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {!lots ? <Spinner full /> : lots.length === 0 ? (
         <div className="info-box ib-blue">
-          <strong><Icon name="info" size={13} /> No Lots yet</strong>
+          <strong><Icon name="info" size={13} /> No {noun} Lots yet</strong>
           Click "Create New Lot" to start — you'll be asked for a period first, then you upload that period's ledger to populate it.
         </div>
       ) : (
@@ -68,22 +111,22 @@ export default function LotOverview() {
               lot={lot}
               expanded={expandedId === lot._id}
               onToggle={() => setExpandedId(expandedId === lot._id ? null : lot._id)}
-              onChanged={loadLots}
+              onChanged={refreshAll}
             />
           ))}
         </div>
       )}
 
-      <CreateLotModal open={createOpen} onClose={() => setCreateOpen(false)} onCreated={lot => { setCreateOpen(false); loadLots(); setExpandedId(lot._id); }} />
+      <CreateLotModal businessType={businessType} open={createOpen} onClose={() => setCreateOpen(false)} onCreated={lot => { setCreateOpen(false); refreshAll(); setExpandedId(lot._id); }} />
     </div>
   );
 }
 
 // ── Create Lot (period-first flow) ──────────────────────────────────────
-function CreateLotModal({ open, onClose, onCreated }) {
+function CreateLotModal({ businessType, open, onClose, onCreated }) {
   const toast = useToast();
   const [period, setPeriod] = useState('');
-  const [businessType, setBusinessType] = useState('CUSTOMER');
+  const [remarks, setRemarks] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e) {
@@ -91,16 +134,16 @@ function CreateLotModal({ open, onClose, onCreated }) {
     if (!period.trim()) return toast('Enter a period, e.g. "March 2026" or "2026-03"', 'err');
     setBusy(true);
     try {
-      const r = await api.createLot(period.trim(), businessType);
+      const r = await api.createLot(period.trim(), businessType, remarks.trim());
       toast(`${r.lot.lot_number} created for ${r.lot.period_label}. Now upload that period's ledger to populate it.`, 'success', 5000);
-      setPeriod('');
+      setPeriod(''); setRemarks('');
       onCreated(r.lot);
     } catch (e) { toast(e.message, 'err'); }
     finally { setBusy(false); }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Create New Lot" sub="Step 1: tell us the period — the Lot number is generated for you">
+    <Modal open={open} onClose={onClose} title={`Create New ${businessType === 'VENDOR' ? 'Vendor' : 'Customer'} Lot`} sub="Step 1: tell us the period — the Lot number is generated for you">
       <form onSubmit={submit}>
         <div className="field">
           <label className="lbl">Period</label>
@@ -108,11 +151,9 @@ function CreateLotModal({ open, onClose, onCreated }) {
           <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>A repeat Lot for the same period gets the next sequence number automatically (e.g. LOT-2026-03-002).</div>
         </div>
         <div className="field">
-          <label className="lbl">Business Type</label>
-          <select className="inp" value={businessType} onChange={e => setBusinessType(e.target.value)}>
-            <option value="CUSTOMER">Customer</option>
-            <option value="VENDOR">Vendor</option>
-          </select>
+          <label className="lbl">Remarks <span style={{ fontWeight: 400, color: 'var(--muted)', textTransform: 'none' }}>(optional)</span></label>
+          <input className="inp" placeholder='e.g. "Re-run — corrected opening balances"' value={remarks} onChange={e => setRemarks(e.target.value)} maxLength={500} />
+          <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>A free-text reference to help you identify this Lot later. Editable any time from the Lot's row.</div>
         </div>
         <button type="submit" className="btn btn-primary btn-full" disabled={busy}>{busy ? <><Spinner /> Creating…</> : 'Create Lot'}</button>
       </form>
@@ -122,7 +163,20 @@ function CreateLotModal({ open, onClose, onCreated }) {
 
 // ── One Lot row, expandable to its full detail ──────────────────────────
 function LotRow({ lot, expanded, onToggle, onChanged }) {
+  const toast = useToast();
+  const [remarksOpen, setRemarksOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const statusCls = { DRAFT: 'b-pend', ACTIVE: 'b-conf', CLOSED: 'b-grey' }[lot.status] || 'b-grey';
+
+  async function deleteDraft(e) {
+    e.stopPropagation();
+    if (!window.confirm(`Delete draft Lot ${lot.lot_number}? This cannot be undone. Only possible while it's still DRAFT (no ledger uploaded yet).`)) return;
+    setDeleting(true);
+    try { await api.deleteLot(lot._id); toast(`${lot.lot_number} deleted.`, 'success'); onChanged(); }
+    catch (e) { toast(e.message, 'err'); }
+    finally { setDeleting(false); }
+  }
+
   return (
     <div className="card">
       <div className="card-body" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }} onClick={onToggle}>
@@ -131,18 +185,50 @@ function LotRow({ lot, expanded, onToggle, onChanged }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 13 }}>{lot.lot_number}</span>
             <span className={`badge ${statusCls}`}>{lot.status}</span>
-            <span className="badge b-grey">{lot.business_type}</span>
-            {lot.is_legacy && <span className="badge b-diff" title={`Inferred from legacy cycle_id: ${lot.legacy_cycle_id}`}>LEGACY</span>}
+            {lot.is_legacy && <span className="badge b-diff" title={lot.legacy_cycle_id ? `Inferred from legacy cycle_id: ${lot.legacy_cycle_id}` : 'Pre-Lot sample/test data, moved here automatically'}>LEGACY</span>}
           </div>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{lot.period_label} · created by {lot.created_by || '—'}</div>
+          {lot.remarks && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3, fontStyle: 'italic' }}>"{lot.remarks}"</div>}
         </div>
         <div style={{ textAlign: 'right', fontSize: 11, color: 'var(--muted)' }}>
-          <div>{lot.population_count} customer{lot.population_count === 1 ? '' : 's'}</div>
+          <div>{lot.population_count} record{lot.population_count === 1 ? '' : 's'}</div>
           <div className="td-mono" style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>{fmtINR(lot.total_ledger_balance)}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }} onClick={e => e.stopPropagation()}>
+          <button className="act-btn" title="Edit remarks" onClick={() => setRemarksOpen(true)}><Icon name="detail" size={14} /></button>
+          {lot.status === 'DRAFT' && (
+            <button className="act-btn" title="Delete this draft Lot" onClick={deleteDraft} disabled={deleting} style={{ color: 'var(--red, #C8102E)' }}>
+              {deleting ? '…' : <Icon name="trash" size={14} />}
+            </button>
+          )}
         </div>
       </div>
       {expanded && <LotDetail lot={lot} onChanged={onChanged} />}
+      <RemarksModal lot={lot} open={remarksOpen} onClose={() => setRemarksOpen(false)} onChanged={onChanged} />
     </div>
+  );
+}
+
+// ── Edit remarks modal ───────────────────────────────────────────────────
+function RemarksModal({ lot, open, onClose, onChanged }) {
+  const toast = useToast();
+  const [remarks, setRemarks] = useState(lot.remarks || '');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { if (open) setRemarks(lot.remarks || ''); }, [open, lot.remarks]);
+
+  async function save() {
+    setBusy(true);
+    try { await api.updateLotRemarks(lot._id, remarks.trim()); toast('Remarks updated.', 'success'); onChanged(); onClose(); }
+    catch (e) { toast(e.message, 'err'); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title={`Remarks — ${lot.lot_number}`} sub="A free-text reference to help identify this Lot later">
+      <textarea className="inp" rows={3} maxLength={500} style={{ resize: 'vertical' }} value={remarks} onChange={e => setRemarks(e.target.value)} autoFocus />
+      <button className="btn btn-primary btn-full" style={{ marginTop: 12 }} onClick={save} disabled={busy}>{busy ? <><Spinner /> Saving…</> : 'Save Remarks'}</button>
+    </Modal>
   );
 }
 
@@ -198,6 +284,32 @@ function LotDetail({ lot, onChanged }) {
       loadRows();
     } catch (e) { toast(e.message, 'err'); }
     finally { setSending(false); }
+  }
+
+  // Item 4: mail trigger, download script, reset expiry, remind non-
+  // responders — every one of these is scoped to THIS Lot only (being
+  // inside its expanded detail row already is "picking the Lot"; nothing
+  // here can ever touch another Lot's tokens/emails).
+  const [resettingExpired, setResettingExpired] = useState(false);
+  async function resetExpiredLinks() {
+    setResettingExpired(true);
+    try {
+      const r = await api.resetLotExpiredTokens(lot._id);
+      toast(r.reset > 0 ? `Cleared ${r.reset} expired link(s) in ${lot.lot_number}. Send confirmation links again to issue fresh ones.` : `No expired links in ${lot.lot_number} — everything is current.`, 'success');
+      loadRows();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setResettingExpired(false); }
+  }
+
+  const [reminding, setReminding] = useState(false);
+  async function remindPending() {
+    setReminding(true);
+    try {
+      const r = await api.remindLotPending(lot._id);
+      toast(r.total === 0 ? r.note : `Reminder sent to ${r.total} non-responder(s) in ${lot.lot_number}${r.smtp_configured ? '' : ' (SMTP not configured — links logged, see Email Log)'}`, 'success', 5000);
+      loadRows();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setReminding(false); }
   }
 
   const filteredRows = useMemo(() => {
@@ -265,6 +377,15 @@ function LotDetail({ lot, onChanged }) {
               <Icon name="upload" size={13} /> {uploading ? 'Uploading…' : 'Re-upload / Refresh Ledger'}
               <input type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }} disabled={uploading} onChange={e => uploadLedger(e.target.files[0])} />
             </label>
+            <a href={api.lotOutlookScriptUrl(lot._id)} className="btn btn-secondary btn-sm" title="If cloud SMTP is blocked by your mail provider, download a script that drafts these emails (for this Lot only) in your own Desktop Outlook instead.">
+              <Icon name="outlook" size={13} /> Download Outlook Script
+            </a>
+            <button className="btn btn-secondary btn-sm" onClick={resetExpiredLinks} disabled={resettingExpired} title="Clear every expired confirmation link in this Lot only. Then send confirmation links again to issue fresh ones.">
+              {resettingExpired ? '…' : <><Icon name="reset" size={13} /> Reset Expired Links</>}
+            </button>
+            <button className="btn btn-secondary btn-sm" onClick={remindPending} disabled={reminding} title="Send a reminder to everyone in this Lot who has not yet submitted a confirmation. Safe to run as often as you like.">
+              {reminding ? <><Spinner /> Sending…</> : <><Icon name="mail" size={13} /> Remind Non-Responders</>}
+            </button>
             <a href={api.lotConfirmationsExportUrl(lot._id)} className="btn btn-secondary btn-sm"><Icon name="excel" size={13} /> Export Excel</a>
           </div>
 

@@ -111,11 +111,20 @@ const api = {
   // Lots (architecture overhaul phase 1 — see BalanceSync_Lot_Architecture_Plan.md).
   // No screen consumes these yet; added so the service layer is ready for
   // the Overview rebuild (phase 3).
-  createLot:       (period, businessType) => request('POST', '/api/lots', { period, business_type: businessType }),
+  createLot:       (period, businessType, remarks) => request('POST', '/api/lots', { period, business_type: businessType, remarks }),
+  updateLotRemarks: (id, remarks) => request('PATCH', `/api/lots/${id}`, { remarks }),
+  deleteLot:       (id) => request('DELETE', `/api/lots/${id}`),
   lots:            ()   => request('GET', '/api/lots'),
   lot:             (id) => request('GET', `/api/lots/${id}`),
+  lotsSummary:     (params = {}) => request('GET', `/api/lots/summary?${new URLSearchParams(params).toString()}`),
   lotPopulation:   (id) => request('GET', `/api/lots/${id}/population`),
   uploadLotLedger: (id, fd) => request('POST', `/api/lots/${id}/ledger/upload`, fd, true),
+
+  // Lot-scoped bulk actions (item 4 — every bulk send/reset/remind is
+  // scoped to one Lot, never global).
+  resetLotExpiredTokens: (id) => request('POST', `/api/lots/${id}/tokens/reset-expired`),
+  remindLotPending:      (id) => request('POST', `/api/lots/${id}/emails/remind-pending`),
+  lotOutlookScriptUrl:   (id) => `${BASE_URL}/api/lots/${id}/emails/outlook-script?token=${getToken() || ''}`,
 
   // Lot-scoped confirmations/tokens (phase 2 — see BalanceSync_Lot_Architecture_Plan.md).
   // Balance-filtered + targeted-select token generation, and the reopenable/

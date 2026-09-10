@@ -11,6 +11,10 @@ const LotSchema = new mongoose.Schema({
   period_label: { type: String, required: true }, // e.g. "March 2026" — display-only, derived from year/month
   business_type: { type: String, enum: ['CUSTOMER', 'VENDOR'], default: 'CUSTOMER', index: true },
   status:       { type: String, enum: ['DRAFT', 'ACTIVE', 'CLOSED'], default: 'DRAFT' },
+  // Free-text reference an admin can attach at creation time to help
+  // identify this Lot later (e.g. "Re-run — corrected opening balances",
+  // "Q1 close special batch") — display-only, never parsed/validated.
+  remarks:      { type: String, default: '' },
   created_by:   { type: String }, // admin email
   ledger_upload_date: { type: Date, default: null },
   ledger_filename:    { type: String, default: null },
@@ -22,6 +26,13 @@ const LotSchema = new mongoose.Schema({
   // data rather than created through the normal Lot-creation flow.
   is_legacy:    { type: Boolean, default: false },
   legacy_cycle_id: { type: String, default: null },
+  // Set only by scripts/seed-legacy-data-into-lot.js — distinguishes "the
+  // one Lot that holds the pre-Lot sample/test data" from a Lot created by
+  // migrate-legacy-lots.js (which backfills lot_id onto historical
+  // Confirmation/Token/EmailLog rows from response history, not raw ledger
+  // data). Both are_legacy, but this flag is what that script's own
+  // idempotency check (and the Overview UI's labeling) key off.
+  is_legacy_data_seed: { type: Boolean, default: false },
 }, { timestamps: true });
 
 LotSchema.index({ period_year: 1, period_month: 1, business_type: 1 });

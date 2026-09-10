@@ -30,14 +30,27 @@ function matches(doc, filter = {}) {
     const val = doc[key];
     if (cond && typeof cond === 'object' && !Array.isArray(cond) && !(cond instanceof Date)) {
       return Object.entries(cond).every(([op, opVal]) => {
+        // BUGFIX: documents round-trip through clone() (JSON.stringify/parse),
+        // which turns a stored Date field into an ISO string — so a raw `<`/`>`
+        // comparison against a real Date (e.g. `expires_at: { $lte: new Date() }`)
+        // was comparing "2026-09-10T09:19:01.116Z" against a Date's *toString()*
+        // representation lexicographically, which is not date-order and silently
+        // matched nothing. Normalize both sides to epoch millis whenever either
+        // side is a Date or looks like an ISO date string, for every ordering op.
+        const isDateish = (x) => x instanceof Date || (typeof x === 'string' && !Number.isNaN(Date.parse(x)) && /^\d{4}-\d{2}-\d{2}T/.test(x));
+        let a = val, b = opVal;
+        if (['$gt', '$gte', '$lt', '$lte'].includes(op) && (isDateish(a) || isDateish(b))) {
+          a = a instanceof Date ? a.getTime() : new Date(a).getTime();
+          b = b instanceof Date ? b.getTime() : new Date(b).getTime();
+        }
         switch (op) {
           case '$in': return opVal.includes(val);
           case '$nin': return !opVal.includes(val);
           case '$ne': return val !== opVal;
-          case '$gt': return val > opVal;
-          case '$gte': return val >= opVal;
-          case '$lt': return val < opVal;
-          case '$lte': return val <= opVal;
+          case '$gt': return a > b;
+          case '$gte': return a >= b;
+          case '$lt': return a < b;
+          case '$lte': return a <= b;
           case '$exists': return opVal ? val !== undefined : val === undefined;
           case '$regex': return new RegExp(opVal, cond.$options || '').test(val ?? '');
           default: return true;
@@ -163,6 +176,11 @@ class FakeModel extends EventEmitter {
     const idx = this.data.findIndex(d => matches(d, filter));
     if (idx >= 0) this.data.splice(idx, 1);
     return { deletedCount: idx >= 0 ? 1 : 0 };
+  }
+  async deleteMany(filter = {}) {
+    const before = this.data.length;
+    this.data = this.data.filter(d => !matches(d, filter));
+    return { deletedCount: before - this.data.length };
   }
   async exists(filter) {
     const row = this.data.find(d => matches(d, filter));

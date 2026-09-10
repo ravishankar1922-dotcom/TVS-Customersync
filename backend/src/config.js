@@ -15,6 +15,12 @@ module.exports = {
   HMAC_SECRET:       process.env.HMAC_SECRET || 'dev-only-change-me-2',
   ADMIN_EMAIL:       process.env.ADMIN_EMAIL || 'admin@tvsmobility.com',
   ADMIN_PASSWORD:    process.env.ADMIN_PASSWORD || 'ChangeMe@123',
+  // Second seeded login for the Finance role (Phase 4/5 workflow). Given a
+  // real default here — same pattern as ADMIN_EMAIL/ADMIN_PASSWORD above —
+  // so `npm run seed` creates it out of the box, same as Admin. Change the
+  // password after first login, same as you would for Admin.
+  FINANCE_EMAIL:     process.env.FINANCE_EMAIL || 'finance@tvsmobility.com',
+  FINANCE_PASSWORD:  process.env.FINANCE_PASSWORD || 'ChangeMe@456',
   TOKEN_EXPIRY_HOURS: parseInt(process.env.TOKEN_EXPIRY_HOURS || '72', 10),
 
   CYCLE_ID:          process.env.CYCLE_ID || 'TSL-MAR-2026',
