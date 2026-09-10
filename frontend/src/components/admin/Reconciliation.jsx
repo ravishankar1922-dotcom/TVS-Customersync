@@ -11,8 +11,17 @@ const MATCH_CONFIG = {
 };
 const ROOT_CAUSES = ['Invoice in Transit', 'Credit Note Pending', 'Payment Timing', 'Disputed', 'Data Entry Error', 'Resolved', 'Other'];
 
-export default function Reconciliation({ customerId, onBack }) {
+export default function Reconciliation({ lotId, customerId, onBack }) {
   const toast = useToast();
+  // Reconciliation Studio is Lot-scoped (Sept 2026: "migrate as per lot") —
+  // every reconciliation now belongs to exactly one {lot_id, customer_id}
+  // pair, matching the Lot-scoped ledger/SOA data the rest of the app
+  // works with. `lotId`/`customerId` let a caller that already knows both
+  // (e.g. a "Reconcile" row action in Lot Overview) open directly; pickedLot/
+  // pickedId are what the screen actually uses, and default to null so the
+  // Lot -> customer picker below shows when reached from the nav directly.
+  const [pickedLot, setPickedLot]   = useState(lotId || null);
+  const [pickedId, setPickedId]     = useState(customerId || null);
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes]     = useState('');
@@ -24,17 +33,23 @@ export default function Reconciliation({ customerId, onBack }) {
   const [q, setQ]             = useState('');
   const [showDetail, setShowDetail] = useState(false); // Bridge statement is the default view; detail grid is one click away
 
+  useEffect(() => { if (lotId) setPickedLot(lotId); }, [lotId]);
+  useEffect(() => { if (customerId) setPickedId(customerId); }, [customerId]);
+
+  function choosePair(lot, cust) { setPickedLot(lot); setPickedId(cust); }
+  function reset() { setPickedLot(null); setPickedId(null); }
+
   const load = useCallback(async () => {
-    if (!customerId) return;
+    if (!pickedLot || !pickedId) return;
     setLoading(true);
     try {
-      const r = await api.reconcile(customerId);
+      const r = await api.lotReconcile(pickedLot, pickedId);
       setData(r);
       setNotes(r.recon_notes || '');
       setRootCauses(r.root_causes || {});
     } catch (e) { toast(e.message, 'err'); }
     finally { setLoading(false); }
-  }, [customerId, toast]);
+  }, [pickedLot, pickedId, toast]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -42,19 +57,19 @@ export default function Reconciliation({ customerId, onBack }) {
     const next = { ...rootCauses, [idx]: val };
     setRootCauses(next);
     // Persist immediately so tags survive refresh / being opened by another admin.
-    api.updateRecon(customerId, { root_causes: next, recon_status: 'IN_PROGRESS' }).catch(e => toast(e.message, 'err'));
+    api.updateLotRecon(pickedLot, pickedId, { root_causes: next, recon_status: 'IN_PROGRESS' }).catch(e => toast(e.message, 'err'));
   }
 
   async function saveNotes() {
     setSaving(true);
-    try { await api.updateRecon(customerId, { recon_notes: notes, recon_status: 'IN_PROGRESS' }); toast('Notes saved.', 'success'); }
+    try { await api.updateLotRecon(pickedLot, pickedId, { recon_notes: notes, recon_status: 'IN_PROGRESS' }); toast('Notes saved.', 'success'); }
     catch (e) { toast(e.message, 'err'); }
     finally { setSaving(false); }
   }
 
   async function markComplete() {
     setSaving(true);
-    try { await api.updateRecon(customerId, { recon_notes: notes, recon_status: 'COMPLETED' }); toast('Reconciliation marked complete.', 'success'); load(); }
+    try { await api.updateLotRecon(pickedLot, pickedId, { recon_notes: notes, recon_status: 'COMPLETED' }); toast('Reconciliation marked complete.', 'success'); load(); }
     catch (e) { toast(e.message, 'err'); }
     finally { setSaving(false); }
   }
@@ -62,10 +77,10 @@ export default function Reconciliation({ customerId, onBack }) {
   async function exportExcel() {
     setExporting(true);
     try {
-      const blob = await api.reconExportBlob(customerId);
+      const blob = await api.lotReconExportBlob(pickedLot, pickedId);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `Reconciliation_${customerId}.xlsx`;
+      a.href = url; a.download = `Reconciliation_${pickedId}.xlsx`;
       document.body.appendChild(a); a.click(); a.remove();
       window.URL.revokeObjectURL(url);
     } catch (e) { toast(e.message, 'err'); }
@@ -76,23 +91,22 @@ export default function Reconciliation({ customerId, onBack }) {
     if (!window.confirm('Email the reconciliation summary + Excel workbook to this customer now?')) return;
     setSending(true);
     try {
-      const r = await api.sendReconToCustomer(customerId);
+      const r = await api.sendLotReconToCustomer(pickedLot, pickedId);
       toast(`Sent to ${r.sent_to}`, 'success');
       load();
     } catch (e) { toast(e.message, 'err'); }
     finally { setSending(false); }
   }
 
-  if (!customerId) return (
-    <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)' }}>
-      <div style={{ marginBottom: 12 }}><Icon name="search" size={32} /></div>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>No customer selected</div>
-      <div style={{ fontSize: 12 }}>Open from the Dashboard by clicking the search icon on a customer with a submission.</div>
-    </div>
-  );
+  if (!pickedLot || !pickedId) return <CustomerPicker onPick={choosePair} onBack={onBack} initialLotId={pickedLot} />;
 
   if (loading) return <Spinner full />;
-  if (!data) return <div className="info-box ib-red">Failed to load reconciliation data.</div>;
+  if (!data) return (
+    <div className="info-box ib-red">
+      Failed to load reconciliation data for {pickedId}.
+      <div style={{ marginTop: 8 }}><button className="btn btn-secondary btn-sm" onClick={reset}><Icon name="back" size={13} /> Choose a different customer</button></div>
+    </div>
+  );
 
   const { summary, results, sap_lines, customer_lines, bridge } = data;
   let filtered = filter === 'ALL' ? results : results.filter(r => r.match_type === filter);
@@ -107,13 +121,13 @@ export default function Reconciliation({ customerId, onBack }) {
       <div className="sec-hd">
         <div>
           <div className="sec-title disp">Reconciliation Studio</div>
-          <div className="sec-sub">{customerId} · {data.soa_filename} · Format: {data.soa_format}
+          <div className="sec-sub">{data.lot_number || pickedLot} · {pickedId} · {data.soa_filename} · Format: {data.soa_format}
             {data.recon_sent_to_customer_at && <span style={{ color: 'var(--green)', marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 3 }}>· <Icon name="checkCircle" size={11} /> Sent to customer {fmtDate(data.recon_sent_to_customer_at)}</span>}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn btn-secondary btn-sm" onClick={onBack}><Icon name="back" size={13} /> Dashboard</button>
-          <a className="btn btn-secondary btn-sm" href={api.soaDownloadUrl(customerId)} download><Icon name="download" size={13} /> Download SOA</a>
+          <button className="btn btn-secondary btn-sm" onClick={reset}><Icon name="back" size={13} /> Choose Another Customer</button>
+          <a className="btn btn-secondary btn-sm" href={api.lotConfirmationVersionSoaUrl(pickedLot, pickedId, data.current_version)} download><Icon name="download" size={13} /> Download SOA</a>
           <button className="btn btn-secondary btn-sm" onClick={exportExcel} disabled={exporting}>{exporting ? '…' : <><Icon name="excel" size={13} /> Export Excel</>}</button>
           <button className="btn btn-secondary btn-sm" onClick={saveNotes} disabled={saving}><Icon name="note" size={13} /> Save Notes</button>
           <button className="btn btn-primary btn-sm" onClick={sendToCustomer} disabled={sending}>{sending ? '…' : <><Icon name="sendMail" size={13} /> Send to Customer</>}</button>
@@ -131,7 +145,7 @@ export default function Reconciliation({ customerId, onBack }) {
             <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#1E1E2E', display: 'grid', placeItems: 'center' }}>{matchRate}%</div>
           </div>
           <div>
-            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, fontWeight: 700, color: '#fff' }}>{data.customer_name || customerId}</div>
+            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, fontWeight: 700, color: '#fff' }}>{data.customer_name || pickedId}</div>
             <div style={{ fontSize: 10, color: '#ffffff50', marginTop: 2 }}>SAP Lines: {sap_lines?.length} · Customer Lines: {customer_lines?.length} · Match Rate: {matchRate}%</div>
           </div>
         </div>
@@ -327,6 +341,137 @@ export default function Reconciliation({ customerId, onBack }) {
             placeholder="Document reconciliation findings, agreed actions, expected resolution date…" />
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Lot -> Customer picker — Reconciliation Studio's own entry point ────
+// Reconciliation is now Lot-scoped (Sept 2026 migration), so opening it
+// without a {lotId, customerId} already in hand (e.g. from the nav
+// directly, with no Lot pre-chosen) means picking a Lot first, then a
+// customer within it — mirroring the "Lot list -> expand -> customer list"
+// hierarchy Lot Overview already uses. `initialLotId` lets a caller that
+// knows the Lot but not yet the customer (e.g. Lot Overview's own picker
+// state) skip straight to step two.
+function CustomerPicker({ onPick, onBack, initialLotId }) {
+  const toast = useToast();
+  const [lots, setLots] = useState(null);
+  const [lotId, setLotId] = useState(initialLotId || null);
+
+  useEffect(() => {
+    api.lots().then(d => setLots(d.lots || [])).catch(e => toast(e.message, 'err'));
+  }, [toast]);
+
+  if (!lots) return <Spinner full />;
+
+  if (!lotId) {
+    return (
+      <div>
+        <div className="sec-hd">
+          <div>
+            <div className="sec-title disp">Reconciliation Studio</div>
+            <div className="sec-sub">Pick a Lot to open its customers for line-item reconciliation.</div>
+          </div>
+          {onBack && <button className="btn btn-secondary btn-sm" onClick={onBack}><Icon name="back" size={13} /> Back</button>}
+        </div>
+        {lots.length === 0 ? (
+          <div className="info-box ib-blue"><strong><Icon name="info" size={13} /> No Lots yet</strong> Create a Lot and upload its ledger in Overview first.</div>
+        ) : (
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead><tr><th>Lot</th><th>Period</th><th>Type</th><th>Population</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                {lots.map(l => (
+                  <tr key={l._id} style={{ cursor: 'pointer' }} onClick={() => setLotId(l._id)}>
+                    <td><span className="td-mono">{l.lot_number}</span></td>
+                    <td>{l.period_label}</td>
+                    <td>{l.business_type}</td>
+                    <td>{l.population_count ?? '—'}</td>
+                    <td>{l.status}</td>
+                    <td><button className="act-btn" title="Open"><Icon name="arrow" size={14} /></button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return <CustomerPickerForLot lotId={lotId} onPick={custId => onPick(lotId, custId)} onBack={() => setLotId(null)} />;
+}
+
+// Step two: pick a customer within the chosen Lot. Defaults to showing only
+// customers with an SOA on file, since those are the only ones reconciliation
+// can actually run for; "Show all" reveals the rest so nothing is hidden.
+function CustomerPickerForLot({ lotId, onPick, onBack }) {
+  const toast = useToast();
+  const [rows, setRows] = useState(null);
+  const [q, setQ] = useState('');
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    api.lotConfirmations(lotId).then(d => setRows(d.rows || [])).catch(e => toast(e.message, 'err'));
+  }, [lotId, toast]);
+
+  if (!rows) return <Spinner full />;
+
+  let list = showAll ? rows : rows.filter(r => r.confirmation?.soa_filename);
+  if (q.trim()) {
+    const needle = q.trim().toLowerCase();
+    list = list.filter(r => r.customer_id.toLowerCase().includes(needle) || (r.customer_name || '').toLowerCase().includes(needle));
+  }
+
+  return (
+    <div>
+      <div className="sec-hd">
+        <div>
+          <div className="sec-title disp">Reconciliation Studio</div>
+          <div className="sec-sub">Pick a customer with an SOA on file to open their line-item reconciliation.</div>
+        </div>
+        <button className="btn btn-secondary btn-sm" onClick={onBack}><Icon name="back" size={13} /> Choose Another Lot</button>
+      </div>
+
+      <div className="filter-bar">
+        <div className="srch-wrap">
+          <span className="srch-ico"><Icon name="search" size={14} /></span>
+          <input className="inp srch-inp" placeholder="Search customer name or ID…" value={q} onChange={e => setQ(e.target.value)} autoFocus />
+        </div>
+        <button className={`btn btn-sm ${showAll ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setShowAll(s => !s)}>
+          {showAll ? 'Showing All Customers' : 'Only With SOA Uploaded'}
+        </button>
+        <span style={{ fontSize: 11, color: 'var(--muted)' }}>{list.length} of {rows.length}</span>
+      </div>
+
+      {list.length === 0 ? (
+        <div className="info-box ib-blue">
+          <strong><Icon name="info" size={13} /> No customers to show</strong>
+          {showAll ? 'No customers match your search.' : 'No customer in this Lot has an SOA uploaded yet — toggle "Showing All Customers" to browse everyone, or wait for a customer to submit their confirmation.'}
+        </div>
+      ) : (
+        <div className="tbl-wrap">
+          <table className="tbl">
+            <thead><tr><th>Customer</th><th>Opening Balance</th><th>Cust. Balance</th><th>Difference</th><th>Status</th><th>SOA</th><th></th></tr></thead>
+            <tbody>
+              {list.map(r => {
+                const c = r.confirmation;
+                return (
+                  <tr key={r.customer_id} style={{ cursor: 'pointer' }} onClick={() => onPick(r.customer_id)}>
+                    <td><div className="td-prim">{r.customer_name}</div><div className="td-sub mono">{r.customer_id}</div></td>
+                    <td><span className="td-mono">{fmtINR(r.opening_balance)}</span></td>
+                    <td><span className="td-mono">{c?.cust_balance != null ? fmtINR(c.cust_balance) : <span style={{ color: 'var(--muted-lt)' }}>—</span>}</span></td>
+                    <td><span className="td-mono">{c?.difference != null ? (c.difference === 0 ? '✓ Nil' : fmtINR(c.difference)) : '—'}</span></td>
+                    <td>{c?.status || 'PENDING'}</td>
+                    <td>{c?.soa_filename ? <Icon name="excel" size={14} /> : <span style={{ color: 'var(--muted-lt)', fontSize: 10 }}>—</span>}</td>
+                    <td><button className="act-btn" title="Open"><Icon name="arrow" size={14} /></button></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

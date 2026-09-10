@@ -243,6 +243,21 @@ function buildBridge({ sapTxns, custItems, results, summary, customer, cycleId, 
   };
 }
 
+// Normalises a stored SOA file's bytes back into a real Buffer. A real
+// MongoDB Buffer-schema field round-trips as a genuine Buffer (which itself
+// has a `.buffer` ArrayBuffer property — the first branch below). Also
+// tolerates the JSON-serialised `{ type: 'Buffer', data: [...] }` shape a
+// value can take after passing through JSON.stringify/parse (e.g. a fake/
+// mocked persistence layer, or a value read back off an HTTP JSON response)
+// so callers never silently hand XLSX.read() a non-Buffer object.
+function toBuffer(v) {
+  if (!v) return v;
+  if (Buffer.isBuffer(v)) return v;
+  if (v.buffer) return Buffer.from(v.buffer);
+  if (v.type === 'Buffer' && Array.isArray(v.data)) return Buffer.from(v.data);
+  return v;
+}
+
 async function getReconData(customerId) {
   const conf = await Confirmation.findOne({ customer_id: customerId, cycle_id: cfg.CYCLE_ID }).lean();
   if (!conf) throw Object.assign(new Error('No confirmation found for this customer'), { status: 404 });
@@ -253,7 +268,7 @@ async function getReconData(customerId) {
 
   const customer = await Customer.findOne({ customer_id: customerId }).lean();
   const sapTxns = led.transactions.filter(t => t.status === 'OPEN');
-  const soaBuffer = conf.soa_data.buffer ? Buffer.from(conf.soa_data.buffer) : conf.soa_data;
+  const soaBuffer = toBuffer(conf.soa_data);
   const soaData = await parseSOA(soaBuffer);
   const recon = reconcile(sapTxns, soaData.items);
   return { conf, customer, sapTxns, soaData, recon };
@@ -330,3 +345,4 @@ module.exports.reconcile = reconcile;
 module.exports.buildBridge = buildBridge;
 module.exports.parseSOA = parseSOA;
 module.exports.normaliseDocNum = normaliseDocNum;
+module.exports.toBuffer = toBuffer;

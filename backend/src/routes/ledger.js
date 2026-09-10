@@ -48,7 +48,115 @@ function parseDate(v) {
   return isNaN(d) ? s : d.toISOString().split('T')[0];
 }
 
+// Ledger upload accepts BOTH Excel/CSV (parsed below via XLSX) and JSON.
+// Detected by .json extension or by the buffer's first non-whitespace
+// character, so it works whether or not the uploader's file picker
+// preserved the extension. TWO JSON shapes are accepted, auto-detected:
+//
+//  1. GROUPED (the app's own shape, e.g. data/TSL_ledger.json / the sample
+//     ledger JSON files): a top-level array — or { "ledgers": [...] } — of
+//     { customer_id, transactions: [{document_number, ...}, ...] }.
+//
+//  2. FLAT / "SAP-style" rows: a top-level array — or { "rows"/"data": [...] }
+//     — of one object PER TRANSACTION, mirroring an SAP FBL5N-style export
+//     converted straight to JSON (so keys are whatever that export used —
+//     "Customer", "Document Number", "Posting Date", etc., not this app's
+//     internal field names). Detected when entries have no `transactions`
+//     array. Column matching reuses the SAME flexible header aliases
+//     (DOC_NUM_KEYS etc. below) as the Excel/CSV path, checked
+//     case/punctuation-insensitively against each object's own keys, so a
+//     real SAP export's exact column names don't need to match this app's
+//     naming — only a recognisable customer-identifier key is required
+//     (customer_id, customer, customer code, cust id, sold-to, kunnr,
+//     account, etc. — see CUSTOMER_ID_KEYS).
+const CUSTOMER_ID_KEYS = ['customer_id','customer id','customer','customer code','customer no','customer number','cust id','cust no','cust code','account','account number','sold-to','sold to','sold-to party','kunnr','id'];
+
+function normaliseJsonKey(k) { return (k || '').toString().toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+// Case/punctuation-insensitive lookup of the first present key in `obj`
+// matching any of `candidates` (checked as exact-normalised-match first,
+// then substring, mirroring findCol()'s Excel-header matching below).
+function findJsonKey(obj, candidates) {
+  const keys = Object.keys(obj || {});
+  const normKeys = keys.map(normaliseJsonKey);
+  for (const c of candidates) {
+    let i = normKeys.indexOf(c);
+    if (i === -1) i = normKeys.findIndex(nk => nk.includes(c));
+    if (i >= 0) return keys[i];
+  }
+  return null;
+}
+function jget(obj, candidates) {
+  const k = findJsonKey(obj, candidates);
+  return k ? obj[k] : undefined;
+}
+
+function looksLikeJsonLedger(buffer, originalName) {
+  if (/\.json$/i.test(originalName || '')) return true;
+  const head = buffer.slice(0, 200).toString('utf8').trim();
+  return head.startsWith('[') || head.startsWith('{');
+}
+
+// One flat row (either the grouped shape's per-transaction object, or one
+// element of the flat/SAP-style array) -> a transaction record, using the
+// same flexible key matching regardless of shape. Returns null if the row
+// has no usable document number or amount (mirrors the Excel path, which
+// silently skips such rows rather than erroring the whole file).
+function jsonRowToTxn(t) {
+  const amt = parseAmount(jget(t, AMOUNT_KEYS));
+  const docNum = (jget(t, DOC_NUM_KEYS) ?? '').toString().trim();
+  if (!docNum || amt === 0) return null;
+  const statusRaw = jget(t, STATUS_KEYS);
+  return {
+    document_number: docNum,
+    document_type:   (jget(t, DOC_TYPE_KEYS) ?? 'UNKNOWN').toString().trim(),
+    document_date:   parseDate(jget(t, DOC_DATE_KEYS)),
+    due_date:        parseDate(jget(t, DUE_DATE_KEYS)),
+    amount: amt, currency: t.currency || t.Currency || 'INR',
+    status: statusRaw ? (statusRaw.toString().toUpperCase().includes('OPEN') ? 'OPEN' : 'CLEARED') : 'OPEN',
+  };
+}
+
+function parseJsonLedger(buffer) {
+  let data;
+  try { data = JSON.parse(buffer.toString('utf8')); }
+  catch (err) { throw new Error('File looks like JSON but failed to parse: ' + err.message); }
+  const rows = Array.isArray(data) ? data
+    : Array.isArray(data?.ledgers) ? data.ledgers
+    : Array.isArray(data?.rows) ? data.rows
+    : Array.isArray(data?.data) ? data.data
+    : null;
+  if (!rows) throw new Error('Expected a JSON array of ledger rows/entries (or wrapped as { "ledgers": [...] }, { "rows": [...] } or { "data": [...] }).');
+
+  const transactions = [];
+  const isGrouped = rows.some(r => Array.isArray(r?.transactions));
+
+  if (isGrouped) {
+    rows.forEach(entry => {
+      const custKey = findJsonKey(entry, CUSTOMER_ID_KEYS);
+      const custId = custKey ? (entry[custKey] ?? '').toString().trim() || null : null;
+      const txns = Array.isArray(entry?.transactions) ? entry.transactions : [];
+      txns.forEach(t => {
+        const txn = jsonRowToTxn(t);
+        if (txn) transactions.push({ ...txn, customer_id: custId });
+      });
+    });
+  } else {
+    // Flat/SAP-style: one row per transaction, customer identifier lives on
+    // the row itself (whatever key it's under — see CUSTOMER_ID_KEYS).
+    rows.forEach(row => {
+      const custKey = findJsonKey(row, CUSTOMER_ID_KEYS);
+      const custId = custKey ? (row[custKey] ?? '').toString().trim() || null : null;
+      const txn = jsonRowToTxn(row);
+      if (txn) transactions.push({ ...txn, customer_id: custId });
+    });
+  }
+
+  return { transactions, headers: ['customer_id', 'document_number', 'document_type', 'document_date', 'due_date', 'amount', 'currency', 'status'], colMappings: { source: 'json', shape: isGrouped ? 'grouped' : 'flat' } };
+}
+
 function parseUploadedLedger(buffer, originalName) {
+  if (looksLikeJsonLedger(buffer, originalName)) return parseJsonLedger(buffer);
   const wb = XLSX.read(buffer, { type: 'buffer', raw: false });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });

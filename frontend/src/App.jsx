@@ -60,7 +60,7 @@ function AdminShell() {
   useEffect(() => {
     try { localStorage.setItem('bsync_sidebar_collapsed', sidebarCollapsed ? '1' : '0'); } catch {}
   }, [sidebarCollapsed]);
-  const [reconId, setReconId]     = useState(null);
+  const [reconTarget, setReconTarget] = useState(null); // { lotId, customerId } — Reconciliation Studio is Lot-scoped
   const [health, setHealth]       = useState(null);
   const [dashboard, setDashboard] = useState(null);
   const [healthLoading, setHealthLoading] = useState(true);
@@ -92,7 +92,15 @@ function AdminShell() {
     return () => clearInterval(iv);
   }, [loggedIn, loadHealth, loadDashboard]);
 
-  function navigate(p, id) { setPage(p); if (id) setReconId(id); }
+  // `target`, when given, is { lotId, customerId } — used when navigating
+  // straight into Reconciliation Studio for a specific Lot+customer (e.g.
+  // the "Reconcile" row action in Lot Overview). Navigating to the studio
+  // without a target clears it, so the screen falls back to its own Lot ->
+  // customer picker instead of reopening whatever was last selected.
+  function navigate(p, target) {
+    setPage(p);
+    if (p === 'customer-recon' || p === 'vendor-recon') setReconTarget(target || null);
+  }
 
   function logout() { api.setToken(null); setLoggedIn(false); }
 
@@ -157,10 +165,10 @@ function AdminShell() {
           {healthLoading && <Spinner full />}
 
           <div key={page} className="page-in">
-            {page === 'customer-overview' && <LotOverview businessType="CUSTOMER" />}
-            {page === 'vendor-overview'   && <LotOverview businessType="VENDOR" />}
+            {page === 'customer-overview' && <LotOverview businessType="CUSTOMER" onReconcile={(lotId, customerId) => navigate('customer-recon', { lotId, customerId })} />}
+            {page === 'vendor-overview'   && <LotOverview businessType="VENDOR" onReconcile={(lotId, customerId) => navigate('vendor-recon', { lotId, customerId })} />}
             {(page === 'customer-recon' || page === 'vendor-recon') && (
-              <Reconciliation customerId={reconId} onBack={() => navigate(page === 'vendor-recon' ? 'vendor-overview' : 'customer-overview')} />
+              <Reconciliation lotId={reconTarget?.lotId} customerId={reconTarget?.customerId} onBack={() => navigate(page === 'vendor-recon' ? 'vendor-overview' : 'customer-overview')} />
             )}
             {(page === 'customer-audit' || page === 'vendor-audit') && <AuditLogView />}
             {page === 'health' && <SystemHealth health={health} onRefresh={loadHealth} />}

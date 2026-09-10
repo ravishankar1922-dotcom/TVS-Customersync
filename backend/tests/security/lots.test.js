@@ -130,4 +130,72 @@ describe('POST /api/lots/:lotId/ledger/upload — Lot population comes ONLY from
     const res = await request(app).get('/api/lots/000000000000000000000000').set('Authorization', `Bearer ${adminJwt()}`);
     expect(res.status).toBe(404);
   });
+
+  test('accepts a JSON ledger file, same as Excel/CSV (Sept 2026: "Ledger upload can be both JSON and excel")', async () => {
+    const createRes = await request(app).post('/api/lots').set('Authorization', `Bearer ${adminJwt()}`).send({ period: 'June 2026' });
+    const lotId = createRes.body.lot._id;
+
+    const jsonBuf = Buffer.from(JSON.stringify([
+      { customer_id: 'TEST_J001', transactions: [{ document_number: 'INV1', document_type: 'INVOICE', document_date: '2026-06-01', amount: 1500, status: 'OPEN' }] },
+      { customer_id: 'TEST_J002', transactions: [{ document_number: 'INV2', document_type: 'INVOICE', document_date: '2026-06-02', amount: 2500, status: 'OPEN' }] },
+    ]), 'utf8');
+
+    const uploadRes = await request(app).post(`/api/lots/${lotId}/ledger/upload`).set('Authorization', `Bearer ${adminJwt()}`).attach('ledger_file', jsonBuf, 'ledger_June_2026.json');
+    expect(uploadRes.status).toBe(200);
+    expect(uploadRes.body.population_count).toBe(2);
+    expect(uploadRes.body.lot.total_ledger_balance).toBe(4000);
+
+    const popRes = await request(app).get(`/api/lots/${lotId}/population`).set('Authorization', `Bearer ${adminJwt()}`);
+    expect(popRes.body.population.map(p => p.customer_id).sort()).toEqual(['TEST_J001', 'TEST_J002']);
+  });
+
+  // Sept 2026 fix: a real SAP export converted straight to JSON keeps SAP's
+  // own flat row-per-transaction shape and column names ("Customer",
+  // "Document Number", ...) — not this app's { customer_id, transactions }
+  // grouping. That used to fail with "No rows in this file could be matched
+  // to a customer_id" even though the file was perfectly valid.
+  test('accepts a FLAT SAP-style JSON export (one row per transaction, SAP column names, no transactions[] grouping)', async () => {
+    const createRes = await request(app).post('/api/lots').set('Authorization', `Bearer ${adminJwt()}`).send({ period: 'June 2026' });
+    const lotId = createRes.body.lot._id;
+
+    const jsonBuf = Buffer.from(JSON.stringify([
+      { Customer: 'TEST_SAP001', 'Document Number': 'RV0001', 'Document Type': 'RV', 'Posting Date': '2026-06-01', 'Amount in Local Currency': 15000, 'Item Status': 'Open' },
+      { Customer: 'TEST_SAP001', 'Document Number': 'RV0002', 'Document Type': 'RV', 'Posting Date': '2026-06-05', 'Amount in Local Currency': 5000, 'Item Status': 'Open' },
+      { Customer: 'TEST_SAP002', 'Document Number': 'RV0003', 'Document Type': 'RV', 'Posting Date': '2026-06-02', 'Amount in Local Currency': 8000, 'Item Status': 'Open' },
+    ]), 'utf8');
+
+    const uploadRes = await request(app).post(`/api/lots/${lotId}/ledger/upload`).set('Authorization', `Bearer ${adminJwt()}`).attach('ledger_file', jsonBuf, 'sap_export.json');
+    expect(uploadRes.status).toBe(200);
+    expect(uploadRes.body.population_count).toBe(2);
+    expect(uploadRes.body.lot.total_ledger_balance).toBe(28000);
+
+    const popRes = await request(app).get(`/api/lots/${lotId}/population`).set('Authorization', `Bearer ${adminJwt()}`);
+    expect(popRes.body.population.map(p => p.customer_id).sort()).toEqual(['TEST_SAP001', 'TEST_SAP002']);
+  });
+
+  // Sept 2026 fix: E11000 duplicate-key error on a live database's stale
+  // legacy `customer_id_1` single-field unique index (see db.js) when the
+  // same customer_id appears in a second Lot's ledger upload. This
+  // sandbox's fake models don't enforce indexes at all, so it can't
+  // reproduce the live-DB failure directly — but it does prove the
+  // application-level behavior the fix relies on: the SAME customer in TWO
+  // different Lots' ledger uploads must both succeed and stay isolated
+  // (the real fix — db.js's automatic index sync on startup — removes the
+  // stale index so MongoDB stops rejecting the second insert; see
+  // src/scripts/fix-legacy-ledger-index.js for the manual/immediate fix).
+  test('the same customer_id can appear in TWO different Lots\' ledger uploads without any conflict (guards the E11000 fix)', async () => {
+    const lot1 = (await request(app).post('/api/lots').set('Authorization', `Bearer ${adminJwt()}`).send({ period: 'June 2026' })).body.lot;
+    const lot2 = (await request(app).post('/api/lots').set('Authorization', `Bearer ${adminJwt()}`).send({ period: 'July 2026' })).body.lot;
+
+    const buf1 = buildLedgerXlsx([{ customer_id: 'CUST0049', document_number: 'JUN-INV1', document_type: 'INVOICE', document_date: '2026-06-01', amount: 10000, status: 'OPEN' }]);
+    const buf2 = buildLedgerXlsx([{ customer_id: 'CUST0049', document_number: 'JUL-INV1', document_type: 'INVOICE', document_date: '2026-07-01', amount: 20000, status: 'OPEN' }]);
+
+    const r1 = await request(app).post(`/api/lots/${lot1._id}/ledger/upload`).set('Authorization', `Bearer ${adminJwt()}`).attach('ledger_file', buf1, 'june.xlsx');
+    const r2 = await request(app).post(`/api/lots/${lot2._id}/ledger/upload`).set('Authorization', `Bearer ${adminJwt()}`).attach('ledger_file', buf2, 'july.xlsx');
+
+    expect(r1.status).toBe(200);
+    expect(r2.status).toBe(200); // this is the request that a stale customer_id_1 index would have rejected with E11000
+    expect(r1.body.lot.total_ledger_balance).toBe(10000);
+    expect(r2.body.lot.total_ledger_balance).toBe(20000);
+  });
 });

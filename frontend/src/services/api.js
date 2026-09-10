@@ -57,6 +57,15 @@ const api = {
   customerLedger:   (id)    => request('GET',  `/api/customers/${id}/ledger`),
   customersExportUrl: ()    => `${BASE_URL}/api/customers/export.xlsx?token=${getToken() || ''}`,
   importCustomersJson: (customers, opts = {}) => request('POST', '/api/customers/import-json', { customers, mode: opts.mode, dryRun: !!opts.dryRun }),
+  // Customer master file upload (Sept 2026: "Where is the provision to
+  // upload customer master?") — Excel/CSV or JSON, same fd pattern as
+  // uploadLedger below.
+  importCustomerMasterFile: (fd) => request('POST', '/api/customers/import', fd, true),
+
+  // Vendors
+  vendors:            ()    => request('GET', '/api/vendors'),
+  vendor:              (id) => request('GET', `/api/vendors/${id}`),
+  importVendorMasterFile: (fd) => request('POST', '/api/vendors/import', fd, true),
 
   // Tokens (admin)
   generateTokens:   (opts)  => request('POST', '/api/tokens/generate', opts || {}),
@@ -147,6 +156,17 @@ const api = {
   routeToAdmin:    (lotId, custId, comment) => request('POST', `/api/lots/${lotId}/confirmations/${custId}/route-to-admin`, { comment }),
   routeToCustomer: (lotId, custId, comment) => request('POST', `/api/lots/${lotId}/confirmations/${custId}/route-to-customer`, { comment }),
   confirmationHistory: (lotId, custId) => request('GET', `/api/lots/${lotId}/confirmations/${custId}/history`),
+
+  // Reconciliation Studio, Lot-scoped (Sept 2026: "Reconciliation Studio -
+  // migrate as per lot"). Mirrors the legacy reconcile()/reconExportUrl()/
+  // sendReconToCustomer() methods above, but scoped to {lot_id, customer_id}
+  // — reads/writes routes/lots.js's Lot-scoped reconciliation endpoints, so
+  // ledgers/SOAs uploaded through Overview are the ones the studio reflects.
+  lotReconcile:          (lotId, custId)      => request('GET', `/api/lots/${lotId}/reconciliation/${custId}`),
+  updateLotRecon:        (lotId, custId, b)   => request('PATCH', `/api/lots/${lotId}/reconciliation/${custId}`, b),
+  lotReconExportUrl:     (lotId, custId)      => `${BASE_URL}/api/lots/${lotId}/reconciliation/${custId}/export.xlsx?token=${getToken() || ''}`,
+  lotReconExportBlob:    (lotId, custId)      => requestBlob('GET', `/api/lots/${lotId}/reconciliation/${custId}/export.xlsx`),
+  sendLotReconToCustomer: (lotId, custId)     => request('POST', `/api/lots/${lotId}/reconciliation/${custId}/send-to-customer`),
 
   BASE_URL,
 };

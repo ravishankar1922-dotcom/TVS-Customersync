@@ -83,6 +83,17 @@ const AuditLog = require('../models/AuditLog');
 const { sendMail, isConfigured } = require('../utils/mailer');
 const { buildOutlookScript } = require('../utils/outlookScript');
 const ExcelJS = require('exceljs');
+// Reconciliation Studio, Lot-scoped (Sept 2026: "Reconciliation Studio -
+// migrate as per lot"). Reuses the SAME matching engine, SOA/PDF parser and
+// balance-bridge builder the legacy cfg.CYCLE_ID-scoped /api/reconciliation
+// routes use (routes/reconciliation.js) — only the DATA LOOKUP changes here,
+// to {lot_id, customer_id} instead of {cycle_id: cfg.CYCLE_ID}. This closes
+// the gap flagged after the Sept 2026 sample-data batch: Lot-scoped ledgers/
+// SOAs uploaded through Overview were reconcilable via the Lot's own KPI
+// cards but never showed up in Reconciliation Studio's line-item grid.
+const { parseSOA, reconcile, buildBridge, toBuffer } = require('./reconciliation');
+const { buildReconciliationExcel } = require('../utils/excelExport');
+const { reconciliationCompleteEmail } = require('../utils/emailTemplates');
 
 // Shared by the bulk-action routes below: reuse a still-valid token for
 // {lot_id, customer_id} or mint a fresh one — identical rule to the one
@@ -832,6 +843,119 @@ router.get('/:lotId/confirmations/:customerId/history', requireAdminOrFinance, a
     lot_id: lot._id, lot_number: lot.lot_number, customer_id: req.params.customerId,
     history: scoped.map(e => ({ timestamp: e.createdAt, actor: e.actor, actor_role: e.actor_role, action: e.action, details: e.details })),
   });
+});
+
+// ── Reconciliation Studio, Lot-scoped ───────────────────────────────────────
+// Loads the SAP ledger + customer SOA for one {lot_id, customer_id} pair,
+// runs them through the same reconcile()/buildBridge() the legacy studio
+// uses, never falling back to the global cfg.CYCLE_ID-scoped collections.
+async function getLotReconData(lotId, customerId) {
+  const lot = await Lot.findById(lotId).lean();
+  if (!lot) throw Object.assign(new Error('Lot not found'), { status: 404 });
+
+  const conf = await Confirmation.findOne({ lot_id: lot._id, customer_id: customerId }).lean();
+  if (!conf) throw Object.assign(new Error('No confirmation found for this customer in this Lot.'), { status: 404 });
+  if (!conf.soa_data) throw Object.assign(new Error('No SOA file uploaded yet for this customer in this Lot.'), { status: 404 });
+
+  const led = await LedgerEntry.findOne({ lot_id: lot._id, customer_id: customerId }).lean();
+  if (!led) throw Object.assign(new Error('No ledger found for this customer in this Lot.'), { status: 404 });
+
+  const master = await lookupMasterByIds(lot, [customerId]);
+  const person = master.get(customerId) || null;
+  const customer = person ? { customer_id: person.id, customer_name: person.name, email: person.email } : { customer_id: customerId };
+
+  const sapTxns = led.transactions.filter(t => t.status === 'OPEN');
+  const soaBuffer = toBuffer(conf.soa_data);
+  const soaData = await parseSOA(soaBuffer);
+  const recon = reconcile(sapTxns, soaData.items);
+  return { lot, conf, customer, sapTxns, soaData, recon };
+}
+
+// GET /:lotId/reconciliation/:customerId — ADMIN or FINANCE.
+router.get('/:lotId/reconciliation/:customerId', requireAdminOrFinance, async (req, res) => {
+  try {
+    const { lot, conf, customer, sapTxns, soaData, recon } = await getLotReconData(req.params.lotId, req.params.customerId);
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: lot.lot_number, asOfDate: lot.period_label });
+    res.json({
+      lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label,
+      customer_id: req.params.customerId, customer_name: customer?.customer_name,
+      soa_filename: conf.soa_filename, soa_format: soaData.format_detected, soa_headers: soaData.headers,
+      soa_confidence: soaData.confidence, soa_warning: soaData.warning || null,
+      sap_lines: sapTxns, customer_lines: soaData.items, results: recon.results, summary: recon.summary, bridge,
+      recon_status: conf.recon_status, recon_notes: conf.recon_notes, root_causes: conf.root_causes || {},
+      recon_sent_to_customer_at: conf.recon_sent_to_customer_at, workflow_status: conf.workflow_status,
+      current_version: conf.current_version,
+    });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+// PATCH /:lotId/reconciliation/:customerId — ADMIN or FINANCE. Same request
+// shape as the legacy PATCH /api/confirmations/:customerId/recon
+// ({recon_status, recon_notes, root_causes}), scoped to {lot_id, customer_id}
+// instead of {cycle_id: cfg.CYCLE_ID} — lets the studio persist root-cause
+// tags, notes, and "mark complete" for Lot-scoped confirmations too.
+router.patch('/:lotId/reconciliation/:customerId', requireAdminOrFinance, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+
+  const { recon_status, recon_notes, root_causes } = req.body || {};
+  const update = {};
+  if (recon_status) update.recon_status = recon_status;
+  if (recon_notes !== undefined) update.recon_notes = recon_notes;
+  if (root_causes) update.root_causes = root_causes;
+  if (recon_status === 'COMPLETED') update.recon_completed_at = new Date();
+
+  const conf = await Confirmation.findOneAndUpdate({ lot_id: lot._id, customer_id: req.params.customerId }, update, { new: true });
+  if (!conf) return res.status(404).json({ error: 'No confirmation found for this customer in this Lot.' });
+
+  await logAudit({ req, action: recon_status === 'COMPLETED' ? 'RECON_MARKED_COMPLETE' : 'RECON_NOTES_SAVED', entity_type: 'Confirmation', entity_id: req.params.customerId, details: { lot_id: lot._id, lot_number: lot.lot_number } });
+  res.json({ ok: true, confirmation: conf });
+});
+
+// GET /:lotId/reconciliation/:customerId/export.xlsx — ADMIN or FINANCE.
+router.get('/:lotId/reconciliation/:customerId/export.xlsx', requireAdminOrFinance, async (req, res) => {
+  try {
+    const { lot, customer, sapTxns, soaData, recon } = await getLotReconData(req.params.lotId, req.params.customerId);
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: lot.lot_number, asOfDate: lot.period_label });
+    const buffer = await buildReconciliationExcel({ customer, cycleId: lot.lot_number, asOfDate: lot.period_label, summary: recon.summary, results: recon.results, bridge });
+    await logAudit({ req, action: 'RECON_EXPORTED', entity_type: 'Confirmation', entity_id: req.params.customerId, details: { lot_id: lot._id, lot_number: lot.lot_number } });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="Reconciliation_${req.params.customerId}_${lot.lot_number}.xlsx"`);
+    res.send(buffer);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+// POST /:lotId/reconciliation/:customerId/send-to-customer — ADMIN or FINANCE.
+router.post('/:lotId/reconciliation/:customerId/send-to-customer', requireAdminOrFinance, async (req, res) => {
+  try {
+    const { lot, conf, customer, sapTxns, soaData, recon } = await getLotReconData(req.params.lotId, req.params.customerId);
+    if (!isConfigured()) return res.status(400).json({ error: 'SMTP is not configured on the server. Set SMTP_* in .env to enable sending.' });
+    if (!customer?.email) return res.status(400).json({ error: 'Customer has no email on file.' });
+
+    const bridge = buildBridge({ sapTxns, custItems: soaData.items, results: recon.results, summary: recon.summary, customer, cycleId: lot.lot_number, asOfDate: lot.period_label });
+    const buffer = await buildReconciliationExcel({ customer, cycleId: lot.lot_number, asOfDate: lot.period_label, summary: recon.summary, results: recon.results, bridge });
+    const to = customer.email.match(/<(.+)>/)?.[1] || customer.email;
+    const html = reconciliationCompleteEmail(customer, recon.summary, lot.period_label, conf.recon_notes);
+    const subject = `Reconciliation Summary – ${customer.customer_name} – ${lot.period_label}`;
+
+    await sendMail({ to, subject, html, attachments: [{ filename: `Reconciliation_${customer.customer_id}.xlsx`, content: buffer }] });
+
+    await EmailLog.create({
+      customer_id: customer.customer_id, customer_name: customer.customer_name, email: customer.email,
+      lot_id: lot._id, cycle_id: lot.lot_number, subject, kind: 'RECON_COMPLETE', status: 'SENT', sent_at: new Date(),
+    });
+
+    await Confirmation.updateOne({ lot_id: lot._id, customer_id: customer.customer_id }, { recon_sent_to_customer_at: new Date() });
+    await logAudit({ req, action: 'RECON_SENT_TO_CUSTOMER', entity_type: 'Confirmation', entity_id: customer.customer_id, details: { lot_id: lot._id, lot_number: lot.lot_number, to } });
+
+    res.json({ ok: true, sent_to: to });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

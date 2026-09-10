@@ -1,5 +1,6 @@
 const express = require('express');
 const router  = express.Router();
+const multer  = require('multer');
 const ExcelJS = require('exceljs');
 const cfg     = require('../config');
 const Customer = require('../models/Customer');
@@ -9,6 +10,47 @@ const TokenRecord = require('../models/TokenRecord');
 const EmailLog = require('../models/EmailLog');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
+const { parseMasterFile } = require('../utils/masterFileParser');
+
+// Same 20MB cap used for ledger/SOA uploads elsewhere in the app.
+const MAX_MASTER_MB = 20;
+const masterUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_MASTER_MB * 1024 * 1024 } });
+
+const CUSTOMER_FIELDS = [
+  { key: 'customer_id',   aliases: ['customer_id', 'customer id', 'id', 'customer code', 'code'] },
+  { key: 'customer_name', aliases: ['customer_name', 'customer name', 'name'] },
+  { key: 'email',         aliases: ['email', 'email address', 'e mail'] },
+  { key: 'pan',           aliases: ['pan', 'pan number', 'pan no'] },
+  { key: 'company',       aliases: ['company', 'company code'] },
+  { key: 'status',        aliases: ['status'] },
+];
+
+// Shared by both /import-json and /import (file upload) below — applies the
+// same replace/append/dryRun upsert semantics regardless of how the rows
+// got here.
+async function upsertCustomerRows(customers, mode, dryRun) {
+  if (dryRun) {
+    const ids = customers.map(c => c.customer_id).filter(Boolean);
+    const existing = await Customer.find({ customer_id: { $in: ids } }).distinct('customer_id');
+    const existingSet = new Set(existing);
+    const matched = ids.filter(id => existingSet.has(id)).length;
+    return { ok: true, dryRun: true, total: ids.length, matched, new: ids.length - matched };
+  }
+
+  let upserted = 0, skipped = 0, appendedSkipped = 0;
+  const errors = [];
+  for (const c of customers) {
+    if (!c.customer_id || !c.customer_name) { skipped++; errors.push(`Missing customer_id/customer_name: ${JSON.stringify(c).slice(0, 80)}`); continue; }
+    if (!c.pan) { skipped++; errors.push(`${c.customer_id}: no PAN on file (required for portal login) — skipped`); continue; }
+    if (mode === 'append') {
+      const exists = await Customer.exists({ customer_id: c.customer_id });
+      if (exists) { appendedSkipped++; continue; }
+    }
+    await Customer.findOneAndUpdate({ customer_id: c.customer_id }, { ...c, pan: c.pan.toUpperCase() }, { upsert: true });
+    upserted++;
+  }
+  return { ok: true, upserted, skipped, appendedSkipped, mode, errors: errors.slice(0, 20) };
+}
 
 function openBalance(ledgerDoc) {
   if (!ledgerDoc) return 0;
@@ -93,29 +135,30 @@ router.post('/import-json', requireAdmin, async (req, res) => {
   const dryRun = !!req.body?.dryRun;
   if (!Array.isArray(customers) || !customers.length) return res.status(400).json({ error: 'Expected a JSON array of customer objects (or { "customers": [...] }).' });
 
-  if (dryRun) {
-    const ids = customers.map(c => c.customer_id).filter(Boolean);
-    const existing = await Customer.find({ customer_id: { $in: ids } }).distinct('customer_id');
-    const existingSet = new Set(existing);
-    const matched = ids.filter(id => existingSet.has(id)).length;
-    const brandNew = ids.length - matched;
-    return res.json({ ok: true, dryRun: true, total: ids.length, matched, new: brandNew });
-  }
+  const result = await upsertCustomerRows(customers, mode, dryRun);
+  if (!dryRun) await logAudit({ req, action: 'CUSTOMER_MASTER_JSON_IMPORTED', entity_type: 'Customer', details: { upserted: result.upserted, skipped: result.skipped, mode, appendedSkipped: result.appendedSkipped } });
+  res.json(result);
+});
 
-  let upserted = 0, skipped = 0, appendedSkipped = 0;
-  const errors = [];
-  for (const c of customers) {
-    if (!c.customer_id || !c.customer_name) { skipped++; errors.push(`Missing customer_id/customer_name: ${JSON.stringify(c).slice(0, 80)}`); continue; }
-    if (!c.pan) { skipped++; errors.push(`${c.customer_id}: no PAN on file (required for portal login) — skipped`); continue; }
-    if (mode === 'append') {
-      const exists = await Customer.exists({ customer_id: c.customer_id });
-      if (exists) { appendedSkipped++; continue; }
-    }
-    await Customer.findOneAndUpdate({ customer_id: c.customer_id }, { ...c, pan: c.pan.toUpperCase() }, { upsert: true });
-    upserted++;
-  }
-  await logAudit({ req, action: 'CUSTOMER_MASTER_JSON_IMPORTED', entity_type: 'Customer', details: { upserted, skipped, mode, appendedSkipped } });
-  res.json({ ok: true, upserted, skipped, appendedSkipped, mode, errors: errors.slice(0, 20) });
+// POST /api/customers/import — bulk upsert customer master from an uploaded
+// FILE (Sept 2026: "Where is the provision to upload customer master?" —
+// only a raw JSON-body API existed before, with no file upload and no admin
+// UI). Accepts Excel/CSV or JSON (same flexible-header matching as ledger
+// uploads — see utils/masterFileParser.js), auto-detected by extension or
+// content. Same replace/append/dryRun semantics as /import-json above.
+router.post('/import', requireAdmin, masterUpload.single('master_file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const mode = req.body?.mode === 'append' ? 'append' : 'replace';
+  const dryRun = req.body?.dryRun === 'true' || req.body?.dryRun === true;
+
+  let customers;
+  try { customers = parseMasterFile(req.file.buffer, req.file.originalname, CUSTOMER_FIELDS, ['customers']); }
+  catch (err) { return res.status(400).json({ error: 'Failed to parse customer master file: ' + err.message }); }
+  if (!customers.length) return res.status(400).json({ error: 'No rows found in this file.' });
+
+  const result = await upsertCustomerRows(customers, mode, dryRun);
+  if (!dryRun) await logAudit({ req, action: 'CUSTOMER_MASTER_FILE_IMPORTED', entity_type: 'Customer', details: { filename: req.file.originalname, upserted: result.upserted, skipped: result.skipped, mode, appendedSkipped: result.appendedSkipped } });
+  res.json({ ...result, filename: req.file.originalname });
 });
 
 // GET /api/customers/export.xlsx — full customer list as a workbook

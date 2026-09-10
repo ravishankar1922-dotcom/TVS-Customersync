@@ -34,11 +34,12 @@ const FILTER_OPS = [
 // lives here instead of its own nav tab). KPI cards default to the total
 // across every Lot in this module; expanding one Lot switches them to that
 // Lot's own numbers (item 2).
-export default function LotOverview({ businessType = 'CUSTOMER' }) {
+export default function LotOverview({ businessType = 'CUSTOMER', onReconcile }) {
   const toast = useToast();
   const [lots, setLots] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [masterOpen, setMasterOpen] = useState(false);
   const [summary, setSummary] = useState(null);
 
   const loadLots = useCallback(async () => {
@@ -83,6 +84,9 @@ export default function LotOverview({ businessType = 'CUSTOMER' }) {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-secondary btn-sm" onClick={refreshAll}><Icon name="refresh" size={13} /> Refresh</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setMasterOpen(true)} title={`Upload/refresh the ${noun.toLowerCase()} master list (Excel/CSV/JSON) — separate from Lot ledger uploads`}>
+            <Icon name="upload" size={13} /> {noun} Master
+          </button>
           <button className="btn btn-primary" onClick={() => setCreateOpen(true)}><Icon name="folder" size={13} /> Create New Lot</button>
         </div>
       </div>
@@ -112,12 +116,14 @@ export default function LotOverview({ businessType = 'CUSTOMER' }) {
               expanded={expandedId === lot._id}
               onToggle={() => setExpandedId(expandedId === lot._id ? null : lot._id)}
               onChanged={refreshAll}
+              onReconcile={onReconcile}
             />
           ))}
         </div>
       )}
 
       <CreateLotModal businessType={businessType} open={createOpen} onClose={() => setCreateOpen(false)} onCreated={lot => { setCreateOpen(false); refreshAll(); setExpandedId(lot._id); }} />
+      <MasterImportModal businessType={businessType} open={masterOpen} onClose={() => setMasterOpen(false)} />
     </div>
   );
 }
@@ -161,8 +167,90 @@ function CreateLotModal({ businessType, open, onClose, onCreated }) {
   );
 }
 
+// ── Customer/Vendor MASTER upload (Sept 2026: "Where is the provision to
+// upload customer master?") ────────────────────────────────────────────
+// This is deliberately separate from a Lot's ledger upload: the master list
+// (customer_id/vendor_id, name, email, PAN) is who CAN appear in a Lot and
+// what the portal's PAN second-factor checks against; a Lot's ledger upload
+// only decides who actually appears in that one Lot's population. Accepts
+// Excel/CSV or JSON, with a dry-run preview (matched vs. brand-new records)
+// before committing, same pattern as ledger upload's staging step.
+function MasterImportModal({ businessType, open, onClose }) {
+  const toast = useToast();
+  const noun = businessType === 'VENDOR' ? 'Vendor' : 'Customer';
+  const [file, setFile] = useState(null);
+  const [mode, setMode] = useState('replace');
+  const [preview, setPreview] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { if (open) { setFile(null); setPreview(null); setMode('replace'); } }, [open]);
+
+  const importFn = businessType === 'VENDOR' ? api.importVendorMasterFile : api.importCustomerMasterFile;
+
+  async function runPreview() {
+    if (!file) return toast('Choose a file first.', 'err');
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('master_file', file);
+      fd.append('mode', mode);
+      fd.append('dryRun', 'true');
+      setPreview(await importFn(fd));
+    } catch (e) { toast(e.message, 'err'); setPreview(null); }
+    finally { setBusy(false); }
+  }
+
+  async function confirmImport() {
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('master_file', file);
+      fd.append('mode', mode);
+      const r = await importFn(fd);
+      toast(`${noun} master updated — ${r.upserted ?? r.would_upsert ?? 0} record(s) upserted${r.skipped ? `, ${r.skipped} skipped` : ''}.`, 'success', 5000);
+      setFile(null); setPreview(null);
+      onClose();
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title={`${noun} Master`} sub={`Upload/refresh the ${noun.toLowerCase()} list this app checks Lots and portal logins against — Excel, CSV or JSON`}>
+      <div className="field">
+        <label className="lbl">File</label>
+        <input type="file" accept=".xlsx,.xls,.csv,.json" onChange={e => { setFile(e.target.files[0] || null); setPreview(null); }} />
+        <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>
+          Column headers are matched flexibly (e.g. "Customer Code", "PAN Number" all work) — no need to rename them to match exactly.
+          Required: {noun.toLowerCase()} ID, name, PAN.
+        </div>
+      </div>
+      <div className="field">
+        <label className="lbl">Mode</label>
+        <select className="inp" value={mode} onChange={e => { setMode(e.target.value); setPreview(null); }}>
+          <option value="replace">Replace — overwrite matched {noun.toLowerCase()}s with the uploaded data</option>
+          <option value="append">Append — only add {noun.toLowerCase()}s not already on file; leave existing ones untouched</option>
+        </select>
+      </div>
+
+      {preview && (
+        <div className="info-box ib-blue" style={{ marginBottom: 14 }}>
+          <strong><Icon name="info" size={13} /> Preview</strong>
+          {preview.dryRun
+            ? `${preview.total ?? preview.would_upsert} row(s) in this file — ${preview.matched ?? 0} match existing ${noun.toLowerCase()}s, ${preview.new ?? (preview.would_upsert || 0)} are new.`
+            : 'Ready to import.'}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button className="btn btn-secondary btn-full" onClick={runPreview} disabled={busy || !file}>{busy ? <Spinner /> : 'Preview'}</button>
+        <button className="btn btn-primary btn-full" onClick={confirmImport} disabled={busy || !file || !preview}>{busy ? <><Spinner /> Importing…</> : 'Confirm Import'}</button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── One Lot row, expandable to its full detail ──────────────────────────
-function LotRow({ lot, expanded, onToggle, onChanged }) {
+function LotRow({ lot, expanded, onToggle, onChanged, onReconcile }) {
   const toast = useToast();
   const [remarksOpen, setRemarksOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -203,7 +291,7 @@ function LotRow({ lot, expanded, onToggle, onChanged }) {
           )}
         </div>
       </div>
-      {expanded && <LotDetail lot={lot} onChanged={onChanged} />}
+      {expanded && <LotDetail lot={lot} onChanged={onChanged} onReconcile={onReconcile} />}
       <RemarksModal lot={lot} open={remarksOpen} onClose={() => setRemarksOpen(false)} onChanged={onChanged} />
     </div>
   );
@@ -233,7 +321,7 @@ function RemarksModal({ lot, open, onClose, onChanged }) {
 }
 
 // ── Expanded Lot detail: ledger upload, targeted send, customer list ────
-function LotDetail({ lot, onChanged }) {
+function LotDetail({ lot, onChanged, onReconcile }) {
   const toast = useToast();
   const [rows, setRows] = useState(null);
   const [search, setSearch] = useState('');
@@ -340,7 +428,7 @@ function LotDetail({ lot, onChanged }) {
           <strong><Icon name="upload" size={13} /> This Lot has no population yet</strong>
           Upload this period's ledger below — only customers found in that file become this Lot's population (never the full Customer master).
           <div style={{ marginTop: 10 }}>
-            <input type="file" accept=".xlsx,.xls,.csv" disabled={uploading} onChange={e => uploadLedger(e.target.files[0])} />
+            <input type="file" accept=".xlsx,.xls,.csv,.json" disabled={uploading} onChange={e => uploadLedger(e.target.files[0])} />
             {uploading && <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--muted)' }}><Spinner /> Uploading…</span>}
           </div>
         </div>
@@ -375,7 +463,7 @@ function LotDetail({ lot, onChanged }) {
             </button>
             <label className="btn btn-secondary btn-sm" style={{ cursor: uploading ? 'default' : 'pointer' }}>
               <Icon name="upload" size={13} /> {uploading ? 'Uploading…' : 'Re-upload / Refresh Ledger'}
-              <input type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }} disabled={uploading} onChange={e => uploadLedger(e.target.files[0])} />
+              <input type="file" accept=".xlsx,.xls,.csv,.json" style={{ display: 'none' }} disabled={uploading} onChange={e => uploadLedger(e.target.files[0])} />
             </label>
             <a href={api.lotOutlookScriptUrl(lot._id)} className="btn btn-secondary btn-sm" title="If cloud SMTP is blocked by your mail provider, download a script that drafts these emails (for this Lot only) in your own Desktop Outlook instead.">
               <Icon name="outlook" size={13} /> Download Outlook Script
@@ -432,6 +520,9 @@ function LotDetail({ lot, onChanged }) {
                         <td>
                           <button className="act-btn" title="Version / comment history" onClick={() => setVersionsFor(r.customer_id)}><Icon name="detail" size={14} /></button>
                           {c && <button className="act-btn" title="Finance workflow" onClick={() => setWorkflowFor(r.customer_id)}><Icon name="sendMail" size={14} /></button>}
+                          {c?.soa_filename && onReconcile && (
+                            <button className="act-btn" title="Open in Reconciliation Studio" onClick={() => onReconcile(lot._id, r.customer_id)}><Icon name="search" size={14} /></button>
+                          )}
                         </td>
                       </tr>
                     );
