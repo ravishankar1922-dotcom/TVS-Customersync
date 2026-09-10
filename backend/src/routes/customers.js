@@ -15,6 +15,26 @@ function openBalance(ledgerDoc) {
   return ledgerDoc.transactions.filter(t => t.status === 'OPEN').reduce((s, t) => s + (t.amount || 0), 0);
 }
 
+// PERFORMANCE (found via load testing — see QA report's "Load & Performance
+// Testing" section): the customer overview join previously called
+// Array.prototype.find() four times inside a .map() over every customer —
+// O(customers × confirmations + customers × tokens + ...) linear scans. At
+// 300 seeded customers this measured p50 ≈ 165ms / p99 ≈ 200ms for a single
+// request even against an in-memory (zero-network-latency) fake DB; against
+// real MongoDB Atlas network round-trips this join cost stacks on top, and
+// it scales quadratically as the customer book grows. Build one Map per
+// side-table up front (O(n) each) instead, preserving the exact "first
+// matching record wins" semantics the original .find() calls had.
+function firstMatchMap(arr, keyOf, filterFn) {
+  const m = new Map();
+  for (const item of arr) {
+    if (filterFn && !filterFn(item)) continue;
+    const k = keyOf(item);
+    if (!m.has(k)) m.set(k, item);
+  }
+  return m;
+}
+
 // GET /api/customers — admin only
 router.get('/', requireAdmin, async (req, res) => {
   const [customers, confirmations, tokens, emails, ledgers] = await Promise.all([
@@ -26,11 +46,16 @@ router.get('/', requireAdmin, async (req, res) => {
   ]);
   if (!customers.length) return res.status(404).json({ error: 'No customers found. Seed the database first (npm run seed).' });
 
+  const confByCustomer  = firstMatchMap(confirmations, x => x.customer_id);
+  const tokenByCustomer = firstMatchMap(tokens, t => t.customer_id);
+  const emailByCustomer = firstMatchMap(emails, e => e.customer_id, e => e.kind !== 'RECON_COMPLETE');
+  const ledgerByCustomer = firstMatchMap(ledgers, l => l.customer_id);
+
   const result = customers.map(c => {
-    const conf  = confirmations.find(x => x.customer_id === c.customer_id);
-    const token = tokens.find(t => t.customer_id === c.customer_id);
-    const email = emails.find(e => e.customer_id === c.customer_id && e.kind !== 'RECON_COMPLETE');
-    const led   = ledgers.find(l => l.customer_id === c.customer_id);
+    const conf  = confByCustomer.get(c.customer_id);
+    const token = tokenByCustomer.get(c.customer_id);
+    const email = emailByCustomer.get(c.customer_id);
+    const led   = ledgerByCustomer.get(c.customer_id);
 
     return {
       ...c,

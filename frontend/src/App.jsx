@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ToastProvider, Topbar, CycleRibbon, useToast, Spinner, BrandLogo, Icon } from './components/shared';
 import Dashboard      from './components/admin/Dashboard';
+import LotOverview    from './components/admin/LotOverview';
 import Reconciliation from './components/admin/Reconciliation';
 import LedgerUpload   from './components/admin/LedgerUpload';
 import AuditLogView   from './components/admin/AuditLogView';
@@ -103,6 +104,7 @@ function AdminShell() {
 
   const NAV = [
     { id: 'dashboard', ico: 'dashboard', label: 'Overview' },
+    { id: 'lots',      ico: 'folder',    label: 'Lots' },
     { id: 'recon',     ico: 'search',    label: 'Reconciliation Studio' },
     { id: 'ledger',    ico: 'ledger',    label: 'Ledger Sync' },
     { id: 'audit',     ico: 'shield',    label: 'Audit Trail' },
@@ -144,6 +146,7 @@ function AdminShell() {
 
           <div key={page} className="page-in">
             {page === 'dashboard' && <Dashboard onNavigate={navigate} />}
+            {page === 'lots'      && <LotOverview />}
             {page === 'recon'     && <Reconciliation customerId={reconId} onBack={() => navigate('dashboard')} />}
             {page === 'ledger'    && <LedgerUpload />}
             {page === 'audit'     && <AuditLogView />}

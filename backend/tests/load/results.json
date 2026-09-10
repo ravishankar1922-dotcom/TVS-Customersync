@@ -1,0 +1,53 @@
+[
+  {
+    "name": "GET /api/system/health (baseline middleware overhead)",
+    "requests_total": 29810,
+    "duration_s": 8.02,
+    "throughput_rps": 3727,
+    "latency_p50_ms": 4,
+    "latency_p90_ms": 7,
+    "latency_p95_ms": 11,
+    "latency_p99_ms": 13,
+    "latency_max_ms": 98,
+    "errors": 0,
+    "timeouts": 0,
+    "non2xx": 0,
+    "status_2xx": 29810,
+    "status_4xx": 0,
+    "status_5xx": 0
+  },
+  {
+    "name": "POST /api/tokens/validate (public, HMAC verification path — the endpoint every customer link hits)",
+    "requests_total": 17140,
+    "duration_s": 10.03,
+    "throughput_rps": 1714,
+    "latency_p50_ms": 10,
+    "latency_p90_ms": 14,
+    "latency_p95_ms": 16,
+    "latency_p99_ms": 19,
+    "latency_max_ms": 115,
+    "errors": 0,
+    "timeouts": 0,
+    "non2xx": 0,
+    "status_2xx": 17140,
+    "status_4xx": 0,
+    "status_5xx": 0
+  },
+  {
+    "name": "GET /api/customers (admin overview, 300 seeded customers — worst-case aggregation join)",
+    "requests_total": 635,
+    "duration_s": 10.43,
+    "throughput_rps": 63.5,
+    "latency_p50_ms": 161,
+    "latency_p90_ms": 171,
+    "latency_p95_ms": 192,
+    "latency_p99_ms": 207,
+    "latency_max_ms": 580,
+    "errors": 0,
+    "timeouts": 0,
+    "non2xx": 0,
+    "status_2xx": 635,
+    "status_4xx": 0,
+    "status_5xx": 0
+  }
+]

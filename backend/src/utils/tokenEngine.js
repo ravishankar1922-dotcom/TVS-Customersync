@@ -25,13 +25,24 @@ function sign(data, secret) {
   return crypto.createHmac('sha256', secret).update(data).digest('hex');
 }
 
-function generateToken(customerId, cycleId, company, expiryHours) {
+// `extra` (phase 2 — see BalanceSync_Lot_Architecture_Plan.md) optionally
+// carries { lot_id, business_type } for a Lot-scoped token. Both are baked
+// into the SAME HMAC-signed payload as everything else here, so a caller
+// can never forge or swap a Lot/business-type binding by editing the URL —
+// any change to the payload invalidates the signature (see validateToken).
+// Omitted entirely for the legacy (non-Lot) flow, which is unaffected.
+function generateToken(customerId, cycleId, company, expiryHours, extra) {
   const tokenId   = uuidv4();
   const issuedAt  = Date.now();
   const hours     = expiryHours && expiryHours > 0 ? expiryHours : cfg.TOKEN_EXPIRY_HOURS;
   const expiresAt = issuedAt + hours * 3600 * 1000;
+  const { lot_id = null, business_type = null } = extra || {};
 
-  const payload = { token_id: tokenId, customer_id: customerId, cycle_id: cycleId, company: company || cfg.COMPANY, issued_at: issuedAt, expires_at: expiresAt };
+  const payload = {
+    token_id: tokenId, customer_id: customerId, cycle_id: cycleId, company: company || cfg.COMPANY,
+    lot_id: lot_id ? lot_id.toString() : null, business_type: business_type || null,
+    issued_at: issuedAt, expires_at: expiresAt,
+  };
   const encoded   = b64Encode(payload);
   const signature = sign(encoded, cfg.HMAC_SECRET);
 
@@ -40,6 +51,8 @@ function generateToken(customerId, cycleId, company, expiryHours) {
     token_id: tokenId,
     customer_id: customerId,
     cycle_id: cycleId,
+    lot_id: payload.lot_id,
+    business_type: payload.business_type,
     issued_at:  new Date(issuedAt).toISOString(),
     expires_at: new Date(expiresAt).toISOString(),
   };

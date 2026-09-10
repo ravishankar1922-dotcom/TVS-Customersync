@@ -36,10 +36,33 @@ router.post('/submit', upload.single('soa_file'), async (req, res) => {
   if (!tokenRec || tokenRec.status !== 'ACTIVE' || !tokenRec.pan_verified_at) {
     return res.status(403).json({ error: 'This link has not completed identity verification. Please open the confirmation link again.' });
   }
+  // SECURITY: the token proves possession of a specific customer's link (and
+  // pan_verified_at proves the PAN gate for THAT customer was passed) — but
+  // customer_id/cycle_id here come straight from the request body. Without
+  // this check, a customer holding their own valid, PAN-verified token could
+  // submit a confirmation under an arbitrary customer_id, overwriting or
+  // creating another customer's Confirmation record (IDOR / broken access
+  // control). Reject any mismatch between what the token was issued for and
+  // what the caller claims in the body.
+  if (tokenRec.customer_id !== customer_id || (cycle_id && tokenRec.cycle_id !== cycle_id)) {
+    return res.status(403).json({ error: 'Token does not match the submitted customer/cycle.' });
+  }
 
-  tokenRec.status  = 'USED';
-  tokenRec.used_at = new Date();
-  await tokenRec.save();
+  // SECURITY: the previous version read tokenRec.status, checked it in JS,
+  // then wrote 'USED' back via a separate .save() — a classic non-atomic
+  // check-then-act race. Two near-simultaneous submissions on the same
+  // still-ACTIVE token could both pass the check above before either write
+  // lands, both proceeding to the Confirmation upsert below. Flip the status
+  // atomically with a single findOneAndUpdate guarded by status:'ACTIVE';
+  // only the request that actually wins the race gets a non-null result.
+  const claimed = await TokenRecord.findOneAndUpdate(
+    { token_id, status: 'ACTIVE' },
+    { status: 'USED', used_at: new Date() },
+    { new: true }
+  );
+  if (!claimed) {
+    return res.status(409).json({ error: 'This link has already been used to submit a confirmation.' });
+  }
 
   const sapNum  = parseFloat(sap_balance)  || 0;
   const custNum = parseFloat(cust_balance) || 0;
@@ -147,7 +170,12 @@ router.post('/:customerId/request-reupload', async (req, res) => {
   const { token_id, reason } = req.body;
   const conf = await Confirmation.findOne({ customer_id: req.params.customerId, cycle_id: cfg.CYCLE_ID });
   if (!conf) return res.status(404).json({ error: 'No confirmation found for this customer.' });
-  if (token_id && conf.token_id !== token_id) return res.status(403).json({ error: 'Token does not match this confirmation.' });
+  // SECURITY: token_id was previously only checked `if (token_id && ...)` —
+  // simply omitting token_id from the request body skipped the check
+  // entirely, letting anyone who merely knew (or guessed) a customerId
+  // request a re-upload for that customer with no proof of token possession
+  // at all (auth bypass). token_id is now always required and validated.
+  if (!token_id || conf.token_id !== token_id) return res.status(403).json({ error: 'A valid token is required to request a re-upload for this customer.' });
   if (conf.reupload_status === 'REQUESTED') return res.json({ ok: true, message: 'A re-upload request is already pending admin approval.' });
 
   conf.reupload_status = 'REQUESTED';

@@ -12,7 +12,12 @@ const { logAudit } = require('../utils/audit');
 // In-memory only for the duration of one request — the parsed result gets
 // staged in MongoDB (see LedgerImportStaging) before this buffer is
 // discarded, so nothing depends on Render's ephemeral local disk.
-const upload = multer({ storage: multer.memoryStorage() });
+// Same 20MB cap as the customer-facing SOA upload (confirmations.js) — this
+// route had no limit at all, which let an authenticated admin session (or a
+// stolen/leaked admin token) push an unbounded-size file straight into a
+// 50mb-limited JSON body / memory buffer with no backpressure control.
+const MAX_LEDGER_MB = 20;
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_LEDGER_MB * 1024 * 1024 } });
 
 const DOC_NUM_KEYS  = ['document_number','doc_number','document number','document no','doc no','doc#','invoice no','invoice number','inv no','inv#','reference','ref no','ref','voucher no','voucher','bill no','bill number'];
 const DOC_TYPE_KEYS = ['document_type','doc_type','type','transaction type','doc type'];
@@ -208,3 +213,7 @@ router.get('/export.xlsx', requireAdmin, async (req, res) => {
 router.get('/history', requireAdmin, async (req, res) => res.json({ imports: await ImportHistory.find().sort({ createdAt: -1 }).lean() }));
 
 module.exports = router;
+// Exposed for reuse by routes/lots.js (Lot-scoped ledger upload) so the
+// column-detection/parsing logic isn't duplicated — router is an Express
+// function; attaching a property to it doesn't affect app.use() behavior.
+module.exports.parseUploadedLedger = parseUploadedLedger;

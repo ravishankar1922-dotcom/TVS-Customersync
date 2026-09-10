@@ -5,6 +5,10 @@ const EmailLogSchema = new mongoose.Schema({
   customer_name: String,
   email:         String,
   cycle_id:      String,
+  // Phase 2: nullable — set only for emails sent through the Lot-scoped
+  // targeted-send endpoint (routes/lots.js), so email history stays
+  // queryable per Lot+customer without disturbing legacy log rows.
+  lot_id:        { type: mongoose.Schema.Types.ObjectId, ref: 'Lot', default: null, index: true },
   token_id:      String,
   portal_url:    String,
   subject:       String,

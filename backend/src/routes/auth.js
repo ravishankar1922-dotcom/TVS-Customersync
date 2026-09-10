@@ -24,13 +24,13 @@ router.post('/login', loginLimiter, async (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password.' });
   }
 
-  const token = jwt.sign({ sub: admin._id, email: admin.email, role: admin.role }, cfg.JWT_SECRET, { expiresIn: '12h' });
-  await logAudit({ req, actor: admin.email, actor_role: 'admin', action: 'LOGIN_SUCCESS', entity_type: 'Admin', entity_id: admin.email });
+  const token = jwt.sign({ sub: admin._id, email: admin.email, role: admin.role, business_type: admin.business_type || 'BOTH' }, cfg.JWT_SECRET, { expiresIn: '12h' });
+  await logAudit({ req, actor: admin.email, actor_role: admin.role === 'FINANCE' ? 'finance' : 'admin', action: 'LOGIN_SUCCESS', entity_type: 'Admin', entity_id: admin.email });
 
-  res.json({ ok: true, token, admin: { email: admin.email, name: admin.name, role: admin.role } });
+  res.json({ ok: true, token, admin: { email: admin.email, name: admin.name, role: admin.role, business_type: admin.business_type || 'BOTH' } });
 });
 
 // GET /api/auth/me — verify current session
-router.get('/me', requireAdmin, (req, res) => res.json({ email: req.admin.email, role: req.admin.role }));
+router.get('/me', requireAdmin, (req, res) => res.json({ email: req.admin.email, role: req.admin.role, business_type: req.admin.business_type || 'BOTH' }));
 
 module.exports = router;

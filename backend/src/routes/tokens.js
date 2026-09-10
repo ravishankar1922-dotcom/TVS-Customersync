@@ -1,10 +1,12 @@
 const express = require('express');
 const router  = express.Router();
+const rateLimit = require('express-rate-limit');
 const cfg     = require('../config');
 const Customer     = require('../models/Customer');
 const TokenRecord  = require('../models/TokenRecord');
 const LedgerEntry  = require('../models/LedgerEntry');
 const Confirmation = require('../models/Confirmation');
+const Lot          = require('../models/Lot');
 const te = require('../utils/tokenEngine');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../utils/audit');
@@ -80,6 +82,19 @@ router.post('/validate', async (req, res) => {
   if (record.status === 'REVOKED') return res.status(400).json({ valid: false, reason: 'REVOKED' });
 
   const customer = await Customer.findOne({ customer_id: payload.customer_id }).lean();
+
+  // Lot-aware (phase 2): a Lot-scoped link additionally carries which Lot
+  // and period it belongs to, so the portal can show a real period instead
+  // of a hardcoded one, and so the frontend knows to submit through the
+  // Lot-scoped endpoint (routes/lots.js) rather than the legacy one.
+  let lotInfo = null;
+  if (payload.lot_id) {
+    const lot = await Lot.findById(payload.lot_id).lean();
+    if (lot) lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type };
+  }
+
+  await logAudit({ actor: `CUSTOMER:${payload.customer_id}`, actor_role: 'customer', action: 'PORTAL_OPENED', entity_type: 'Customer', entity_id: payload.customer_id, details: lotInfo ? { lot_id: lotInfo.lot_id, lot_number: lotInfo.lot_number } : undefined });
+
   res.json({
     valid: true,
     customer_id: payload.customer_id,
@@ -88,12 +103,27 @@ router.post('/validate', async (req, res) => {
     expires_at: payload.expires_at,
     customer_name: customer ? customer.customer_name : null,
     requires_pan: true,
+    lot: lotInfo,
   });
+});
+
+// SECURITY: the customer portal's 5-attempt PAN lockout (CustomerPortal.jsx)
+// is client-side state only — a direct API caller can retry /verify-pan as
+// fast as the network allows, with no server-side limit, making a PAN
+// (India's tax-ID format, e.g. ABCDE1234F) brute-forceable per token given
+// enough requests. Rate-limit by IP: generous enough for a real customer
+// mistyping their PAN a few times, tight enough to make brute force
+// impractical. Keyed per-IP (not per-token) so an attacker also can't just
+// spray many tokens from one IP to dodge a per-token limit.
+const panVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 15,
+  message: { valid: false, reason: 'TOO_MANY_ATTEMPTS' },
+  standardHeaders: true, legacyHeaders: false,
 });
 
 // POST /api/tokens/verify-pan — second factor: customer proves they hold the PAN on file.
 // Only after this succeeds do we release balance + transaction lines.
-router.post('/verify-pan', async (req, res) => {
+router.post('/verify-pan', panVerifyLimiter, async (req, res) => {
   const { token, pan } = req.body;
   const result = te.validateToken(token);
   if (!result.valid) return res.status(400).json({ valid: false, reason: result.reason });
@@ -107,7 +137,14 @@ router.post('/verify-pan', async (req, res) => {
   const customer = await Customer.findOne({ customer_id: payload.customer_id });
   if (!customer) return res.status(404).json({ valid: false, reason: 'CUSTOMER_NOT_FOUND' });
 
-  if (!pan || pan.trim().toUpperCase() !== customer.pan) {
+  // BUGFIX: `pan` is attacker-controlled JSON body input. A non-string value
+  // (e.g. `{"pan":{"$ne":null}}`, an object/array/number sent to probe for a
+  // NoSQL-injection style bypass) previously reached `pan.trim()` directly
+  // and threw, which server.js's generic handler turned into a 500 with the
+  // raw error message. It was never an actual auth bypass (Mongoose/the
+  // driver would reject the malformed query), but it's an unhandled crash
+  // on untrusted input — reject non-strings cleanly instead.
+  if (typeof pan !== 'string' || !pan.trim() || pan.trim().toUpperCase() !== customer.pan) {
     await logAudit({ req, actor: `CUSTOMER:${customer.customer_id}`, actor_role: 'customer', action: 'PAN_VERIFY_FAILED', entity_type: 'Customer', entity_id: customer.customer_id });
     return res.status(401).json({ valid: false, reason: 'PAN_MISMATCH' });
   }
@@ -116,7 +153,19 @@ router.post('/verify-pan', async (req, res) => {
   await record.save();
   await logAudit({ req, actor: `CUSTOMER:${customer.customer_id}`, actor_role: 'customer', action: 'PAN_VERIFY_SUCCESS', entity_type: 'Customer', entity_id: customer.customer_id });
 
-  const ledger = await LedgerEntry.findOne({ customer_id: payload.customer_id }).lean();
+  // Lot-aware (phase 2): a Lot-scoped token's ledger/balance must come from
+  // THAT Lot's own LedgerEntry ({lot_id, customer_id}), never the global
+  // one — the same customer can have a different balance in every Lot.
+  let asOfDate = cfg.AS_OF_DATE;
+  let lotInfo = null;
+  let ledger;
+  if (payload.lot_id) {
+    const lot = await Lot.findById(payload.lot_id).lean();
+    if (lot) { lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type }; asOfDate = lot.period_label; }
+    ledger = await LedgerEntry.findOne({ lot_id: payload.lot_id, customer_id: payload.customer_id }).lean();
+  } else {
+    ledger = await LedgerEntry.findOne({ customer_id: payload.customer_id }).lean();
+  }
   const sapBalance = ledger ? ledger.transactions.filter(t => t.status === 'OPEN').reduce((s, t) => s + (t.amount || 0), 0) : 0;
 
   res.json({
@@ -127,8 +176,9 @@ router.post('/verify-pan', async (req, res) => {
     expires_at: payload.expires_at,
     customer: { customer_id: customer.customer_id, customer_name: customer.customer_name, company: customer.company },
     sap_balance: sapBalance,
-    as_of_date: cfg.AS_OF_DATE,
+    as_of_date: asOfDate,
     transactions: ledger ? ledger.transactions : [],
+    lot: lotInfo,
   });
 });
 
@@ -151,7 +201,17 @@ router.get('/:token/sap-ledger.xlsx', async (req, res) => {
   const pan = (req.query.pan || '').toString().trim().toUpperCase();
   if (!pan || pan !== customer.pan) return res.status(401).json({ error: 'PAN verification required' });
 
-  const led = await LedgerEntry.findOne({ customer_id: customer.customer_id }).lean();
+  // Lot-aware: same rule as /verify-pan — a Lot-scoped token's ledger comes
+  // from that Lot's own LedgerEntry, never the global one.
+  let periodLabel = `Cycle: ${cfg.CYCLE_ID}   |   As of: ${cfg.AS_OF_DATE}`;
+  let led;
+  if (payload.lot_id) {
+    const lot = await Lot.findById(payload.lot_id).lean();
+    if (lot) periodLabel = `Lot: ${lot.lot_number}   |   Period: ${lot.period_label}`;
+    led = await LedgerEntry.findOne({ lot_id: payload.lot_id, customer_id: customer.customer_id }).lean();
+  } else {
+    led = await LedgerEntry.findOne({ customer_id: customer.customer_id }).lean();
+  }
   const openTxns = led ? led.transactions.filter(t => t.status === 'OPEN') : [];
 
   const wb = new ExcelJS.Workbook();
@@ -163,7 +223,7 @@ router.get('/:token/sap-ledger.xlsx', async (req, res) => {
   sh.getCell('A1').value = `SAP Open Items – ${customer.customer_name} (${customer.customer_id})`;
   sh.getCell('A1').font = { bold: true, size: 13 };
   sh.mergeCells('A2:F2');
-  sh.getCell('A2').value = `Cycle: ${cfg.CYCLE_ID}   |   As of: ${cfg.AS_OF_DATE}   |   Company: ${cfg.COMPANY}`;
+  sh.getCell('A2').value = `${periodLabel}   |   Company: ${cfg.COMPANY}`;
   sh.getCell('A2').font = { italic: true, color: { argb: 'FF666666' } };
   sh.addRow([]);
   const hdr = sh.addRow(['Document No', 'Type', 'Document Date', 'Due Date', 'Amount', 'Currency']);

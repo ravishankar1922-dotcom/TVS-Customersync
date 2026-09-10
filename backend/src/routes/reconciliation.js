@@ -55,7 +55,23 @@ function isSummaryRow(row) {
   return row.some(c => c !== null && c !== undefined && SUMMARY_ROW_RE.test(c.toString().trim()));
 }
 
-function parseSOA(buffer) {
+const PDF_MAGIC = Buffer.from('%PDF-');
+function looksLikePdf(buffer) {
+  return Buffer.isBuffer(buffer) && buffer.subarray(0, 1024).indexOf(PDF_MAGIC) !== -1;
+}
+
+// PDF SOAs were previously accepted for upload (.pdf is in ALLOWED_EXT) but
+// silently never actually reconciled — XLSX.read() on PDF bytes either
+// throws or returns nothing useful. Fixed here: a PDF is routed to the
+// dedicated extraction pipeline (utils/pdfParser.js), which returns a
+// confidence score and — on low confidence/failure — an EMPTY item list
+// plus a warning, rather than fabricating incorrect reconciliation data.
+// parseSOA is therefore now always async; every caller below awaits it.
+async function parseSOA(buffer) {
+  if (looksLikePdf(buffer)) {
+    const { parsePdfSoa } = require('../utils/pdfParser');
+    return parsePdfSoa(buffer);
+  }
   const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
@@ -238,7 +254,7 @@ async function getReconData(customerId) {
   const customer = await Customer.findOne({ customer_id: customerId }).lean();
   const sapTxns = led.transactions.filter(t => t.status === 'OPEN');
   const soaBuffer = conf.soa_data.buffer ? Buffer.from(conf.soa_data.buffer) : conf.soa_data;
-  const soaData = parseSOA(soaBuffer);
+  const soaData = await parseSOA(soaBuffer);
   const recon = reconcile(sapTxns, soaData.items);
   return { conf, customer, sapTxns, soaData, recon };
 }
@@ -251,6 +267,7 @@ router.get('/:customerId', requireAdmin, async (req, res) => {
     res.json({
       customer_id: req.params.customerId, cycle_id: cfg.CYCLE_ID, customer_name: customer?.customer_name,
       soa_filename: conf.soa_filename, soa_format: soaData.format_detected, soa_headers: soaData.headers,
+      soa_confidence: soaData.confidence, soa_warning: soaData.warning || null,
       sap_lines: sapTxns, customer_lines: soaData.items, results: recon.results, summary: recon.summary, bridge,
       recon_status: conf.recon_status, recon_notes: conf.recon_notes, root_causes: conf.root_causes || {},
       recon_sent_to_customer_at: conf.recon_sent_to_customer_at,
@@ -307,3 +324,9 @@ router.post('/:customerId/send-to-customer', requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
+// Exposed for unit testing only (router is an Express function; attaching
+// properties to it is harmless and does not change app.use() behavior).
+module.exports.reconcile = reconcile;
+module.exports.buildBridge = buildBridge;
+module.exports.parseSOA = parseSOA;
+module.exports.normaliseDocNum = normaliseDocNum;

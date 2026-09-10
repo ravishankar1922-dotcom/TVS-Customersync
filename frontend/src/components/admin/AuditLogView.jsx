@@ -14,6 +14,13 @@ const ACTION_LABELS = {
   LEDGER_JSON_IMPORTED: 'Ledger imported (JSON)', CUSTOMERS_EXPORTED: 'Customer list exported', LEDGER_EXPORTED: 'Ledger exported',
   TOKENS_RESET_EXPIRED: 'Expired links cleared (bulk)', EMAIL_REMINDER_BULK: 'Reminder emails sent (bulk)',
   SAP_LEDGER_DOWNLOADED: 'Customer downloaded SAP ledger',
+  LOT_CREATED: 'Lot created', LOT_LEDGER_UPLOADED: 'Ledger uploaded to Lot',
+  CONFIRMATION_SENT: 'Confirmation link(s) sent (Lot)', PORTAL_OPENED: 'Customer opened portal link',
+  BALANCE_AMENDED: 'Customer amended balance (new version)',
+  ROUTED_TO_FINANCE: 'Routed to Finance', FINANCE_REVIEWED: 'Reviewed by Finance', ROUTED_TO_ADMIN: 'Routed back to Admin',
+  ROUTED_TO_CUSTOMER: 'Routed to Customer for clarification', EMAIL_SENT: 'Email sent',
+  VENDOR_MASTER_JSON_IMPORTED: 'Vendor master imported (JSON)',
+  LOT_CONFIRMATIONS_EXPORTED: 'Lot confirmations exported (Excel)',
 };
 
 export default function AuditLogView() {

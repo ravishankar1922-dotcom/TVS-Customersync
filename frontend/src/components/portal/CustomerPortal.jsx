@@ -99,10 +99,22 @@ export default function CustomerPortal() {
     desc={`This confirmation link is invalid or has been tampered with. (${reason})`} contact />;
   if (state === 'EXPIRED') return <StatusScreen icon="clock" title="Link Expired" color="var(--amber)"
     desc="Your confirmation link has expired. Please contact the AR team to receive a new link." contact />;
+  // Decodes just the (unencrypted, HMAC-signed) payload segment of the
+  // portal token to read its token_id — this is NOT a trust boundary, it
+  // only saves the customer from having to re-type anything; the backend
+  // still re-validates the token's signature and re-checks that this
+  // token_id actually belongs to the confirmation before doing anything.
+  function decodedTokenId() {
+    try {
+      const [encoded] = token.split('.');
+      const padded = encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - encoded.length % 4) % 4);
+      return JSON.parse(atob(padded)).token_id || null;
+    } catch { return null; }
+  }
   async function requestReupload() {
     if (!usedCustomerId) return;
     setReuploadBusy(true);
-    try { await api.requestReupload(usedCustomerId, reuploadReason); setReuploadSent(true); }
+    try { await api.requestReupload(usedCustomerId, reuploadReason, decodedTokenId()); setReuploadSent(true); }
     catch (e) { setReuploadSent(false); alert(e.message); }
     finally { setReuploadBusy(false); }
   }

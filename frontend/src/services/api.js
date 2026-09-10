@@ -108,6 +108,37 @@ const api = {
   auditLog: (params = {}) => request('GET', `/api/audit?${new URLSearchParams(params).toString()}`),
   auditExportUrl: (params = {}) => `${BASE_URL}/api/audit/export.xlsx?${new URLSearchParams(params).toString()}&token=${getToken() || ''}`,
 
+  // Lots (architecture overhaul phase 1 — see BalanceSync_Lot_Architecture_Plan.md).
+  // No screen consumes these yet; added so the service layer is ready for
+  // the Overview rebuild (phase 3).
+  createLot:       (period, businessType) => request('POST', '/api/lots', { period, business_type: businessType }),
+  lots:            ()   => request('GET', '/api/lots'),
+  lot:             (id) => request('GET', `/api/lots/${id}`),
+  lotPopulation:   (id) => request('GET', `/api/lots/${id}/population`),
+  uploadLotLedger: (id, fd) => request('POST', `/api/lots/${id}/ledger/upload`, fd, true),
+
+  // Lot-scoped confirmations/tokens (phase 2 — see BalanceSync_Lot_Architecture_Plan.md).
+  // Balance-filtered + targeted-select token generation, and the reopenable/
+  // versioned customer-portal submit flow. No screen consumes these yet
+  // (the Overview rebuild that will is phase 3) — the legacy, non-Lot
+  // tokens/generate + confirmations/submit methods above are unchanged and
+  // still power the current customer portal.
+  generateLotTokens:  (lotId, opts = {}) => request('POST', `/api/lots/${lotId}/tokens/generate`, opts),
+  submitLotConfirmation: (lotId, fd)     => request('POST', `/api/lots/${lotId}/confirmations/submit`, fd, true),
+  lotConfirmations:      (lotId)         => request('GET', `/api/lots/${lotId}/confirmations`),
+  lotConfirmation:       (lotId, custId) => request('GET', `/api/lots/${lotId}/confirmations/${custId}`),
+  lotConfirmationVersions: (lotId, custId) => request('GET', `/api/lots/${lotId}/confirmations/${custId}/versions`),
+  lotConfirmationVersionSoaUrl: (lotId, custId, version) => `${BASE_URL}/api/lots/${lotId}/confirmations/${custId}/versions/${version}/soa?token=${getToken() || ''}`,
+  lotConfirmationsExportUrl: (lotId) => `${BASE_URL}/api/lots/${lotId}/confirmations/export.xlsx?token=${getToken() || ''}`,
+
+  // Phase 5: Finance clarification workflow (Admin<->Finance<->Customer
+  // routing) — see routes/lots.js's route-to-finance/admin/customer +
+  // history endpoints, and models/Confirmation.js's workflow_status.
+  routeToFinance:  (lotId, custId, comment) => request('POST', `/api/lots/${lotId}/confirmations/${custId}/route-to-finance`, { comment }),
+  routeToAdmin:    (lotId, custId, comment) => request('POST', `/api/lots/${lotId}/confirmations/${custId}/route-to-admin`, { comment }),
+  routeToCustomer: (lotId, custId, comment) => request('POST', `/api/lots/${lotId}/confirmations/${custId}/route-to-customer`, { comment }),
+  confirmationHistory: (lotId, custId) => request('GET', `/api/lots/${lotId}/confirmations/${custId}/history`),
+
   BASE_URL,
 };
 
