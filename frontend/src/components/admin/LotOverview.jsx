@@ -14,7 +14,7 @@
  */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../services/api';
-import { fmtINR, fmtDate, statusBadge, Modal, Spinner, useToast, Icon } from '../shared';
+import { fmtINR, fmtDate, lotBookDate, statusBadge, Modal, Spinner, useToast, Icon } from '../shared';
 
 const FILTER_OPS = [
   { v: '', label: 'No filter — everyone' },
@@ -497,18 +497,23 @@ function LotDetail({ lot, onChanged, onReconcile }) {
                 <thead>
                   <tr>
                     <th><input type="checkbox" checked={selected.size > 0 && selected.size === filteredRows.length} onChange={e => toggleAll(e.target.checked)} style={{ accentColor: '#C8102E' }} /></th>
-                    <th>Customer</th><th>Opening Balance</th><th>Cust. Balance</th><th>Difference</th>
+                    <th>Customer</th><th>Book Date</th><th>TVS Balance</th><th>Cust. Balance</th><th>Difference</th>
                     <th>Status</th><th>Workflow</th><th>Version</th><th>Submitted</th><th>SOA</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows.length === 0 && <tr><td colSpan={11} style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>No customers match this search/filter.</td></tr>}
+                  {filteredRows.length === 0 && <tr><td colSpan={12} style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>No customers match this search/filter.</td></tr>}
                   {filteredRows.map(r => {
                     const c = r.confirmation;
                     return (
                       <tr key={r.customer_id}>
                         <td><input type="checkbox" checked={selected.has(r.customer_id)} onChange={e => toggleOne(r.customer_id, e.target.checked)} style={{ accentColor: '#C8102E' }} /></td>
                         <td><div className="td-prim">{r.customer_name || r.customer_id}</div><div className="td-sub mono">{r.customer_id}</div></td>
+                        {/* "Book Date" — what date this Lot's books pertain to. Same
+                            value as the Lot's period (period_label), shown per-row
+                            because that's where TVS Balance/Cust. Balance already
+                            live, rendered as DD-MMM-YYYY rather than the raw label. */}
+                        <td><span style={{ fontSize: 11, color: 'var(--muted)' }}>{lotBookDate(lot.period_year, lot.period_month)}</span></td>
                         <td><span className="td-mono">{fmtINR(r.opening_balance)}</span></td>
                         <td><span className="td-mono">{c?.cust_balance != null ? fmtINR(c.cust_balance) : <span style={{ color: 'var(--muted-lt)' }}>—</span>}</span></td>
                         <td><span className="td-mono">{c?.difference != null ? (c.difference === 0 ? '✓ Nil' : fmtINR(c.difference)) : '—'}</span></td>
@@ -522,6 +527,11 @@ function LotDetail({ lot, onChanged, onReconcile }) {
                           {c && <button className="act-btn" title="Finance workflow" onClick={() => setWorkflowFor(r.customer_id)}><Icon name="sendMail" size={14} /></button>}
                           {c?.soa_filename && onReconcile && (
                             <button className="act-btn" title="Open in Reconciliation Studio" onClick={() => onReconcile(lot._id, r.customer_id)}><Icon name="search" size={14} /></button>
+                          )}
+                          {c && (
+                            <a className="act-btn" title="Download Covering Letter PDF" href={api.lotCoveringLetterUrl(lot._id, r.customer_id)} target="_blank" rel="noreferrer">
+                              <Icon name="download" size={14} />
+                            </a>
                           )}
                         </td>
                       </tr>

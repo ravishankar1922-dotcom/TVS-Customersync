@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const rateLimit = require('express-rate-limit');
 const cfg     = require('../config');
+const { lastDayOfPeriod } = require('../utils/period');
 const Customer     = require('../models/Customer');
 const TokenRecord  = require('../models/TokenRecord');
 const LedgerEntry  = require('../models/LedgerEntry');
@@ -90,7 +91,7 @@ router.post('/validate', async (req, res) => {
   let lotInfo = null;
   if (payload.lot_id) {
     const lot = await Lot.findById(payload.lot_id).lean();
-    if (lot) lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type };
+    if (lot) lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type, as_of_date: lastDayOfPeriod(lot.period_year, lot.period_month) };
   }
 
   await logAudit({ actor: `CUSTOMER:${payload.customer_id}`, actor_role: 'customer', action: 'PORTAL_OPENED', entity_type: 'Customer', entity_id: payload.customer_id, details: lotInfo ? { lot_id: lotInfo.lot_id, lot_number: lotInfo.lot_number } : undefined });
@@ -161,7 +162,7 @@ router.post('/verify-pan', panVerifyLimiter, async (req, res) => {
   let ledger;
   if (payload.lot_id) {
     const lot = await Lot.findById(payload.lot_id).lean();
-    if (lot) { lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type }; asOfDate = lot.period_label; }
+    if (lot) { lotInfo = { lot_id: lot._id, lot_number: lot.lot_number, period_label: lot.period_label, business_type: lot.business_type, as_of_date: lastDayOfPeriod(lot.period_year, lot.period_month) }; asOfDate = lot.period_label; }
     ledger = await LedgerEntry.findOne({ lot_id: payload.lot_id, customer_id: payload.customer_id }).lean();
   } else {
     ledger = await LedgerEntry.findOne({ customer_id: payload.customer_id }).lean();
@@ -242,6 +243,44 @@ router.get('/:token/sap-ledger.xlsx', async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename="SAP_Ledger_${customer.customer_id}.xlsx"`);
   await wb.xlsx.write(res);
   res.end();
+});
+
+// GET /api/tokens/:token/covering-letter.pdf?pan=XXXXX — customer-portal
+// download (Sept 2026: "Once the balance confirmed they should able to
+// download the cover letter PDF"). Same two-factor bar as sap-ledger.xlsx
+// above (valid token + matching PAN); additionally requires that this
+// customer has actually SUBMITTED a confirmation for this token's Lot —
+// the letter certifies what was confirmed, so it can't be generated before
+// there's anything to certify.
+router.get('/:token/covering-letter.pdf', async (req, res) => {
+  const result = te.validateToken(req.params.token);
+  if (!result.valid) return res.status(400).json({ error: 'Invalid or expired link', reason: result.reason });
+
+  const { payload } = result;
+  const record = await TokenRecord.findOne({ token_id: payload.token_id });
+  if (!record || record.status === 'REVOKED') return res.status(400).json({ error: 'Link no longer valid' });
+
+  const customer = await Customer.findOne({ customer_id: payload.customer_id }).lean();
+  if (!customer) return res.status(404).json({ error: 'Customer not found' });
+
+  const pan = (req.query.pan || '').toString().trim().toUpperCase();
+  if (!pan || pan !== customer.pan) return res.status(401).json({ error: 'PAN verification required' });
+
+  if (!payload.lot_id) return res.status(400).json({ error: 'Covering letters are only available for Lot-scoped confirmations.' });
+  const lot = await Lot.findById(payload.lot_id).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+
+  const confirmation = await Confirmation.findOne({ lot_id: lot._id, customer_id: customer.customer_id }).lean();
+  if (!confirmation) return res.status(404).json({ error: 'No confirmation on file yet for this Lot — submit your balance confirmation first.' });
+
+  const { buildCoveringLetterPdf } = require('../utils/coveringLetter');
+  const pdfBuffer = await buildCoveringLetterPdf({ lot, customer, confirmation });
+
+  await logAudit({ req, actor: `CUSTOMER:${customer.customer_id}`, actor_role: 'customer', action: 'COVERING_LETTER_DOWNLOADED', entity_type: 'Customer', entity_id: customer.customer_id, details: { lot_id: lot._id, lot_number: lot.lot_number } });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="Covering_Letter_${customer.customer_id}_${lot.lot_number}.pdf"`);
+  res.send(pdfBuffer);
 });
 
 // POST /api/tokens/reset-expired — bulk: marks every ACTIVE-but-past-expiry

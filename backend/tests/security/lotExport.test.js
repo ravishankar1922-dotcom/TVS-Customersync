@@ -59,7 +59,7 @@ describe('GET /api/lots/:lotId/confirmations/export.xlsx — Lot-aware export (s
     // Only Lot 1's population (TEST_A) — never TEST_D or Lot 2's balances.
     expect(rows.length).toBe(1);
     expect(rows[0]['Customer ID']).toBe('TEST_A');
-    expect(rows[0]['Opening Balance']).toBe(1000); // Lot 1's balance, not Lot 2's 99999
+    expect(rows[0]['TVS Balance']).toBe(1000); // Lot 1's balance, not Lot 2's 99999
     expect(rows.map(r => r['Customer ID'])).not.toContain('TEST_D');
     expect(rows[0]['Lot Number']).toBe(lot1.lot_number);
   });
@@ -73,7 +73,7 @@ describe('GET /api/lots/:lotId/confirmations/export.xlsx — Lot-aware export (s
     const ws = wb.Sheets[wb.SheetNames[0]];
     const headerRow = XLSX.utils.sheet_to_json(ws, { header: 1 })[0];
 
-    ['Lot Number', 'Period', 'Business Type', 'Customer ID', 'Customer Name', 'Opening Balance',
+    ['Lot Number', 'Period', 'Business Type', 'Customer ID', 'Customer Name', 'TVS Balance',
      'SAP Balance', 'Customer Balance', 'Difference', 'Status', 'Recon Status', 'Workflow Status',
      'Current Version', 'Submitted At', 'SOA Filename', 'Token Status', 'Token Expires At']
       .forEach(col => expect(headerRow).toContain(col));

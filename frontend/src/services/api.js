@@ -78,6 +78,10 @@ const api = {
   validateToken:    (tok)        => request('POST', '/api/tokens/validate', { token: tok }),
   verifyPan:        (tok, pan)   => request('POST', '/api/tokens/verify-pan', { token: tok, pan }),
   sapLedgerUrl:     (tok, pan)   => `${BASE_URL}/api/tokens/${encodeURIComponent(tok)}/sap-ledger.xlsx?pan=${encodeURIComponent(pan || '')}`,
+  // Covering-letter PDF (Sept 2026: "Once the balance confirmed they should
+  // able to download the cover letter PDF") — same token+PAN gate as the
+  // SAP ledger download above; only works once a confirmation is on file.
+  coveringLetterUrl: (tok, pan)  => `${BASE_URL}/api/tokens/${encodeURIComponent(tok)}/covering-letter.pdf?pan=${encodeURIComponent(pan || '')}`,
 
   // Emails
   triggerEmails:       ()   => request('POST', '/api/emails/trigger'),
@@ -148,6 +152,7 @@ const api = {
   lotConfirmationVersions: (lotId, custId) => request('GET', `/api/lots/${lotId}/confirmations/${custId}/versions`),
   lotConfirmationVersionSoaUrl: (lotId, custId, version) => `${BASE_URL}/api/lots/${lotId}/confirmations/${custId}/versions/${version}/soa?token=${getToken() || ''}`,
   lotConfirmationsExportUrl: (lotId) => `${BASE_URL}/api/lots/${lotId}/confirmations/export.xlsx?token=${getToken() || ''}`,
+  lotCoveringLetterUrl: (lotId, custId) => `${BASE_URL}/api/lots/${lotId}/confirmations/${custId}/covering-letter.pdf?token=${getToken() || ''}`,
 
   // Phase 5: Finance clarification workflow (Admin<->Finance<->Customer
   // routing) — see routes/lots.js's route-to-finance/admin/customer +

@@ -44,4 +44,20 @@ function parsePeriod(input) {
 
 function periodKey(year, month) { return `${year}-${String(month).padStart(2, '0')}`; }
 
-module.exports = { parsePeriod, formatPeriodLabel, periodKey, MONTH_NAMES };
+// Sept 2026: "Add one more column under lot for the date of books... which
+// is nothing but the lot name, changed to DD-MMM-YYYY" / "Book as of
+// DD-MMM-YYYY" on the portal login / covering-letter date. A Lot only
+// stores a MONTH (period_year/period_month — "March 2026"), never a day,
+// since "Create New Lot" only ever asks for a period. Balance confirmation
+// letters conventionally read "as on" the LAST calendar day of that period
+// (this app's own legacy default, AS_OF_DATE=31-Mar-2026, is exactly the
+// last day of CYCLE_ID's "TSL-MAR-2026" period) — so that's the single,
+// consistent rule used everywhere a specific day is needed for a Lot.
+function lastDayOfPeriod(year, month) {
+  // Date.UTC(year, month, 0) — `month` here is already 1-indexed, so passing
+  // it straight as the (0-indexed) target month rolls back from day 1 of
+  // the FOLLOWING month to the last day of the period's own month.
+  return new Date(Date.UTC(year, month, 0));
+}
+
+module.exports = { parsePeriod, formatPeriodLabel, periodKey, lastDayOfPeriod, MONTH_NAMES };

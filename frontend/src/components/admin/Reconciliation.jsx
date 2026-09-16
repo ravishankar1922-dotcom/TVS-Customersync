@@ -33,6 +33,19 @@ export default function Reconciliation({ lotId, customerId, onBack }) {
   const [q, setQ]             = useState('');
   const [showDetail, setShowDetail] = useState(false); // Bridge statement is the default view; detail grid is one click away
 
+  // Finance clarification workflow (phase 5: Admin<->Finance<->Customer
+  // routing) — BUGFIX (Sept 2026: "I should put a note and route to
+  // finance... but I don't see any routing mechanism"). The route-to-*
+  // endpoints and the audit-backed history endpoint already existed, but
+  // the only UI for them was a separate icon+modal buried in Lot Overview's
+  // customer table — nothing here in the actual Reconciliation Studio
+  // screen where an admin writes their note and would expect to route it.
+  // Wired in directly so "add a note, then route" is one screen.
+  const [myRole, setMyRole]           = useState(null);
+  const [wfHistory, setWfHistory]     = useState(null);
+  const [wfComment, setWfComment]     = useState('');
+  const [routing, setRouting]         = useState(false);
+
   useEffect(() => { if (lotId) setPickedLot(lotId); }, [lotId]);
   useEffect(() => { if (customerId) setPickedId(customerId); }, [customerId]);
 
@@ -52,6 +65,29 @@ export default function Reconciliation({ lotId, customerId, onBack }) {
   }, [pickedLot, pickedId, toast]);
 
   useEffect(() => { load(); }, [load]);
+
+  const loadWorkflow = useCallback(async () => {
+    if (!pickedLot || !pickedId) return;
+    try {
+      const [me, hist] = await Promise.all([api.me(), api.confirmationHistory(pickedLot, pickedId)]);
+      setMyRole(me.role);
+      setWfHistory(hist.history || []);
+    } catch { /* non-fatal — routing panel just won't offer actions */ }
+  }, [pickedLot, pickedId]);
+
+  useEffect(() => { loadWorkflow(); }, [loadWorkflow]);
+
+  async function routeWorkflow(action) {
+    setRouting(true);
+    try {
+      const fn = { finance: api.routeToFinance, admin: api.routeToAdmin, customer: api.routeToCustomer }[action];
+      await fn(pickedLot, pickedId, wfComment);
+      toast(`Routed to ${action === 'customer' ? 'Customer for clarification' : action[0].toUpperCase() + action.slice(1)}.`, 'success');
+      setWfComment('');
+      await Promise.all([load(), loadWorkflow()]);
+    } catch (e) { toast(e.message, 'err'); }
+    finally { setRouting(false); }
+  }
 
   function setRootCause(idx, val) {
     const next = { ...rootCauses, [idx]: val };
@@ -341,8 +377,69 @@ export default function Reconciliation({ lotId, customerId, onBack }) {
             placeholder="Document reconciliation findings, agreed actions, expected resolution date…" />
         </div>
       </div>
+
+      {/* Finance clarification workflow — route this note between Admin,
+          Finance and the customer. Save the note above first, then route
+          it; the routing action itself doesn't require the note to have
+          been changed (an Admin might just be re-routing with a fresh
+          comment). Buttons shown depend on the signed-in user's role,
+          matching what the backend's route-to-* endpoints allow. */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <div className="card-hd">
+          <div className="card-hd-l">
+            <div className="card-ico" style={{ background: 'var(--amber-bg)' }}><Icon name="sendMail" size={17} /></div>
+            <div>
+              <div className="card-title">Finance Workflow</div>
+              <div className="card-sub">Route between Admin, Finance and the customer · <WorkflowStatusBadge status={data.workflow_status} /></div>
+            </div>
+          </div>
+        </div>
+        <div className="card-body">
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap' }}>
+            <textarea className="inp" placeholder="Optional comment for this routing action…" rows={2}
+              style={{ flex: 1, minWidth: 220, resize: 'vertical', fontSize: 12 }}
+              value={wfComment} onChange={e => setWfComment(e.target.value)} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {myRole === 'ADMIN' && <button className="btn btn-secondary btn-sm" disabled={routing} onClick={() => routeWorkflow('finance')}><Icon name="sendMail" size={13} /> Route to Finance</button>}
+              {myRole === 'FINANCE' && <button className="btn btn-secondary btn-sm" disabled={routing} onClick={() => routeWorkflow('admin')}>Route back to Admin</button>}
+              {myRole === 'FINANCE' && <button className="btn btn-primary btn-sm" disabled={routing} onClick={() => routeWorkflow('customer')}>Route to Customer</button>}
+              {myRole && myRole !== 'ADMIN' && myRole !== 'FINANCE' && (
+                <span style={{ fontSize: 11, color: 'var(--muted)' }}>Your role ({myRole}) doesn't have a routing action here.</span>
+              )}
+            </div>
+          </div>
+
+          {!wfHistory ? null : wfHistory.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 16, fontSize: 12 }}>No workflow routing history yet for this customer in this Lot.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {wfHistory.map((h, i) => (
+                <div key={i} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 10, fontSize: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <strong>{h.action}</strong>
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>{fmtDate(h.timestamp)} · {h.actor}</span>
+                  </div>
+                  {h.details?.comment && <div style={{ marginTop: 4, color: 'var(--muted)' }}>{h.details.comment}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
+}
+
+// ── Finance-workflow status badge — mirrors LotOverview's WorkflowBadge so
+// the same statuses read identically in both places.
+function WorkflowStatusBadge({ status }) {
+  const cfg = {
+    ADMIN_REVIEW: { label: 'Admin Review', cls: 'b-grey' },
+    FINANCE_REVIEW: { label: 'Finance Review', cls: 'b-pend' },
+    CUSTOMER_CLARIFICATION: { label: 'Awaiting Customer', cls: 'b-diff' },
+    COMPLETED: { label: 'Completed', cls: 'b-conf' },
+  }[status] || { label: status || '—', cls: 'b-grey' };
+  return <span className={`badge ${cfg.cls}`} style={{ fontSize: 9 }}>{cfg.label}</span>;
 }
 
 // ── Lot -> Customer picker — Reconciliation Studio's own entry point ────
@@ -452,7 +549,7 @@ function CustomerPickerForLot({ lotId, onPick, onBack }) {
       ) : (
         <div className="tbl-wrap">
           <table className="tbl">
-            <thead><tr><th>Customer</th><th>Opening Balance</th><th>Cust. Balance</th><th>Difference</th><th>Status</th><th>SOA</th><th></th></tr></thead>
+            <thead><tr><th>Customer</th><th>TVS Balance</th><th>Cust. Balance</th><th>Difference</th><th>Status</th><th>SOA</th><th></th></tr></thead>
             <tbody>
               {list.map(r => {
                 const c = r.confirmation;

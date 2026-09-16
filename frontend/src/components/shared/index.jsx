@@ -129,6 +129,16 @@ export function fmtDate(s) {
   } catch { return s; }
 }
 
+// A Lot only stores a MONTH (period_year/period_month — "March 2026"),
+// never a day. Sept 2026: "Book Date" column / "Book as of DD-MMM-YYYY" —
+// balance confirmations read "as on" the LAST calendar day of that period
+// (mirrors backend utils/period.js's lastDayOfPeriod — keep both in sync).
+export function lotBookDate(year, month) {
+  if (!year || !month) return '—';
+  const d = new Date(Date.UTC(year, month, 0));
+  return fmtDate(d);
+}
+
 export function statusBadge(status) {
   const map = {
     MATCHED: 'b-conf', DIFFERENCE: 'b-diff', PENDING: 'b-pend', IN_PROGRESS: 'b-recon',

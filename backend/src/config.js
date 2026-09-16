@@ -26,6 +26,17 @@ module.exports = {
   CYCLE_ID:          process.env.CYCLE_ID || 'TSL-MAR-2026',
   COMPANY:           process.env.COMPANY || 'TSL',
   AS_OF_DATE:        process.env.AS_OF_DATE || '31-Mar-2026',
+  // Sept 2026: "download the cover letter PDF... Change it to TVS Srichakra
+  // Ltd". COMPANY above stays the short code used throughout the app
+  // (badges, cycle IDs, etc.) — this is the full legal name used on the
+  // covering-letter PDF's letterhead and in the redesigned email templates.
+  // NOTE: no postal address is printed on the letter — the admin flagged
+  // the placeholder address as wrong, so it was removed entirely rather
+  // than risk printing another incorrect one. Set COMPANY_CONTACT (e.g. a
+  // phone/email line) if you want one shown under the company name; it's
+  // blank by default and simply omitted when unset.
+  COMPANY_FULL_NAME: process.env.COMPANY_FULL_NAME || 'TVS Srichakra Limited',
+  COMPANY_CONTACT:   process.env.COMPANY_CONTACT || '',
 
   SMTP: {
     host:   process.env.SMTP_HOST,

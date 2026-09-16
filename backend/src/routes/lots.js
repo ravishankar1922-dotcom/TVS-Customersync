@@ -373,7 +373,7 @@ router.post('/:lotId/tokens/generate', requireAdminOnly, async (req, res) => {
     if (!customer || !customer.email) { noEmailAddress.push(p.customer_id); continue; }
 
     const subject = `${cfg.COMPANY} ${lot.business_type === 'VENDOR' ? 'Vendor' : 'Customer'} Balance Confirmation – ${lot.period_label}`;
-    const html = confirmationRequestEmail({ customer_name: customer.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS);
+    const html = confirmationRequestEmail({ customer_name: customer.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
     let status = 'READY', errorMsg = null;
     if (isConfigured()) {
       try { await sendMail({ to: customer.email?.match(/<(.+)>/)?.[1] || customer.email, subject, html }); status = 'SENT'; }
@@ -442,7 +442,7 @@ router.post('/:lotId/emails/remind-pending', requireAdminOnly, async (req, res) 
       if (!person || !person.email) { results.push({ customer_id: p.customer_id, status: 'NO_EMAIL_ADDRESS' }); continue; }
 
       const subject = `Reminder: ${cfg.COMPANY} ${lot.business_type === 'VENDOR' ? 'Vendor' : 'Customer'} Balance Confirmation – ${lot.period_label}`;
-      const html = reminderEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS);
+      const html = reminderEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
       let status = 'READY', errorMsg = null;
       if (isConfigured()) {
         try { await sendMail({ to: person.email?.match(/<(.+)>/)?.[1] || person.email, subject, html }); status = 'SENT'; }
@@ -488,7 +488,7 @@ router.get('/:lotId/emails/outlook-script', requireAdminOnly, async (req, res) =
     if (!person || !person.email) continue;
     const tokenRec = await ensureLotToken(lot, p.customer_id);
     const subject = `${cfg.COMPANY} ${lot.business_type === 'VENDOR' ? 'Vendor' : 'Customer'} Balance Confirmation – ${lot.period_label}`;
-    const html = confirmationRequestEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS);
+    const html = confirmationRequestEmail({ customer_name: person.name }, p.opening_balance, tokenRec.portal_url, lot.period_label, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
     const to = person.email?.match(/<(.+)>/)?.[1] || person.email;
     mails.push({ to, subjectB64: Buffer.from(subject, 'utf8').toString('base64'), bodyB64: Buffer.from(html, 'utf8').toString('base64') });
 
@@ -651,7 +651,7 @@ router.get('/:lotId/confirmations/export.xlsx', requireAdminOrFinance, async (re
     { header: 'Business Type', key: 'business_type', width: 14 },
     { header: `${idLabel} ID`, key: 'customer_id', width: 14 },
     { header: `${idLabel} Name`, key: 'customer_name', width: 28 },
-    { header: 'Opening Balance', key: 'opening_balance', width: 16 },
+    { header: 'TVS Balance', key: 'opening_balance', width: 16 },
     { header: 'SAP Balance', key: 'sap_balance', width: 15 },
     { header: 'Customer Balance', key: 'cust_balance', width: 16 },
     { header: 'Difference', key: 'difference', width: 14 },
@@ -699,6 +699,29 @@ router.get('/:lotId/confirmations/:customerId', requireAdminOrFinance, async (re
   const conf = await Confirmation.findOne({ lot_id: lot._id, customer_id: req.params.customerId }).lean();
   if (!conf) return res.status(404).json({ error: 'No confirmation found for this customer in this Lot.' });
   res.json({ confirmation: conf });
+});
+
+// GET /api/lots/:lotId/confirmations/:customerId/covering-letter.pdf — admin
+// download of the same covering letter the customer can pull from the
+// portal (see routes/tokens.js's public token-gated twin) — lets Admin/
+// Finance grab it without waiting on the customer, e.g. for their own
+// audit file.
+router.get('/:lotId/confirmations/:customerId/covering-letter.pdf', requireAdminOrFinance, async (req, res) => {
+  const lot = await Lot.findById(req.params.lotId).lean();
+  if (!lot) return res.status(404).json({ error: 'Lot not found' });
+  const confirmation = await Confirmation.findOne({ lot_id: lot._id, customer_id: req.params.customerId }).lean();
+  if (!confirmation) return res.status(404).json({ error: 'No confirmation found for this customer in this Lot.' });
+  const customer = await Customer.findOne({ customer_id: req.params.customerId }).lean();
+  if (!customer) return res.status(404).json({ error: 'Customer not found' });
+
+  const { buildCoveringLetterPdf } = require('../utils/coveringLetter');
+  const pdfBuffer = await buildCoveringLetterPdf({ lot, customer, confirmation });
+
+  await logAudit({ req, actor: req.admin?.email || 'system', actor_role: req.admin?.role === 'FINANCE' ? 'finance' : 'admin', action: 'COVERING_LETTER_DOWNLOADED', entity_type: 'Confirmation', entity_id: req.params.customerId, details: { lot_id: lot._id, lot_number: lot.lot_number } });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="Covering_Letter_${customer.customer_id}_${lot.lot_number}.pdf"`);
+  res.send(pdfBuffer);
 });
 
 // GET /api/lots/:lotId/confirmations/:customerId/versions — admin, full
@@ -809,7 +832,7 @@ router.post('/:lotId/confirmations/:customerId/route-to-customer', requireFinanc
   if (person?.email && tokenRec && isConfigured()) {
     try {
       const subject = `Action needed: clarification on your ${lot.period_label} balance confirmation`;
-      const html = financeClarificationEmail({ customer_name: person.name }, conf.sap_balance, conf.cust_balance, tokenRec.portal_url, lot.period_label, comment);
+      const html = financeClarificationEmail({ customer_name: person.name }, conf.sap_balance, conf.cust_balance, tokenRec.portal_url, lot.period_label, comment, tokenRec.expires_at);
       await sendMail({ to: person.email?.match(/<(.+)>/)?.[1] || person.email, subject, html });
       emailStatus = 'SENT';
       await EmailLog.create({ customer_id: req.params.customerId, customer_name: person.name, email: person.email, lot_id: lot._id, cycle_id: lot.lot_number, token_id: tokenRec.token_id, portal_url: tokenRec.portal_url, subject, kind: 'CONFIRMATION_REQUEST', status: 'SENT', sent_at: new Date() });

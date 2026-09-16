@@ -44,7 +44,7 @@ async function ensureTokenAndBalance(customer) {
 async function sendConfirmationEmail(customer) {
   const { tokenRec, sapBalance } = await ensureTokenAndBalance(customer);
   const subject = `${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`;
-  const html    = confirmationRequestEmail(customer, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
+  const html    = confirmationRequestEmail(customer, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
 
   let status = 'READY', errorMsg = null;
   if (isConfigured()) {
@@ -75,7 +75,7 @@ async function sendConfirmationEmail(customer) {
 async function sendReminderEmail(customer) {
   const { tokenRec, sapBalance } = await ensureTokenAndBalance(customer);
   const subject = `Reminder: ${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`;
-  const html    = reminderEmail(customer, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
+  const html    = reminderEmail(customer, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
 
   let status = 'READY', errorMsg = null;
   if (isConfigured()) {
@@ -196,7 +196,7 @@ router.get('/outlook-script', requireAdmin, async (req, res) => {
   for (const c of customers) {
     const { tokenRec, sapBalance } = await ensureTokenAndBalance(c);
     const subject = `${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`;
-    const html    = confirmationRequestEmail(c, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
+    const html    = confirmationRequestEmail(c, sapBalance, tokenRec.portal_url, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
     const to      = c.email?.match(/<(.+)>/)?.[1] || c.email;
 
     mails.push({ to, subjectB64: Buffer.from(subject, 'utf8').toString('base64'), bodyB64: Buffer.from(html, 'utf8').toString('base64') });
@@ -233,7 +233,7 @@ router.get('/preview/:customerId', requireAdmin, async (req, res) => {
   const { tokenRec, sapBalance } = await ensureTokenAndBalance(customer);
   const portalUrl = tokenRec.portal_url;
 
-  const html = confirmationRequestEmail(customer, sapBalance, portalUrl, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS);
+  const html = confirmationRequestEmail(customer, sapBalance, portalUrl, cfg.AS_OF_DATE, cfg.TOKEN_EXPIRY_HOURS, tokenRec.expires_at);
   res.json({ subject: `${cfg.COMPANY} Customer Balance Confirmation – ${cfg.AS_OF_DATE}`, body: html, portal_url: portalUrl });
 });
 

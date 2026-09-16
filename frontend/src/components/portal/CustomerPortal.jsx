@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
-import { fmtINR, Spinner, Icon } from '../shared';
+import { fmtINR, fmtDate, Spinner, Icon } from '../shared';
 
 export default function CustomerPortal() {
   const [token]      = useState(() => new URLSearchParams(window.location.search).get('t') || '');
@@ -11,6 +11,7 @@ export default function CustomerPortal() {
   const [reuploadSent, setReuploadSent]     = useState(false);
   const [reuploadBusy, setReuploadBusy]     = useState(false);
   const [customerName, setCustomerName] = useState('');
+  const [loginAsOfDate, setLoginAsOfDate] = useState(''); // "Book as of DD-MMM-YYYY" shown on the PAN-gate login screen
   const [pan, setPan]         = useState('');
   const [panErr, setPanErr]   = useState('');
   const [panAttempts, setPanAttempts] = useState(0);
@@ -29,7 +30,7 @@ export default function CustomerPortal() {
   useEffect(() => {
     if (!token) { setState('INVALID'); setReason('NO_TOKEN'); return; }
     api.validateToken(token)
-      .then(d => { setCustomerName(d.customer_name || ''); setState('PAN_GATE'); })
+      .then(d => { setCustomerName(d.customer_name || ''); setLoginAsOfDate(d.lot?.as_of_date || d.cycle_id || ''); setState('PAN_GATE'); })
       .catch(e => {
         const r = e.data?.reason || e.message || '';
         if (r.includes('EXPIRED'))      { setState('EXPIRED');  setReason('EXPIRED'); }
@@ -166,8 +167,17 @@ export default function CustomerPortal() {
         <div style={{ textAlign: 'center', marginBottom: 18 }}>
           <div style={{ marginBottom: 8, color: 'var(--red)' }}><Icon name="lock" size={30} /></div>
           <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, fontWeight: 700, marginBottom: 4 }}>Verify Your Identity</div>
+          {/* Customer name shown prominently right on login, for identification
+              before the PAN is even entered — so the customer can confirm at a
+              glance this link is really addressed to them. */}
+          {customerName && (
+            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>{customerName}</div>
+          )}
+          {loginAsOfDate && (
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Book as of {fmtDate(loginAsOfDate)}</div>
+          )}
           <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
-            {customerName ? `Hello ${customerName}, please` : 'Please'} enter your registered PAN to open this balance confirmation link.
+            Please enter your registered PAN to open this balance confirmation link.
             This is a security check in addition to the emailed link.
           </div>
         </div>
@@ -199,8 +209,16 @@ export default function CustomerPortal() {
         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 16, maxWidth: 420, margin: '0 auto 16px' }}>
           {result?.message}<br/>The AR team will review and respond within 3 working days.
         </div>
+        {/* Sept 2026: "Once the balance confirmed they should able to
+            download the cover letter PDF" — available immediately after a
+            successful submit, using the same token+PAN this session already
+            verified with (no separate auth step). */}
+        {tokenData?.lot && (
+          <a className="btn btn-primary" href={api.coveringLetterUrl(token, pan)} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+            <Icon name="download" size={14} /> Download Covering Letter (PDF)
+          </a>
+        )}
         <div className="ps-ref">REF: BC-{tokenData?.customer_id}-{Date.now().toString().slice(-6)}</div>
-        <div style={{ marginTop: 14, fontSize: 10, color: 'var(--muted)' }}>[TEST DATA ONLY — Not a real submission]</div>
       </div>
     </div>
   );
